@@ -1,0 +1,232 @@
+"use client";
+
+import { useState, useRef, useCallback } from "react";
+import { Download, Grid3X3 } from "lucide-react";
+import JSZip from "jszip";
+import { FileDropzone } from "@/components/shared/FileDropzone";
+import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
+import { splitImage } from "@/lib/image-utils";
+
+interface ImageSplitToolProps {
+  className?: string;
+}
+
+export function ImageSplitTool({ className = "" }: ImageSplitToolProps) {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [rows, setRows] = useState(2);
+  const [cols, setCols] = useState(2);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [fileName, setFileName] = useState("image");
+  const canvasRef = useRef<ImageCanvasHandle>(null);
+
+  // 画像読み込み
+  const handleFileSelect = useCallback((file: File) => {
+    // ファイル名を保存 (拡張子を除く)
+    const name = file.name.replace(/\.[^/.]+$/, "");
+    setFileName(name);
+
+    const img = new Image();
+    img.onload = () => {
+      setImage(img);
+      setTimeout(() => {
+        canvasRef.current?.drawImage(img);
+      }, 0);
+    };
+    img.src = URL.createObjectURL(file);
+  }, []);
+
+  // ZIP でダウンロード
+  const handleDownload = useCallback(async () => {
+    if (!canvasRef.current || !image) return;
+
+    setIsProcessing(true);
+
+    try {
+      const imageData = canvasRef.current.getImageData();
+      if (!imageData) return;
+
+      const splitParts = splitImage(imageData, rows, cols);
+      const zip = new JSZip();
+
+      // 各パーツを PNG としてZIPに追加
+      for (let i = 0; i < splitParts.length; i++) {
+        const row = Math.floor(i / cols) + 1;
+        const col = (i % cols) + 1;
+        const partData = splitParts[i];
+
+        // 一時的な Canvas で Blob に変換
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = partData.width;
+        tempCanvas.height = partData.height;
+        const ctx = tempCanvas.getContext("2d");
+        if (!ctx) continue;
+
+        ctx.putImageData(partData, 0, 0);
+
+        const blob = await new Promise<Blob | null>((resolve) => {
+          tempCanvas.toBlob((b) => resolve(b), "image/png");
+        });
+
+        if (blob) {
+          zip.file(`${fileName}_${row}_${col}.png`, blob);
+        }
+      }
+
+      // ZIP をダウンロード
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${fileName}_split_${rows}x${cols}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [image, rows, cols, fileName]);
+
+  return (
+    <div className={`flex flex-col lg:flex-row gap-6 ${className}`}>
+      {/* Canvas Area */}
+      <div className="flex-1 flex flex-col">
+        {!image ? (
+          <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
+        ) : (
+          <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
+            {/* Grid Overlay */}
+            <div className="relative">
+              <ImageCanvas
+                ref={canvasRef}
+                showCheckerboard={false}
+                className="max-h-[500px] shadow-lg"
+              />
+              {/* Grid Lines Overlay */}
+              <svg
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                style={{ overflow: "visible" }}
+              >
+                {/* Vertical Lines */}
+                {Array.from({ length: cols - 1 }, (_, i) => (
+                  <line
+                    key={`v-${i}`}
+                    x1={`${((i + 1) / cols) * 100}%`}
+                    y1="0"
+                    x2={`${((i + 1) / cols) * 100}%`}
+                    y2="100%"
+                    stroke="#06C755"
+                    strokeWidth="2"
+                    strokeDasharray="8,4"
+                  />
+                ))}
+                {/* Horizontal Lines */}
+                {Array.from({ length: rows - 1 }, (_, i) => (
+                  <line
+                    key={`h-${i}`}
+                    x1="0"
+                    y1={`${((i + 1) / rows) * 100}%`}
+                    x2="100%"
+                    y2={`${((i + 1) / rows) * 100}%`}
+                    stroke="#06C755"
+                    strokeWidth="2"
+                    strokeDasharray="8,4"
+                  />
+                ))}
+              </svg>
+            </div>
+            {isProcessing && (
+              <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Controls Panel */}
+      {image && (
+        <div className="w-full lg:w-72 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+          <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
+            <Grid3X3 size={20} />
+            グリッド設定
+          </h3>
+
+          {/* Rows */}
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+              行数
+              <span className="text-primary font-bold text-lg">{rows}</span>
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="5"
+              value={rows}
+              onChange={(e) => setRows(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+            />
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>4</span>
+              <span>5</span>
+            </div>
+          </div>
+
+          {/* Cols */}
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+              列数
+              <span className="text-primary font-bold text-lg">{cols}</span>
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="5"
+              value={cols}
+              onChange={(e) => setCols(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+            />
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>4</span>
+              <span>5</span>
+            </div>
+          </div>
+
+          {/* Preview Info */}
+          <div className="bg-primary-light/50 rounded-xl p-4 text-center">
+            <p className="text-sm font-bold text-primary">
+              {rows * cols} 枚に分割されます
+            </p>
+            <p className="text-xs text-text-sub mt-1">
+              ファイル名: {fileName}_行_列.png
+            </p>
+          </div>
+
+          {/* Download Button */}
+          <button
+            onClick={handleDownload}
+            disabled={isProcessing}
+            className="w-full btn-primary flex items-center justify-center gap-2"
+          >
+            <Download size={20} />
+            ZIP でダウンロード
+          </button>
+
+          {/* Clear Button */}
+          <button
+            onClick={() => setImage(null)}
+            className="w-full btn-secondary"
+          >
+            別の画像を選ぶ
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
