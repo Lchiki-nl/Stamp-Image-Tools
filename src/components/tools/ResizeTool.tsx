@@ -73,7 +73,11 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
       if (image.complete && image.naturalWidth > 0) {
           initFromImage(image);
       } else {
-          image.onload = () => initFromImage(image);
+          const handler = () => initFromImage(image);
+          image.addEventListener('load', handler, { once: true });
+          return () => {
+              image.removeEventListener('load', handler);
+          };
       }
 
       function initFromImage(img: HTMLImageElement) {
