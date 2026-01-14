@@ -1,4 +1,4 @@
-# 🎨 EzStampify
+# EzStampify
 
 > スタンプ作成に最適な画像ツール
 
@@ -7,14 +7,14 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## ✨ 特徴
+## 特徴
 
-- **🔒 完全クライアントサイド処理** - 画像はサーバーに送信されません
-- **⚡ リアルタイム処理** - 待ち時間ゼロでサクサク動作
-- **📱 レスポンシブ対応** - PC・スマホ両対応
-- **🎯 直感的な UI** - EzStampify で、誰でも簡単に使える
+- **完全クライアントサイド処理** - 画像はサーバーに送信されません
+- **リアルタイム処理** - 待ち時間ゼロでサクサク動作
+- **レスポンシブ対応** - PC・スマホ両対応
+- **直感的な UI** - EzStampify で、誰でも簡単に使える
 
-## 🛠️ 機能
+## 機能
 
 ### 1. 背景削除 (Background Removal)
 
@@ -34,7 +34,7 @@
 - 上下左右のピクセル単位調整
 - リアルタイムプレビュー
 
-## 🚀 Getting Started
+## Getting Started
 
 ```bash
 # 依存関係のインストール
@@ -46,7 +46,7 @@ npm run dev
 # http://localhost:3000 を開く
 ```
 
-## 📦 技術スタック
+## 技術スタック
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
@@ -56,7 +56,7 @@ npm run dev
 - **Image Processing**: Canvas API
 - **Persistence**: IndexedDB
 
-## 📁 プロジェクト構成
+## プロジェクト構成
 
 ```
 src/
@@ -80,7 +80,7 @@ src/
     └── storage.ts         # データ永続化ロジック
 ```
 
-## 🌐 デプロイ
+## デプロイ
 
 Vercel や Cloudflare Pages へのデプロイを推奨します。
 
@@ -89,10 +89,10 @@ Vercel や Cloudflare Pages へのデプロイを推奨します。
 npm run build
 ```
 
-## 📄 ライセンス
+## ライセンス
 
 MIT License - 詳細は [LICENSE](LICENSE) を参照
 
-## 🤝 コントリビューション
+## コントリビューション
 
 Issue や Pull Request を歓迎します！
