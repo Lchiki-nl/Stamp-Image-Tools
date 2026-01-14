@@ -56,14 +56,21 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   // Refactor: originalImageDataをStateに持つ必要がある (CropTool同様)
   const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
 
-  // 画像データ初期化 (ソース画像から直接生成 & 状態リセット)
-  useEffect(() => {
-      // 画像が変わったらまずはリセット
-      setOriginalDimensions(null);
-      setOriginalImageData(null);
-      setTargetDimensions({ width: 0, height: 0 });
-      setSelectedPresetIndex(null);
+  // Prop/State変更検知用の追跡ステート
+  const [prevImage, setPrevImage] = useState<HTMLImageElement | null>(null);
 
+  // 画像変更時に状態をリセット (Render Phaseでの更新 - 推奨パターン)
+  if (image !== prevImage) {
+    setPrevImage(image);
+    setOriginalDimensions(null);
+    setOriginalImageData(null);
+    setTargetDimensions({ width: 0, height: 0 });
+    setSelectedPresetIndex(null);
+    // 内部画像のリセットはここで行わない（無限ループ防止のため、必要な場合のみ管理）
+  }
+
+  // 画像データ初期化 (ソース画像から直接生成)
+  useEffect(() => {
       if (!image) return;
 
       const init = () => initFromImage(image);
@@ -88,8 +95,8 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
               setOriginalImageData(data);
               setOriginalDimensions({ width: data.width, height: data.height });
               
-              setTargetDimensions(prev => {
-                  // リセット直後なので常に設定する
+              setTargetDimensions(() => {
+                  // リセット直後なので常に設定する (prevは使用しない)
                   return { width: data.width, height: data.height };
               });
           }
