@@ -90,27 +90,28 @@ export default function HowToUsePage() {
   return (
     <div className="min-h-screen bg-background-soft text-text-main pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md px-6 py-4 shadow-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20 transform -rotate-6">
-                <Smile size={24} strokeWidth={2.5} />
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md px-3 sm:px-6 py-3 sm:py-4 shadow-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-shrink">
+            <Link href="/" className="flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity">
+              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20 transform -rotate-6 flex-shrink-0">
+                <Smile size={20} className="sm:hidden" strokeWidth={2.5} />
+                <Smile size={24} className="hidden sm:block" strokeWidth={2.5} />
               </div>
-              <h1 className="text-xl font-extrabold tracking-tight text-text-main">EzStampify</h1>
+              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-text-main truncate">EzStampify</h1>
             </Link>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
              <Link
               href="/"
               className="flex items-center gap-1 text-sm font-bold text-text-sub hover:text-primary transition-colors"
             >
               <Home size={16} />
-              トップへ戻る
+              <span className="hidden sm:inline">トップへ戻る</span>
             </Link>
             <Link
               href="/app"
-              className="flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-bold text-white transition hover:bg-primary-dark shadow-lg shadow-primary/30 hover:shadow-xl"
+              className="flex h-9 sm:h-10 items-center justify-center rounded-full bg-primary px-3 sm:px-5 text-xs sm:text-sm font-bold text-white transition hover:bg-primary-dark shadow-lg shadow-primary/30 hover:shadow-xl whitespace-nowrap"
             >
               アプリを開く
             </Link>
