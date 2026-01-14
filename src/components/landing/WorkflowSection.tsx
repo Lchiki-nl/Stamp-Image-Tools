@@ -40,6 +40,17 @@ export function WorkflowSection() {
             </motion.div>
           ))}
         </div>
+        </div>
+        
+        <div className="mt-16 text-center">
+          <a 
+            href="/how-to-use" 
+            className="inline-flex items-center gap-2 text-primary font-bold hover:underline hover:text-primary-dark transition-colors"
+          >
+            <span>詳しい使い方ガイドを見る</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
       </div>
     </section>
   );

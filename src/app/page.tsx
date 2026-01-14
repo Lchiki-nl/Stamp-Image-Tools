@@ -23,7 +23,7 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-8">
             <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="#features">機能</a>
             <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="#advantages">安心の理由</a>
-            <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="#workflow">使い方</a>
+            <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="/how-to-use">使い方</a>
           </nav>
           <div className="flex items-center gap-3">
             <Link
@@ -60,6 +60,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-8 text-sm font-bold text-text-sub">
               <a className="hover:text-primary transition-colors" href="https://note.com/lchiki_nl/m/me2fbf42ae315" target="_blank" rel="noopener noreferrer">作者のnote</a>
               <a className="hover:text-primary transition-colors" href="https://store.line.me/emojishop/author/10517625/ja" target="_blank" rel="noopener noreferrer">作者のLINE絵文字</a>
+              <Link className="hover:text-primary transition-colors" href="/how-to-use">使い方ガイド</Link>
               <Link className="hover:text-primary transition-colors" href="/privacy">プライバシーポリシー</Link>
               <Link className="hover:text-primary transition-colors" href="/terms">利用規約</Link>
             </div>
