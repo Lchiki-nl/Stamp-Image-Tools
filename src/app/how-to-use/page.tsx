@@ -167,15 +167,20 @@ export default function HowToUsePage() {
                 {/* Mockup / Image Placeholder */}
                 <div className="flex-1 w-full order-1 md:order-2">
                    <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-4/3 relative group">
-                      {/* Placeholder for now - User can replace later */}
-                      <div className="absolute inset-0 bg-gray-50 flex flex-col items-center justify-center text-gray-300 gap-4">
-                         <step.icon size={64} className="opacity-20" />
-                         <span className="text-sm font-bold opacity-40">Screenshot: {step.title}</span>
-                      </div>
-                      
-                      {/* Note to user in comment: Place images in public/images/guide/{step.id}.png */}
-                      {/* <img src={`/images/guide/${step.id}.png`} alt={step.title} className="w-full h-full object-cover" /> */}
-                   
+                      {/* Show real image for 'upload' step only for now */}
+                      {step.id === 'upload' ? (
+                        <img 
+                          src="/images/guide/upload.png" 
+                          alt={step.title} 
+                          className="w-full h-full object-cover" 
+                        />
+                      ) : (
+                        /* Placeholder for others */
+                        <div className="absolute inset-0 bg-gray-50 flex flex-col items-center justify-center text-gray-300 gap-4">
+                           <step.icon size={64} className="opacity-20" />
+                           <span className="text-sm font-bold opacity-40">Screenshot: {step.title}</span>
+                        </div>
+                      )}
                    </div>
                 </div>
               </div>
