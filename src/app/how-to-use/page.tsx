@@ -166,7 +166,7 @@ export default function HowToUsePage() {
 
                 {/* Mockup / Image Placeholder */}
                 <div className="flex-1 w-full order-1 md:order-2">
-                   <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-4/3 relative group">
+                   <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-video relative group">
                       {/* Show real images for steps that have them */}
                       {['upload', 'background', 'crop', 'split', 'save'].includes(step.id) ? (
                         <img 
