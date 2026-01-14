@@ -40,12 +40,12 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   }, [isEmbedded]);
 
   // ImageCanvas 描画完了後の処理
-  const handleImageLoaded = () => {
+  const handleImageLoaded = useCallback(() => {
       if (canvasRef.current) {
           const imageData = canvasRef.current.getImageData();
           setOriginalImageData(imageData);
       }
-  };
+  }, [canvasRef]);
 
   // 画像がロードされたら右上のピクセルをデフォルト色として取得
   useEffect(() => {
