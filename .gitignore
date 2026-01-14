@@ -44,3 +44,21 @@ next-env.d.ts
 /.docs/
 .GEMINI.md
 task.md
+
+# Editors
+.vscode
+.idea
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# System
+.DS_Store
+Thumbs.db
+
+# Other
+.gemini

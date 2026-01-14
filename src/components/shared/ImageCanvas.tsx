@@ -104,15 +104,30 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       }
     }));
 
-    const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleInteraction = useCallback((clientX: number, clientY: number) => {
       if (!onCanvasClick || !canvasRef.current) return;
 
       const rect = canvasRef.current.getBoundingClientRect();
       const scaleX = canvasRef.current.width / rect.width;
       const scaleY = canvasRef.current.height / rect.height;
 
-      const x = Math.floor((e.clientX - rect.left) * scaleX);
-      const y = Math.floor((e.clientY - rect.top) * scaleY);
+      // 範囲外クリックの防止
+      if (
+        clientX < rect.left ||
+        clientX > rect.right ||
+        clientY < rect.top ||
+        clientY > rect.bottom
+      ) {
+        return;
+      }
+
+      const x = Math.floor((clientX - rect.left) * scaleX);
+      const y = Math.floor((clientY - rect.top) * scaleY);
+
+      // 座標がCanvas範囲内か念の為チェック
+      if (x < 0 || x >= canvasRef.current.width || y < 0 || y >= canvasRef.current.height) {
+        return;
+      }
 
       const ctx = canvasRef.current.getContext("2d");
       if (!ctx) return;
@@ -124,6 +139,17 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
         b: pixel[2],
         a: pixel[3],
       });
+    }, [onCanvasClick]);
+
+    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      handleInteraction(e.clientX, e.clientY);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+      // スクロール防止（必要に応じて）
+      // e.preventDefault(); 
+      const touch = e.touches[0];
+      handleInteraction(touch.clientX, touch.clientY);
     };
 
     return (
@@ -133,8 +159,9 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
         )}
         <canvas
           ref={canvasRef}
-          onClick={handleClick}
-          className={`relative z-10 block max-w-full rounded-lg cursor-crosshair ${hasImage ? "" : "hidden"}`}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          className={`relative z-10 block max-w-full rounded-lg cursor-crosshair touch-none ${hasImage ? "" : "hidden"}`}
           style={{ maxHeight: "500px" }}
         />
         {!hasImage && (
