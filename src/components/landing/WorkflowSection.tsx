@@ -40,7 +40,6 @@ export function WorkflowSection() {
             </motion.div>
           ))}
         </div>
-        </div>
         
         <div className="mt-16 text-center">
           <a 

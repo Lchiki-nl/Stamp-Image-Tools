@@ -130,7 +130,7 @@ export default function HowToUsePage() {
         </div>
 
         <div className="space-y-24">
-          {steps.map((step, index) => (
+          {steps.map((step) => (
             <motion.div 
               key={step.id} 
               className="scroll-mt-32"
@@ -166,7 +166,7 @@ export default function HowToUsePage() {
 
                 {/* Mockup / Image Placeholder */}
                 <div className="flex-1 w-full order-1 md:order-2">
-                   <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-[4/3] relative group">
+                   <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-4/3 relative group">
                       {/* Placeholder for now - User can replace later */}
                       <div className="absolute inset-0 bg-gray-50 flex flex-col items-center justify-center text-gray-300 gap-4">
                          <step.icon size={64} className="opacity-20" />
