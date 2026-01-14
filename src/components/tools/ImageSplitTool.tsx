@@ -114,7 +114,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
                 />
                 {/* Grid Lines Overlay */}
                 <svg
-                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  className="absolute inset-0 w-full h-full pointer-events-none z-20"
                   style={{ overflow: "visible" }}
                 >
                   {/* Vertical Lines */}

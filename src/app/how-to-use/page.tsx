@@ -167,10 +167,10 @@ export default function HowToUsePage() {
                 {/* Mockup / Image Placeholder */}
                 <div className="flex-1 w-full order-1 md:order-2">
                    <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-4/3 relative group">
-                      {/* Show real image for 'upload' step only for now */}
-                      {step.id === 'upload' ? (
+                      {/* Show real images for steps that have them */}
+                      {['upload', 'background', 'crop'].includes(step.id) ? (
                         <img 
-                          src="/images/guide/upload.png" 
+                          src={`/images/guide/${step.id}.png`} 
                           alt={step.title} 
                           className="w-full h-full object-cover" 
                         />
