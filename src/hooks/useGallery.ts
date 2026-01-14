@@ -110,6 +110,24 @@ export function useGallery() {
      }
   }, [addImages]);
 
+  // 既存の画像を上書き
+  const overwriteImage = useCallback((id: string, newFile: File) => {
+    setImages(prev => prev.map(img => {
+      if (img.id === id) {
+        // 古いpreviewUrlを解放
+        URL.revokeObjectURL(img.previewUrl);
+        return {
+          ...img,
+          file: newFile,
+          previewUrl: URL.createObjectURL(newFile),
+          name: newFile.name,
+          type: newFile.type,
+        };
+      }
+      return img;
+    }));
+  }, []);
+
   const selectedImages = images.filter(img => img.isSelected);
 
   return {
@@ -120,6 +138,7 @@ export function useGallery() {
     selectAll,
     updateImageStatus,
     addProcessedImage,
+    overwriteImage,
     selectedImages,
     selectedCount: selectedImages.length
   };

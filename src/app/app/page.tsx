@@ -23,6 +23,7 @@ export default function AppPage() {
     selectedCount, 
     selectedImages, 
     addProcessedImage,
+    overwriteImage,
     toggleSelection 
   } = useGallery();
   
@@ -149,7 +150,7 @@ export default function AppPage() {
 
   // Execute Batch Processing
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleBatchExecute = async (config: any) => {
+  const handleBatchExecute = async (config: any, overwrite: boolean) => {
       if (!processingAction) return;
 
       setIsProcessing(true);
@@ -157,7 +158,7 @@ export default function AppPage() {
       setProgress({ current: 0, total: targets.length });
 
       try {
-          console.log("Starting batch execution. Action:", processingAction, "Config:", config);
+          console.log("Starting batch execution. Action:", processingAction, "Config:", config, "Overwrite:", overwrite);
           for (let i = 0; i < targets.length; i++) {
               const img = targets[i];
               const file = img.file;
@@ -187,12 +188,20 @@ export default function AppPage() {
                   console.warn("No result blobs generated");
               }
 
-              resultBlobs.forEach((blob, index) => {
-                  const suffix = resultBlobs.length > 1 ? `_${index + 1}` : '_processed';
-                  const newFile = new File([blob], `${baseName}${suffix}.png`, { type: 'image/png' });
-                  console.log("Adding new file:", newFile.name, newFile.size);
-                  addProcessedImage(newFile, img.id);
-              });
+              // Handle overwrite vs new save
+              if (overwrite && resultBlobs.length === 1) {
+                  // 上書きモード: 単一結果のみ
+                  const newFile = new File([resultBlobs[0]], `${baseName}.png`, { type: 'image/png' });
+                  overwriteImage(img.id, newFile);
+              } else {
+                  // 新規保存モード or 複数結果(Split)
+                  resultBlobs.forEach((blob, index) => {
+                      const suffix = resultBlobs.length > 1 ? `_${index + 1}` : '_processed';
+                      const newFile = new File([blob], `${baseName}${suffix}.png`, { type: 'image/png' });
+                      console.log("Adding new file:", newFile.name, newFile.size);
+                      addProcessedImage(newFile, img.id);
+                  });
+              }
 
               // Apply dummy delay for UI update visibility
               await new Promise(r => setTimeout(r, 50));
@@ -270,16 +279,20 @@ export default function AppPage() {
   };
 
   // 適用 (UnifiedEditorからのコールバック)
-  const handleApply = (blob: Blob | Blob[]) => {
+  const handleApply = (blob: Blob | Blob[], overwrite: boolean) => {
       if (Array.isArray(blob)) {
-          // 複数画像 (Split等)
+          // 複数画像 (Split等) - 常に新規追加
           const currDate = new Date().toISOString().replace(/[:.]/g, "-");
           const newFiles = blob.map((b, i) => 
               new File([b], `processed_${currDate}_${i + 1}.png`, { type: "image/png" })
           );
           addImages(newFiles);
+      } else if (overwrite && editingImageId) {
+          // 上書きモード
+          const newFile = new File([blob], "edited_image.png", { type: "image/png" });
+          overwriteImage(editingImageId, newFile);
       } else {
-          // 単一画像
+          // 新規保存モード
           const newFile = new File([blob], "edited_image.png", { type: "image/png" });
           addImages([newFile]);
       }

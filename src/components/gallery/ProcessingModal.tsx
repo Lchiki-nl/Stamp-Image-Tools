@@ -11,7 +11,7 @@ export interface ProcessingModalProps {
   selectedCount: number;
   isProcessing: boolean;
   progress: { current: number; total: number };
-  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig) => void;
+  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig, overwrite: boolean) => void;
 }
 
 export function ProcessingModal({
@@ -52,6 +52,9 @@ export function ProcessingModal({
     keepAspectRatio: true
   });
 
+  // Overwrite mode state (hidden for split)
+  const [overwriteMode, setOverwriteMode] = useState(false); // false = 新規保存 by default for batch
+
   if (!isOpen || !action) return null;
 
   const handleExecute = () => {
@@ -61,8 +64,9 @@ export function ProcessingModal({
     else if (action === 'split') config = splitConfig;
     else if (action === 'resize') config = resizeConfig;
     else return;
-    
-    onExecute(config);
+    // Split always creates new images
+    const shouldOverwrite = action === 'split' ? false : overwriteMode;
+    onExecute(config, shouldOverwrite);
   };
 
   const getTitle = () => {
@@ -357,7 +361,25 @@ export function ProcessingModal({
 
         {/* Footer */}
         {!isProcessing && (
-          <div className="p-6 bg-gray-50 border-t border-gray-100">
+          <div className="p-6 bg-gray-50 border-t border-gray-100 space-y-4">
+            {/* Overwrite Toggle - Hidden for Split */}
+            {action !== 'split' && (
+              <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+                <span className="text-sm font-bold text-gray-600">保存モード</span>
+                <button
+                  onClick={() => setOverwriteMode(!overwriteMode)}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border
+                    ${overwriteMode 
+                      ? 'bg-amber-50 text-amber-600 border-amber-200'
+                      : 'bg-green-50 text-green-600 border-green-200'
+                    }
+                  `}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${overwriteMode ? 'bg-amber-500' : 'bg-green-500'}`}></span>
+                  {overwriteMode ? '上書き' : '新規保存'}
+                </button>
+              </div>
+            )}
             <button
               onClick={handleExecute}
               className={`w-full py-3.5 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]

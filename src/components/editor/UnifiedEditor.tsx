@@ -21,7 +21,7 @@ interface UnifiedEditorProps {
     onBack?: () => void; // Callback to return to gallery
     embeddedImage?: HTMLImageElement | null;
     embeddedCanvasRef?: React.RefObject<ImageCanvasHandle>;
-    onApply?: (blob: Blob | Blob[]) => void;
+    onApply?: (blob: Blob | Blob[], overwrite: boolean) => void;
     onFileSelect?: (file: File) => void;
     initialTool?: Tool;
     onNext?: () => void;
@@ -40,6 +40,7 @@ export function UnifiedEditor({
     onPrev
 }: UnifiedEditorProps) {
   const [activeTool, setActiveTool] = useState<Tool>(initialTool);
+  const [overwriteMode, setOverwriteMode] = useState(true); // true = 上書き, false = 新規
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
 
@@ -84,7 +85,9 @@ export function UnifiedEditor({
   // 適用して画像更新
   // 適用して画像更新
   const handleApply = useCallback((blob: Blob | Blob[]) => {
-    if (onApply) onApply(blob);
+    // Split always creates new images
+    const shouldOverwrite = Array.isArray(blob) ? false : overwriteMode;
+    if (onApply) onApply(blob, shouldOverwrite);
 
     // 単一画像の場合のみプレビューを更新
     if (blob instanceof Blob) {
@@ -99,7 +102,7 @@ export function UnifiedEditor({
     // 完了通知を表示
     setNotification("画像を更新しました");
     setTimeout(() => setNotification(null), 3000);
-  }, [onApply]);
+  }, [onApply, overwriteMode]);
 
   const ActiveComponent = 
     activeTool === "background" ? BackgroundRemovalTool :
@@ -124,8 +127,21 @@ export function UnifiedEditor({
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-
-            
+            {/* Overwrite Toggle - Hidden for Split tool */}
+            {activeTool !== 'split' && (
+              <button
+                onClick={() => setOverwriteMode(!overwriteMode)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border
+                  ${overwriteMode 
+                    ? 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100'
+                    : 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'
+                  }
+                `}
+              >
+                <span className={`w-3 h-3 rounded-full ${overwriteMode ? 'bg-amber-500' : 'bg-green-500'}`}></span>
+                {overwriteMode ? '上書き保存' : '新規保存'}
+              </button>
+            )}
              {/* Close Button Removed from Header */}
         </div>
       </header>
