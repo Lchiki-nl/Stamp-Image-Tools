@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { GalleryImage } from '@/types/gallery';
-import { saveGalleryState, loadGalleryState, clearGalleryState } from '@/lib/storage';
+import { saveGalleryState, loadGalleryState } from '@/lib/storage';
 
 export const MAX_IMAGES = 30;
 

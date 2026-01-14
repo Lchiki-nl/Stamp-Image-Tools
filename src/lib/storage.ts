@@ -1,10 +1,4 @@
-export interface GalleryImage {
-  id: string;
-  file: File;
-  previewUrl: string;
-  isProcessed: boolean;
-  isSelected?: boolean;
-}
+import { GalleryImage } from "@/types/gallery";
 
 const DB_NAME = "stamp-tools-db";
 const STORE_NAME = "gallery";
@@ -31,15 +25,26 @@ const openDB = (): Promise<IDBDatabase> => {
   });
 };
 
+interface StoredGalleryImage {
+    id: string;
+    file: File;
+    name: string;
+    type: string;
+    width: number;
+    height: number;
+    status:  'pending' | 'processing' | 'done' | 'error';
+    isSelected: boolean;
+    createdAt: number;
+    timestamp: number; // For expiration
+}
+
 export const saveGalleryState = async (images: GalleryImage[]) => {
   try {
     const db = await openDB();
     const transaction = db.transaction(STORE_NAME, "readwrite");
     const store = transaction.objectStore(STORE_NAME);
 
-    // Clear existing (simple strategy: overwrite all)
-    // To be safer, we could clear first, or just put one by one.
-    // Let's clear first to remove deleted images.
+    // Clear existing
     await new Promise<void>((resolve, reject) => {
         const clearReq = store.clear();
         clearReq.onsuccess = () => resolve();
@@ -49,13 +54,16 @@ export const saveGalleryState = async (images: GalleryImage[]) => {
     // Save all
     const promises = images.map((img) => {
       return new Promise<void>((resolve, reject) => {
-        // Store just the file/blob and metadata
-        // createObjectURL's previewUrl cannot be stored, we must regenerate it on load
-        const item = {
+        const item: StoredGalleryImage = {
           id: img.id,
-          file: img.file, // IndexedDB can store File/Blob objects directly
-          isProcessed: img.isProcessed,
+          file: img.file,
+          name: img.name,
+          type: img.type,
+          width: img.width,
+          height: img.height,
+          status: img.status,
           isSelected: img.isSelected,
+          createdAt: img.createdAt,
           timestamp: Date.now()
         };
         const req = store.put(item);
@@ -80,21 +88,24 @@ export const loadGalleryState = async (): Promise<GalleryImage[]> => {
     return new Promise((resolve, reject) => {
       request.onsuccess = () => {
         const results = request.result || [];
-        // Convert stored items back to GalleryImage
-        // Filter out old items if needed (e.g. > 24h)
         const now = Date.now();
         const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
         const images: GalleryImage[] = results
-            .filter((item: any) => {
+            .filter((item: StoredGalleryImage) => {
                 return (now - (item.timestamp || 0)) < TWENTY_FOUR_HOURS;
             })
-            .map((item: any) => ({
+            .map((item: StoredGalleryImage) => ({
                 id: item.id,
                 file: item.file,
-                isProcessed: item.isProcessed,
+                previewUrl: URL.createObjectURL(item.file),
+                name: item.name,
+                type: item.type,
+                width: item.width,
+                height: item.height,
+                status: item.status,
                 isSelected: item.isSelected,
-                previewUrl: URL.createObjectURL(item.file) // Regenerate URL
+                createdAt: item.createdAt,
             }));
         resolve(images);
       };

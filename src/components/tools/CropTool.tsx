@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, useMemo, type RefObject } from "react";
-import { Download, Crop, Wand2, RotateCcw } from "lucide-react";
+import { Crop, RotateCcw, Check } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
-import { detectBoundingBox, cropImage } from "@/lib/image-utils";
+import { cropImage } from "@/lib/image-utils";
 
 interface CropBounds {
   top: number;
@@ -32,7 +32,6 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [cropBounds, setCropBounds] = useState<CropBounds | null>(null);
   const [manualCrop, setManualCrop] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
   const [uniformCrop, setUniformCrop] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   // 画像読み込み
   const handleFileSelect = (file: File) => {
@@ -142,11 +141,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 onImageLoaded={handleImageLoaded}
                 className="max-h-[500px] shadow-lg"
               />
-              {isProcessing && (
-                <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
-                </div>
-              )}
+
             </div>
           )}
       </div>
@@ -219,10 +214,10 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
             {isEmbedded && onApply && (
               <button
                 onClick={handleApply}
-                className="w-full btn-primary flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+                className="w-full btn-primary flex items-center justify-center gap-1"
               >
-                <span className="material-symbols-outlined text-lg">check</span>
-                適用して次へ
+                <Check size={18} />
+                適用
               </button>
             )}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, type RefObject } from "react";
-import { Download, Pipette, RotateCcw, Trash2 } from "lucide-react";
+import { Pipette, RotateCcw, Check } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { removeBackground, rgbToHex, hexToRgb, type RGBColor } from "@/lib/image-utils";
@@ -23,6 +23,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
 
   const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
   const [targetColor, setTargetColor] = useState<RGBColor>({ r: 255, g: 255, b: 255 });
+  const [hexInput, setHexInput] = useState("#ffffff");
   const [tolerance, setTolerance] = useState(0);
   const [feather, setFeather] = useState(0);
   const [isEyedropperActive] = useState(true); // 将来的に切り替え機能をつけるなら setIsEyedropperActive も必要だが現状はtrue固定
@@ -65,6 +66,12 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
         }
     }
   }, [originalImageData]);
+
+  // targetColor が外部(クリック等)から変更されたら Input も同期
+  useEffect(() => {
+    setHexInput(rgbToHex(targetColor.r, targetColor.g, targetColor.b));
+  }, [targetColor]);
+
 
   // スポイトで色を取得
   const handleCanvasClick = useCallback(
@@ -123,11 +130,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
     setTargetColor({ r: 255, g: 255, b: 255 });
   };
 
-  // 画像クリア
-  const handleClear = useCallback(() => {
-    if (!isEmbedded) setInternalImage(null);
-    setOriginalImageData(null);
-  }, [isEmbedded]);
+
 
   // ダウンロード
 
@@ -141,6 +144,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
 
   // Hex 入力からの色更新
   const handleHexChange = useCallback((hex: string) => {
+    setHexInput(hex); // 入力値は即座に反映
     const rgb = hexToRgb(hex);
     if (rgb) {
       setTargetColor(rgb);
@@ -190,7 +194,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
               />
               <input
                 type="text"
-                value={rgbToHex(targetColor.r, targetColor.g, targetColor.b)}
+                value={hexInput}
                 onChange={(e) => handleHexChange(e.target.value)}
                 className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50"
                 placeholder="#FFFFFF"
@@ -244,27 +248,20 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
             {isEmbedded && onApply && (
               <button
                 onClick={handleApply}
-                className="w-full btn-primary flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+                className="w-full btn-primary flex items-center justify-center gap-1"
               >
-                <span className="material-symbols-outlined text-lg">check</span>
-                適用して次へ
+                <Check size={18} />
+                適用
               </button>
             )}
 
             <div className="flex gap-3">
               <button
                 onClick={handleReset}
-                className="flex-1 btn-secondary flex items-center justify-center gap-1.5 whitespace-nowrap"
+                className="w-full btn-secondary flex items-center justify-center gap-2"
               >
                 <RotateCcw size={16} />
                 リセット
-              </button>
-              <button
-                onClick={handleClear}
-                className="flex-1 btn-secondary flex items-center justify-center gap-1.5 whitespace-nowrap text-red-500 hover:bg-red-50"
-              >
-                <Trash2 size={16} />
-                クリア
               </button>
             </div>
           </div>

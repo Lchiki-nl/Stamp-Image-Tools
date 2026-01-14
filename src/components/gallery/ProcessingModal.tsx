@@ -34,7 +34,7 @@ export function ProcessingModal({
 
   // Crop
   const [cropConfig, setCropConfig] = useState<CropConfig>({
-    mode: 'auto',
+    mode: 'manual',
     manual: { top: 0, right: 0, bottom: 0, left: 0 }
   });
 
@@ -185,50 +185,30 @@ export function ProcessingModal({
 
               {action === 'crop' && (
                 <div className="space-y-4">
-                     <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
-                        <button 
-                            onClick={() => setCropConfig(p => ({ ...p, mode: 'auto' }))}
-                            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${cropConfig.mode === 'auto' ? 'bg-white shadow-sm text-orange-600' : 'text-gray-500 hover:text-gray-700'}`}
-                        >
-                            自動検出
-                        </button>
-                        <button 
-                            onClick={() => setCropConfig(p => ({ ...p, mode: 'manual' }))}
-                            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${cropConfig.mode === 'manual' ? 'bg-white shadow-sm text-orange-600' : 'text-gray-500 hover:text-gray-700'}`}
-                        >
-                            手動指定
-                        </button>
+                     <p className="text-sm font-bold text-gray-700">カット量 (px)</p>
+                     <div className="grid grid-cols-2 gap-3">
+                        {(['top', 'right', 'bottom', 'left'] as const).map(side => (
+                            <div key={side}>
+                                <label className="text-xs text-gray-500 capitalize">{side}</label>
+                                <input 
+                                    type="number"
+                                    min="0"
+                                    value={cropConfig.manual?.[side] ?? 0}
+                                    onChange={(e) => setCropConfig(p => ({ 
+                                        ...p, 
+                                        manual: { 
+                                            top: p.manual?.top ?? 0,
+                                            right: p.manual?.right ?? 0,
+                                            bottom: p.manual?.bottom ?? 0,
+                                            left: p.manual?.left ?? 0,
+                                            [side]: Number(e.target.value) 
+                                        } 
+                                    }))}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                                />
+                            </div>
+                        ))}
                      </div>
-
-                     {cropConfig.mode === 'auto' ? (
-                         <p className="text-xs text-gray-500 bg-orange-50 p-4 rounded-xl border border-orange-100">
-                            画像内のコンテンツ（不透明部分）を自動的に検出し、余白を削除します。
-                         </p>
-                     ) : (
-                         <div className="grid grid-cols-2 gap-3">
-                            {(['top', 'right', 'bottom', 'left'] as const).map(side => (
-                                <div key={side}>
-                                    <label className="text-xs text-gray-500 capitalize">{side}</label>
-                                    <input 
-                                        type="number"
-                                        min="0"
-                                        value={cropConfig.manual?.[side] ?? 0}
-                                        onChange={(e) => setCropConfig(p => ({ 
-                                            ...p, 
-                                            manual: { 
-                                                top: p.manual?.top ?? 0,
-                                                right: p.manual?.right ?? 0,
-                                                bottom: p.manual?.bottom ?? 0,
-                                                left: p.manual?.left ?? 0,
-                                                [side]: Number(e.target.value) 
-                                            } 
-                                        }))}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
-                                    />
-                                </div>
-                            ))}
-                         </div>
-                     )}
                 </div>
               )}
 

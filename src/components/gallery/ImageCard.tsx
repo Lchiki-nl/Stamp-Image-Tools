@@ -22,7 +22,7 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
       <div className="relative w-full h-full bg-gray-50">
         <Image
           src={image.previewUrl}
-          alt={image.name}
+          alt={image.name || "image"}
           fill
           className="object-contain p-2"
           unoptimized

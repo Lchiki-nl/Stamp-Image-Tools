@@ -6,6 +6,7 @@ import { GalleryView } from "@/components/gallery/GalleryView";
 import { UnifiedEditor } from "@/components/editor/UnifiedEditor";
 import { useGallery } from "@/hooks/useGallery";
 import { ProcessingModal, type ProcessingAction } from "@/components/gallery/ProcessingModal";
+import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
 import { processRemoveBackground, processCrop, processSplit } from "@/lib/batch-processing";
 import { type GalleryAction } from "@/types/gallery";
 
@@ -33,6 +34,7 @@ export default function AppPage() {
   const [processingAction, setProcessingAction] = useState<ProcessingAction | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // 編集対象の画像を取得
   const editingImage = images.find(img => img.id === editingImageId);
@@ -59,9 +61,8 @@ export default function AppPage() {
   // Gallery Action Handler
   const handleGalleryAction = async (action: GalleryAction) => {
       if (action === 'delete') {
-          const ids = selectedImages.map(img => img.id);
-          if (confirm(`${ids.length}枚の画像を削除しますか？`)) {
-              removeImages(ids);
+          if (selectedImages.length > 0) {
+              setIsDeleteModalOpen(true);
           }
           return;
       }
@@ -71,27 +72,57 @@ export default function AppPage() {
           
           if (selectedImages.length === 1) {
               const img = selectedImages[0];
-              const a = document.createElement("a");
-              a.href = img.previewUrl;
-              a.download = img.name;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-          } else {
-              // Batch Download as Zip
-              const zip = new JSZip();
-              selectedImages.forEach(img => {
-                  zip.file(img.name, img.file);
-              });
-              const content = await zip.generateAsync({ type: "blob" });
-              const url = URL.createObjectURL(content);
+              // Use file directly to ensure fresh content
+              const url = URL.createObjectURL(img.file);
               const a = document.createElement("a");
               a.href = url;
-              a.download = "images.zip";
+              // Ensure extension
+              let name = img.name;
+              if (!name.includes('.')) {
+                  const ext = img.type.split('/')[1] || 'png';
+                  name = `${name}.${ext}`;
+              }
+              a.download = name;
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
               URL.revokeObjectURL(url);
+          } else {
+              try {
+                  // Batch Download as Zip
+                  const zip = new JSZip();
+                  selectedImages.forEach(img => {
+                      let name = img.name;
+                      if (!name.includes('.')) {
+                          const ext = img.type.split('/')[1] || 'png';
+                          name = `${name}.${ext}`;
+                      }
+                      // Handle duplicate names
+                      let finalName = name;
+                      let counter = 1;
+                      while (zip.file(finalName)) {
+                          const parts = name.split('.');
+                          const ext = parts.pop();
+                          const base = parts.join('.');
+                          finalName = `${base}_${counter}.${ext}`;
+                          counter++;
+                      }
+                      zip.file(finalName, img.file);
+                  });
+                  
+                  const content = await zip.generateAsync({ type: "blob" });
+                  const url = URL.createObjectURL(content);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `images_${new Date().getTime()}.zip`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+              } catch (e) {
+                  console.error("Zip generation failed:", e);
+                  alert("ZIP作成に失敗しました");
+              }
           }
           return;
       }
@@ -175,6 +206,12 @@ export default function AppPage() {
 
   // ギャラリーからの選択
   const handleSelectForEdit = (id: string) => {
+    // 選択モード中（1つ以上選択されている）なら、エディタを開かずに選択状態を切り替える
+    if (selectedCount > 0) {
+        toggleSelection(id);
+        return;
+    }
+
     setEditingImageId(id);
     setEditorInitialTool("background");
     // Add history entry
@@ -183,7 +220,7 @@ export default function AppPage() {
   
   // Handle Browser Back Button
   useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
+    const handlePopState = () => {
         // If we go back and editingImageId is set, clean it up
         setEditingImageId(null);
     };
@@ -238,6 +275,12 @@ export default function AppPage() {
       }
   };
 
+  const handleConfirmDelete = () => {
+    const ids = selectedImages.map(img => img.id);
+    removeImages(ids);
+    setIsDeleteModalOpen(false);
+  };
+
   return (
     <>
         <GalleryView 
@@ -284,6 +327,13 @@ export default function AppPage() {
             isProcessing={isProcessing}
             progress={progress}
             onExecute={handleBatchExecute}
+        />
+
+        <DeleteConfirmModal 
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={handleConfirmDelete}
+            count={selectedCount}
         />
     </>
   );

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Eraser, Grid3X3, Crop } from "lucide-react";
+import { Eraser, Grid3X3, Crop, ChevronLeft, ChevronRight, X, CheckCircle2, Smile } from "lucide-react";
 import { BackgroundRemovalTool } from "@/components/tools/BackgroundRemovalTool";
 import { ImageSplitTool } from "@/components/tools/ImageSplitTool";
 import { CropTool } from "@/components/tools/CropTool";
@@ -113,7 +113,7 @@ export function UnifiedEditor({
         <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20">
-                  <span className="material-symbols-outlined text-[24px]">sentiment_satisfied</span>
+                  <Smile size={24} strokeWidth={2.5} />
                 </div>
                 <h1 className="font-bold text-lg text-text-main hidden sm:block">画像編集</h1>
             </div>
@@ -121,15 +121,7 @@ export function UnifiedEditor({
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-             {/* Image Status */}
-            {image && (
-                <div className="hidden sm:flex items-center gap-3 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
-                    <span className="text-xs font-bold text-gray-500">サイズ:</span>
-                    <span className="text-xs font-mono font-bold text-gray-700">
-                        {image.naturalWidth} x {image.naturalHeight}
-                    </span>
-                </div>
-            )}
+
             
              {/* Close Button Removed from Header */}
         </div>
@@ -140,7 +132,7 @@ export function UnifiedEditor({
         <div className="max-w-6xl mx-auto h-full flex flex-col">
             
           {/* Tool Tabs */}
-          <div className="flex justify-center mb-4">
+          <div className="relative flex justify-center mb-4 items-center">
             <nav className="items-center bg-white p-1 rounded-xl border border-gray-100 shadow-sm inline-flex">
                 {tools.map((tool) => {
                 const Icon = tool.icon;
@@ -162,6 +154,17 @@ export function UnifiedEditor({
                 );
                 })}
             </nav>
+
+            {/* Close Button Aligned to Right of Tabs (Right edge of content) */}
+            {onBack && (
+                <button
+                    onClick={onBack}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2.5 bg-white border border-red-100 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl shadow-sm transition-all z-20"
+                    title="閉じる"
+                >
+                    <X size={20} className="stroke-[2.5]" />
+                </button>
+            )}
           </div>
 
           {/* Editor Area */}
@@ -173,7 +176,7 @@ export function UnifiedEditor({
                     className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-20 p-3 rounded-full bg-white/90 text-gray-500 shadow-xl hover:bg-white hover:text-primary transition-all hidden xl:flex"
                     title="前の画像"
                  >
-                    <span className="material-symbols-outlined text-3xl">chevron_left</span>
+                    <ChevronLeft size={36} strokeWidth={2.5} />
                  </button>
              )}
 
@@ -184,7 +187,7 @@ export function UnifiedEditor({
                     className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-20 p-3 rounded-full bg-white/90 text-gray-500 shadow-xl hover:bg-white hover:text-primary transition-all hidden xl:flex"
                     title="次の画像"
                  >
-                    <span className="material-symbols-outlined text-3xl">chevron_right</span>
+                    <ChevronRight size={36} strokeWidth={2.5} />
                  </button>
              )}
 
@@ -213,26 +216,13 @@ export function UnifiedEditor({
       </main>
 
 
-      {/* Prominent Close Button (Fixed Top Right) */}
-      {onBack && (
-        <button
-            onClick={onBack}
-            className="fixed top-6 right-6 z-[60] flex flex-col items-center justify-center group"
-        >
-            <div className="w-14 h-14 bg-red-500 rounded-full shadow-xl shadow-red-500/30 flex items-center justify-center text-white transition-transform group-hover:scale-110 group-active:scale-95">
-                <span className="material-symbols-outlined text-3xl font-bold">close</span>
-            </div>
-            <span className="mt-1 text-xs font-bold text-gray-500 bg-white/90 px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm group-hover:text-red-500 transition-colors">
-                閉じる
-            </span>
-        </button>
-      )}
+
 
       {/* Notification Toast */}
       {notification && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
            <div className="bg-gray-900/90 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3 backdrop-blur-sm">
-             <span className="material-symbols-outlined text-green-400">check_circle</span>
+             <CheckCircle2 size={24} className="text-green-400" />
              <span className="font-bold text-sm">{notification}</span>
            </div>
         </div>

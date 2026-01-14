@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useCallback, type RefObject } from "react";
-import { Download, Grid3X3 } from "lucide-react";
-import JSZip from "jszip";
+import { Grid3X3, Check } from "lucide-react";
+
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { splitImage } from "@/lib/image-utils";
@@ -205,10 +205,10 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
           {isEmbedded && onApply && (
              <button
                 onClick={handleApply}
-                className="w-full btn-primary flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+                className="w-full btn-primary flex items-center justify-center gap-1"
               >
-                <span className="material-symbols-outlined text-lg">check</span>
-                適用して次へ
+                <Check size={18} />
+                適用
               </button>
            )}
 
