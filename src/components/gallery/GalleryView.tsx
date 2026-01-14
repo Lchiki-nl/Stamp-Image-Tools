@@ -24,6 +24,7 @@ export function GalleryView({
   onToggleSelect,
   onAction,
   onClearSelection,
+  onSelectAll,
   selectedCount 
 }: GalleryViewProps) {
   return (
