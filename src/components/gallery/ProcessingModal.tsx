@@ -37,6 +37,7 @@ export function ProcessingModal({
     mode: 'manual',
     manual: { top: 0, right: 0, bottom: 0, left: 0 }
   });
+  const [uniformCrop, setUniformCrop] = useState(0);
 
   // Split
   const [splitConfig, setSplitConfig] = useState<SplitConfig>({
@@ -185,7 +186,27 @@ export function ProcessingModal({
 
               {action === 'crop' && (
                 <div className="space-y-4">
-                     <p className="text-sm font-bold text-gray-700">カット量 (px)</p>
+                     {/* Uniform Crop Slider */}
+                     <div className="space-y-3 pb-4 border-b border-gray-100">
+                       <label className="text-sm font-bold text-gray-700 flex justify-between">
+                           一括カット (px) <span className="text-orange-600">{uniformCrop}</span>
+                       </label>
+                       <input 
+                           type="range" min="0" max="100" 
+                           value={uniformCrop}
+                           onChange={(e) => {
+                               const val = Number(e.target.value);
+                               setUniformCrop(val);
+                               setCropConfig(p => ({ 
+                                   ...p, 
+                                   manual: { top: val, right: val, bottom: val, left: val } 
+                               }));
+                           }}
+                           className="w-full h-2 bg-gray-200 rounded-full accent-orange-600"
+                       />
+                     </div>
+
+                     <p className="text-sm font-bold text-gray-700">個別調整 (px)</p>
                      <div className="grid grid-cols-2 gap-3">
                         {(['top', 'right', 'bottom', 'left'] as const).map(side => (
                             <div key={side}>
