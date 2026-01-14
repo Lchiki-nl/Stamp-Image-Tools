@@ -10,12 +10,12 @@ const mPlusRounded = M_PLUS_Rounded_1c({
 });
 
 export const metadata: Metadata = {
-  title: "IMG-TOOLS - LINEスタンプ作成ツール",
+  title: "IMG-TOOLS - スタンプ作成ツール",
   description:
     "背景透過も、サイズ調整もこれひとつ。プライバシー重視のクライアントサイド画像処理ツール。",
-  keywords: ["LINEスタンプ", "画像編集", "背景削除", "画像分割", "トリミング"],
+  keywords: ["スタンプ作成", "画像編集", "背景削除", "画像分割", "トリミング"],
   openGraph: {
-    title: "IMG-TOOLS - LINEスタンプ作成ツール",
+    title: "IMG-TOOLS - スタンプ作成ツール",
     description:
       "背景透過も、サイズ調整もこれひとつ。プライバシー重視のクライアントサイド画像処理ツール。",
     type: "website",

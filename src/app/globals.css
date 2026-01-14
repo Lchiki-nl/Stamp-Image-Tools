@@ -2,11 +2,11 @@
 
 /* ===========================
    IMG-TOOLS Custom Theme
-   Based on LINE-style design
+   Based on casual design
    =========================== */
 
 :root {
-  /* Primary Colors - LINE Green */
+  /* Primary Colors - Green */
   --color-primary: #06c755;
   --color-primary-dark: #05b34c;
   --color-primary-light: #e6f9ee;

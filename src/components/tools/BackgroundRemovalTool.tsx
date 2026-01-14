@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, type RefObject } from "react";
 import { Download, Pipette, RotateCcw, Trash2 } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
@@ -8,34 +8,42 @@ import { removeBackground, rgbToHex, hexToRgb, type RGBColor } from "@/lib/image
 
 interface BackgroundRemovalToolProps {
   className?: string;
+  embeddedImage?: HTMLImageElement | null;
+  embeddedCanvasRef?: RefObject<ImageCanvasHandle>;
+  onApply?: (blob: Blob) => void;
 }
 
-export function BackgroundRemovalTool({ className = "" }: BackgroundRemovalToolProps) {
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedCanvasRef, onApply }: BackgroundRemovalToolProps) {
+  const [internalImage, setInternalImage] = useState<HTMLImageElement | null>(null);
+  const internalCanvasRef = useRef<ImageCanvasHandle>(null);
+
+  const image = embeddedImage !== undefined ? embeddedImage : internalImage;
+  const canvasRef = embeddedCanvasRef || internalCanvasRef;
+  const isEmbedded = embeddedImage !== undefined;
+
   const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
   const [targetColor, setTargetColor] = useState<RGBColor>({ r: 255, g: 255, b: 255 });
   const [tolerance, setTolerance] = useState(30);
   const [feather, setFeather] = useState(0);
-  const [isEyedropperActive] = useState(true);
+  const [isEyedropperActive] = useState(true); // 将来的に切り替え機能をつけるなら setIsEyedropperActive も必要だが現状はtrue固定
   const [isProcessing, setIsProcessing] = useState(false);
-  const canvasRef = useRef<ImageCanvasHandle>(null);
 
   // 画像読み込み
   const handleFileSelect = useCallback((file: File) => {
     const img = new Image();
     img.onload = () => {
-      setImage(img);
-      // Canvas に描画
-      setTimeout(() => {
-        if (canvasRef.current) {
-          canvasRef.current.drawImage(img);
-          const imageData = canvasRef.current.getImageData();
-          setOriginalImageData(imageData);
-        }
-      }, 0);
+      if (!isEmbedded) setInternalImage(img);
     };
     img.src = URL.createObjectURL(file);
-  }, []);
+  }, [isEmbedded]);
+
+  // ImageCanvas 描画完了後の処理
+  const handleImageLoaded = useCallback(() => {
+      if (canvasRef.current) {
+          const imageData = canvasRef.current.getImageData();
+          setOriginalImageData(imageData);
+      }
+  }, [canvasRef]);
 
   // スポイトで色を取得
   const handleCanvasClick = useCallback(
@@ -58,7 +66,7 @@ export function BackgroundRemovalTool({ className = "" }: BackgroundRemovalToolP
       canvasRef.current?.putImageData(result);
       setIsProcessing(false);
     });
-  }, [originalImageData, targetColor, tolerance, feather]);
+  }, [originalImageData, targetColor, tolerance, feather, canvasRef]);
 
   // パラメータ変更時に自動で処理を実行
   useEffect(() => {
@@ -76,13 +84,13 @@ export function BackgroundRemovalTool({ className = "" }: BackgroundRemovalToolP
     setTolerance(30);
     setFeather(0);
     setTargetColor({ r: 255, g: 255, b: 255 });
-  }, [originalImageData]);
+  }, [originalImageData, canvasRef]);
 
   // 画像クリア
   const handleClear = useCallback(() => {
-    setImage(null);
+    if (!isEmbedded) setInternalImage(null);
     setOriginalImageData(null);
-  }, []);
+  }, [isEmbedded]);
 
   // ダウンロード
   const handleDownload = useCallback(async () => {
@@ -99,7 +107,14 @@ export function BackgroundRemovalTool({ className = "" }: BackgroundRemovalToolP
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, []);
+  }, [canvasRef]);
+
+  // 適用 (Unified Editor用)
+  const handleApply = useCallback(async () => {
+    if (!canvasRef.current || !onApply) return;
+    const blob = await canvasRef.current.toBlob("image/png");
+    if (blob) onApply(blob);
+  }, [onApply, canvasRef]);
 
   // Hex 入力からの色更新
   const handleHexChange = useCallback((hex: string) => {
@@ -116,20 +131,22 @@ export function BackgroundRemovalTool({ className = "" }: BackgroundRemovalToolP
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-          <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
-            <ImageCanvas
-              ref={canvasRef}
-              showCheckerboard={true}
-              onCanvasClick={handleCanvasClick}
-              className="max-h-[500px] shadow-lg"
-            />
-            {isProcessing && (
-              <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
-              </div>
-            )}
-          </div>
-        )}
+            <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
+              <ImageCanvas
+                ref={canvasRef}
+                image={image} // 画像をPropsとして渡す
+                showCheckerboard={true}
+                onCanvasClick={handleCanvasClick}
+                onImageLoaded={handleImageLoaded}
+                className="max-h-[500px] shadow-lg"
+              />
+              {isProcessing && (
+                <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
+                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                </div>
+              )}
+            </div>
+          )}
       </div>
 
       {/* Controls Panel */}
@@ -201,6 +218,15 @@ export function BackgroundRemovalTool({ className = "" }: BackgroundRemovalToolP
 
           {/* Action Buttons */}
           <div className="space-y-3 pt-4 border-t border-gray-100">
+            {isEmbedded && onApply && (
+              <button
+                onClick={handleApply}
+                className="w-full btn-primary flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+              >
+                <span className="material-symbols-outlined text-lg">check</span>
+                適用して次へ
+              </button>
+            )}
             <button
               onClick={handleDownload}
               className="w-full btn-primary flex items-center justify-center gap-2 whitespace-nowrap"

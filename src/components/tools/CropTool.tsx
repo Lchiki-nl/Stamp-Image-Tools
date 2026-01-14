@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, type RefObject } from "react";
 import { Download, Crop, Wand2, RotateCcw } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
@@ -15,33 +15,40 @@ interface CropBounds {
 
 interface CropToolProps {
   className?: string;
+  embeddedImage?: HTMLImageElement | null;
+  embeddedCanvasRef?: RefObject<ImageCanvasHandle>;
+  onApply?: (blob: Blob) => void;
 }
 
-export function CropTool({ className = "" }: CropToolProps) {
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onApply }: CropToolProps) {
+  const [internalImage, setInternalImage] = useState<HTMLImageElement | null>(null);
+  const internalCanvasRef = useRef<ImageCanvasHandle>(null);
+
+  const image = embeddedImage !== undefined ? embeddedImage : internalImage;
+  const canvasRef = embeddedCanvasRef || internalCanvasRef;
+  const isEmbedded = embeddedImage !== undefined;
+
   const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
   const [cropBounds, setCropBounds] = useState<CropBounds | null>(null);
   const [manualCrop, setManualCrop] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
-  const canvasRef = useRef<ImageCanvasHandle>(null);
 
   // 画像読み込み
   const handleFileSelect = useCallback((file: File) => {
     const img = new Image();
     img.onload = () => {
-      setImage(img);
+      if (!isEmbedded) setInternalImage(img);
       setTimeout(() => {
         if (canvasRef.current) {
-          canvasRef.current.drawImage(img);
           const imageData = canvasRef.current.getImageData();
           setOriginalImageData(imageData);
           setCropBounds(null);
           setManualCrop({ top: 0, right: 0, bottom: 0, left: 0 });
         }
-      }, 0);
+      }, 100);
     };
     img.src = URL.createObjectURL(file);
-  }, []);
+  }, [isEmbedded, canvasRef]);
 
   // 自動トリミング検出
   const handleAutoDetect = useCallback(() => {
@@ -64,29 +71,27 @@ export function CropTool({ className = "" }: CropToolProps) {
     });
   }, [originalImageData]);
 
-  // 手動入力からの cropBounds 更新
-  useEffect(() => {
-    if (!originalImageData) return;
-
-    const { width, height } = originalImageData;
-    setCropBounds({
+  // 手動入力からの cropBounds 計算 (useMemo でメモ化)
+  const computedCropBounds = useMemo(() => {
+    if (!originalImageData) return cropBounds;
+    return {
       top: manualCrop.top,
-      right: width - manualCrop.right - 1,
-      bottom: height - manualCrop.bottom - 1,
+      right: originalImageData.width - manualCrop.right - 1,
+      bottom: originalImageData.height - manualCrop.bottom - 1,
       left: manualCrop.left,
-    });
-  }, [manualCrop, originalImageData]);
+    };
+  }, [originalImageData, manualCrop, cropBounds]);
 
   // プレビュー更新
   useEffect(() => {
-    if (!originalImageData || !cropBounds || !canvasRef.current) return;
+    if (!originalImageData || !computedCropBounds || !canvasRef.current) return;
 
     const cropped = cropImage(
       originalImageData,
-      cropBounds.top,
-      cropBounds.right,
-      cropBounds.bottom,
-      cropBounds.left
+      computedCropBounds.top,
+      computedCropBounds.right,
+      computedCropBounds.bottom,
+      computedCropBounds.left
     );
 
     // Canvas サイズを更新して描画
@@ -96,16 +101,16 @@ export function CropTool({ className = "" }: CropToolProps) {
       canvas.height = cropped.height;
       canvasRef.current.putImageData(cropped);
     }
-  }, [cropBounds, originalImageData]);
+  }, [computedCropBounds, originalImageData, canvasRef]);
 
   // リセット
   const handleReset = useCallback(() => {
     if (originalImageData && canvasRef.current && image) {
-      canvasRef.current.drawImage(image);
+      canvasRef.current.reset();
       setCropBounds(null);
       setManualCrop({ top: 0, right: 0, bottom: 0, left: 0 });
     }
-  }, [originalImageData, image]);
+  }, [originalImageData, image, canvasRef]);
 
   // ダウンロード
   const handleDownload = useCallback(async () => {
@@ -122,7 +127,14 @@ export function CropTool({ className = "" }: CropToolProps) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, []);
+  }, [canvasRef]);
+
+  // 適用 (Unified Editor用)
+  const handleApply = useCallback(async () => {
+    if (!canvasRef.current || !onApply) return;
+    const blob = await canvasRef.current.toBlob("image/png");
+    if (blob) onApply(blob);
+  }, [onApply, canvasRef]);
 
   // 入力ハンドラー
   const handleManualChange = (key: keyof typeof manualCrop, value: number) => {
@@ -139,19 +151,20 @@ export function CropTool({ className = "" }: CropToolProps) {
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-          <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
-            <ImageCanvas
-              ref={canvasRef}
-              showCheckerboard={true}
-              className="max-h-[500px] shadow-lg"
-            />
-            {isProcessing && (
-              <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
-              </div>
-            )}
-          </div>
-        )}
+            <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
+              <ImageCanvas
+                ref={canvasRef}
+                image={image}
+                showCheckerboard={true}
+                className="max-h-[500px] shadow-lg"
+              />
+              {isProcessing && (
+                <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
+                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                </div>
+              )}
+            </div>
+          )}
       </div>
 
       {/* Controls Panel */}
@@ -194,19 +207,28 @@ export function CropTool({ className = "" }: CropToolProps) {
           </div>
 
           {/* Size Info */}
-          {originalImageData && cropBounds && (
+          {originalImageData && computedCropBounds && (
             <div className="bg-gray-50 rounded-xl p-4 text-sm text-text-sub space-y-1">
               <p>
                 元サイズ: {originalImageData.width} × {originalImageData.height} px
               </p>
               <p className="font-bold text-primary">
-                新サイズ: {cropBounds.right - cropBounds.left + 1} × {cropBounds.bottom - cropBounds.top + 1} px
+                新サイズ: {computedCropBounds.right - computedCropBounds.left + 1} × {computedCropBounds.bottom - computedCropBounds.top + 1} px
               </p>
             </div>
           )}
 
           {/* Actions */}
           <div className="space-y-3 pt-4 border-t border-gray-100">
+            {isEmbedded && onApply && (
+              <button
+                onClick={handleApply}
+                className="w-full btn-primary flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+              >
+                <span className="material-symbols-outlined text-lg">check</span>
+                適用して次へ
+              </button>
+            )}
             <button
               onClick={handleDownload}
               className="w-full btn-primary flex items-center justify-center gap-2"
@@ -221,12 +243,14 @@ export function CropTool({ className = "" }: CropToolProps) {
               <RotateCcw size={16} />
               リセット
             </button>
-            <button
-              onClick={() => setImage(null)}
-              className="w-full btn-secondary"
-            >
-              別の画像を選ぶ
-            </button>
+            {!isEmbedded && (
+                <button
+                onClick={() => setInternalImage(null)}
+                className="w-full btn-secondary"
+                >
+                別の画像を選ぶ
+                </button>
+            )}
           </div>
         </div>
       )}

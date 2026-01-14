@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, type RefObject } from "react";
 import { Download, Grid3X3 } from "lucide-react";
 import JSZip from "jszip";
 import { FileDropzone } from "@/components/shared/FileDropzone";
@@ -9,15 +9,23 @@ import { splitImage } from "@/lib/image-utils";
 
 interface ImageSplitToolProps {
   className?: string;
+  embeddedImage?: HTMLImageElement | null;
+  embeddedCanvasRef?: RefObject<ImageCanvasHandle>;
+  onApply?: (blob: Blob) => void;
 }
 
-export function ImageSplitTool({ className = "" }: ImageSplitToolProps) {
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRef, onApply }: ImageSplitToolProps) {
+  const [internalImage, setInternalImage] = useState<HTMLImageElement | null>(null);
+  const internalCanvasRef = useRef<ImageCanvasHandle>(null);
+
+  const image = embeddedImage !== undefined ? embeddedImage : internalImage;
+  const canvasRef = embeddedCanvasRef || internalCanvasRef;
+  const isEmbedded = embeddedImage !== undefined;
+
   const [rows, setRows] = useState(2);
   const [cols, setCols] = useState(2);
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState("image");
-  const canvasRef = useRef<ImageCanvasHandle>(null);
 
   // 画像読み込み
   const handleFileSelect = useCallback((file: File) => {
@@ -27,13 +35,10 @@ export function ImageSplitTool({ className = "" }: ImageSplitToolProps) {
 
     const img = new Image();
     img.onload = () => {
-      setImage(img);
-      setTimeout(() => {
-        canvasRef.current?.drawImage(img);
-      }, 0);
+      if (!isEmbedded) setInternalImage(img);
     };
     img.src = URL.createObjectURL(file);
-  }, []);
+  }, [isEmbedded]);
 
   // ZIP でダウンロード
   const handleDownload = useCallback(async () => {
@@ -87,6 +92,15 @@ export function ImageSplitTool({ className = "" }: ImageSplitToolProps) {
     }
   }, [image, rows, cols, fileName]);
 
+  // 適用 (Unified Editor用)
+  const handleApply = useCallback(async () => {
+    // SplitToolは通常最後の工程だが、一応実装
+    // Canvas全体（未分割）の状態を次へ渡す
+    if (!canvasRef.current || !onApply) return;
+    const blob = await canvasRef.current.toBlob("image/png");
+    if (blob) onApply(blob);
+  }, [onApply]);
+
   return (
     <div className={`flex flex-col lg:flex-row gap-6 ${className}`}>
       {/* Canvas Area */}
@@ -94,54 +108,55 @@ export function ImageSplitTool({ className = "" }: ImageSplitToolProps) {
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-          <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
-            {/* Grid Overlay */}
-            <div className="relative">
-              <ImageCanvas
-                ref={canvasRef}
-                showCheckerboard={false}
-                className="max-h-[500px] shadow-lg"
-              />
-              {/* Grid Lines Overlay */}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{ overflow: "visible" }}
-              >
-                {/* Vertical Lines */}
-                {Array.from({ length: cols - 1 }, (_, i) => (
-                  <line
-                    key={`v-${i}`}
-                    x1={`${((i + 1) / cols) * 100}%`}
-                    y1="0"
-                    x2={`${((i + 1) / cols) * 100}%`}
-                    y2="100%"
-                    stroke="#06C755"
-                    strokeWidth="2"
-                    strokeDasharray="8,4"
-                  />
-                ))}
-                {/* Horizontal Lines */}
-                {Array.from({ length: rows - 1 }, (_, i) => (
-                  <line
-                    key={`h-${i}`}
-                    x1="0"
-                    y1={`${((i + 1) / rows) * 100}%`}
-                    x2="100%"
-                    y2={`${((i + 1) / rows) * 100}%`}
-                    stroke="#06C755"
-                    strokeWidth="2"
-                    strokeDasharray="8,4"
-                  />
-                ))}
-              </svg>
-            </div>
-            {isProcessing && (
-              <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+            <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
+              {/* Grid Overlay */}
+              <div className="relative">
+                <ImageCanvas
+                  ref={canvasRef}
+                  image={image}
+                  showCheckerboard={false}
+                  className="max-h-[500px] shadow-lg"
+                />
+                {/* Grid Lines Overlay */}
+                <svg
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  style={{ overflow: "visible" }}
+                >
+                  {/* Vertical Lines */}
+                  {Array.from({ length: cols - 1 }, (_, i) => (
+                    <line
+                      key={`v-${i}`}
+                      x1={`${((i + 1) / cols) * 100}%`}
+                      y1="0"
+                      x2={`${((i + 1) / cols) * 100}%`}
+                      y2="100%"
+                      stroke="#06C755"
+                      strokeWidth="2"
+                      strokeDasharray="8,4"
+                    />
+                  ))}
+                  {/* Horizontal Lines */}
+                  {Array.from({ length: rows - 1 }, (_, i) => (
+                    <line
+                      key={`h-${i}`}
+                      x1="0"
+                      y1={`${((i + 1) / rows) * 100}%`}
+                      x2="100%"
+                      y2={`${((i + 1) / rows) * 100}%`}
+                      stroke="#06C755"
+                      strokeWidth="2"
+                      strokeDasharray="8,4"
+                    />
+                  ))}
+                </svg>
               </div>
-            )}
-          </div>
-        )}
+              {isProcessing && (
+                <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
+                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                </div>
+              )}
+            </div>
+          )}
       </div>
 
       {/* Controls Panel */}
@@ -209,6 +224,15 @@ export function ImageSplitTool({ className = "" }: ImageSplitToolProps) {
           </div>
 
           {/* Download Button */}
+          {isEmbedded && onApply && (
+             <button
+                onClick={handleApply}
+                className="w-full btn-primary flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+              >
+                <span className="material-symbols-outlined text-lg">check</span>
+                適用して次へ
+              </button>
+           )}
           <button
             onClick={handleDownload}
             disabled={isProcessing}
@@ -219,12 +243,14 @@ export function ImageSplitTool({ className = "" }: ImageSplitToolProps) {
           </button>
 
           {/* Clear Button */}
-          <button
-            onClick={() => setImage(null)}
-            className="w-full btn-secondary"
-          >
-            別の画像を選ぶ
-          </button>
+          {!isEmbedded && (
+            <button
+                onClick={() => setInternalImage(null)}
+                className="w-full btn-secondary"
+            >
+                別の画像を選ぶ
+            </button>
+          )}
         </div>
       )}
     </div>

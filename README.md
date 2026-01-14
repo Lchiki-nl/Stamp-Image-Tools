@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 IMG-TOOLS
 
-## Getting Started
+> スタンプ作成に最適な画像ツール
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+## ✨ 特徴
+
+- **🔒 完全クライアントサイド処理** - 画像はサーバーに送信されません
+- **⚡ リアルタイム処理** - 待ち時間ゼロでサクサク動作
+- **📱 レスポンシブ対応** - PC・スマホ両対応
+- **🎯 直感的な UI** - 誰でも簡単に使える
+
+## 🛠️ 機能
+
+### 1. 背景削除 (Background Removal)
+
+- スポイトで色を選択
+- 許容値（Tolerance）調整
+- 境界ぼかし（Feather）機能
+- PNG 形式でダウンロード
+
+### 2. 画像分割 (Image Split)
+
+- 1〜5 行 × 1〜5 列のグリッド分割
+- リアルタイムプレビュー
+- ZIP 一括ダウンロード
+
+### 3. 余白カット (Crop)
+
+- 自動バウンディングボックス検出
+- ピクセル単位の手動調整
+- リアルタイムプレビュー
+
+## 🚀 Getting Started
 
 ```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# http://localhost:3000 を開く
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📦 技術スタック
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Animation**: Framer Motion
+- **Icons**: Lucide React
+- **Image Processing**: Canvas API
+- **ZIP**: JSZip
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 プロジェクト構成
 
-## Learn More
+```
+src/
+├── app/
+│   ├── page.tsx           # ランディングページ
+│   └── app/
+│       └── layout.tsx     # ツール画面
+├── components/
+│   ├── shared/            # 共通コンポーネント
+│   │   ├── FileDropzone.tsx
+│   │   └── ImageCanvas.tsx
+│   └── tools/             # ツールコンポーネント
+│       ├── BackgroundRemovalTool.tsx
+│       ├── ImageSplitTool.tsx
+│       └── CropTool.tsx
+└── lib/
+    └── image-utils.ts     # 画像処理ロジック
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🌐 デプロイ
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Cloudflare Pages へのデプロイを推奨:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# ビルド
+npm run build
 
-## Deploy on Vercel
+# 出力ディレクトリ: out/
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 ライセンス
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License - 詳細は [LICENSE](LICENSE) を参照
+
+## 🤝 コントリビューション
+
+Issue や Pull Request を歓迎します！

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useRef, useState, useEffect, forwardRef, useImperativeHandle, useCallback } from "react";
 
 export interface ImageCanvasHandle {
   getCanvas: () => HTMLCanvasElement | null;
@@ -8,23 +8,64 @@ export interface ImageCanvasHandle {
   getImageData: () => ImageData | null;
   putImageData: (imageData: ImageData) => void;
   toBlob: (type?: string, quality?: number) => Promise<Blob | null>;
-  drawImage: (image: HTMLImageElement) => void;
+  reset: () => void;
 }
 
 interface ImageCanvasProps {
-  width?: number;
-  height?: number;
+  image?: HTMLImageElement | null;
   className?: string;
   showCheckerboard?: boolean;
   onCanvasClick?: (x: number, y: number, color: { r: number; g: number; b: number; a: number }) => void;
+  onImageLoaded?: () => void;
 }
 
 export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
   function ImageCanvas(
-    { width = 800, height = 600, className = "", showCheckerboard = true, onCanvasClick },
+    { image, className = "", showCheckerboard = true, onCanvasClick, onImageLoaded },
     ref
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [hasImage, setHasImage] = useState(false);
+    const [, setUpdateCount] = useState(0);
+
+    const drawImage = useCallback((img: HTMLImageElement) => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+
+      if (canvas && ctx) {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        
+        // requestAnimationFrame で状態更新を非同期化し、レンダリング中の更新警告を回避
+        requestAnimationFrame(() => {
+          setHasImage(true);
+          setUpdateCount(c => c + 1);
+          if (onImageLoaded) onImageLoaded();
+        });
+      }
+    }, [onImageLoaded]);
+
+    const clearCanvas = () => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (canvas && ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        requestAnimationFrame(() => {
+          setHasImage(false);
+        });
+      }
+    };
+
+    // 画像が変更されたら描画
+    useEffect(() => {
+      if (image) {
+        drawImage(image);
+      } else {
+        clearCanvas();
+      }
+    }, [image, drawImage]);
 
     useImperativeHandle(ref, () => ({
       getCanvas: () => canvasRef.current,
@@ -35,9 +76,18 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
         return ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
       },
       putImageData: (imageData: ImageData) => {
-        const ctx = canvasRef.current?.getContext("2d");
-        if (ctx) {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext("2d");
+        if (ctx && canvas) {
+          if (canvas.width !== imageData.width || canvas.height !== imageData.height) {
+            canvas.width = imageData.width;
+            canvas.height = imageData.height;
+          }
           ctx.putImageData(imageData, 0, 0);
+          requestAnimationFrame(() => {
+            setHasImage(true);
+            setUpdateCount(c => c + 1);
+          });
         }
       },
       toBlob: (type = "image/png", quality = 1.0) => {
@@ -45,16 +95,13 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
           canvasRef.current?.toBlob((blob) => resolve(blob), type, quality);
         });
       },
-      drawImage: (image: HTMLImageElement) => {
-        const canvas = canvasRef.current;
-        const ctx = canvas?.getContext("2d");
-        if (!canvas || !ctx) return;
-
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0);
-      },
+      reset: () => {
+        if (image) {
+          drawImage(image);
+        } else {
+          clearCanvas();
+        }
+      }
     }));
 
     const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -80,18 +127,21 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
     };
 
     return (
-      <div className={`relative overflow-hidden rounded-2xl ${className}`}>
-        {showCheckerboard && (
-          <div className="absolute inset-0 bg-checkerboard pointer-events-none" />
+      <div className={`relative inline-block ${className}`}>
+        {showCheckerboard && hasImage && (
+          <div className="absolute inset-0 bg-checkerboard pointer-events-none rounded-lg" />
         )}
         <canvas
           ref={canvasRef}
-          width={width}
-          height={height}
           onClick={handleClick}
-          className="relative z-10 max-w-full max-h-full object-contain cursor-crosshair"
-          style={{ imageRendering: "pixelated" }}
+          className={`relative z-10 block max-w-full rounded-lg cursor-crosshair ${hasImage ? "" : "hidden"}`}
+          style={{ maxHeight: "500px" }}
         />
+        {!hasImage && (
+          <div className="w-64 h-64 flex items-center justify-center text-gray-400 text-sm">
+            画像を読み込んでいます...
+          </div>
+        )}
       </div>
     );
   }

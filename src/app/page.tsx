@@ -50,7 +50,7 @@ export default function LandingPage() {
                 クリエイターのための画像編集
               </div>
               <h1 className="text-4xl font-black leading-tight tracking-tight text-text-main sm:text-5xl lg:text-6xl">
-                <span className="text-primary">LINEスタンプ作り</span>に<br />
+                <span className="text-primary">スタンプ作り</span>に<br />
                 最適な画像ツール！
               </h1>
               <p className="max-w-xl text-lg font-medium leading-relaxed text-text-sub">
@@ -295,7 +295,7 @@ export default function LandingPage() {
                 <span className="font-black text-xl">IMG-TOOLS</span>
               </div>
               <p className="text-xs font-bold text-gray-400">
-                Creative Tools for LINE Creators.
+                Creative Tools for Stamp Creators.
               </p>
             </div>
             <div className="flex flex-wrap gap-8 text-sm font-bold text-text-sub">
