@@ -318,12 +318,9 @@ export default function LandingPage() {
               <Link className="hover:text-primary transition-colors" href="/terms">利用規約</Link>
             </div>
           </div>
-          <div className="mt-12 border-t border-gray-50 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="mt-12 border-t border-gray-50 pt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
             <p className="text-xs text-gray-400 font-medium">
-              © 2025 IMG-TOOLS. All rights reserved.
-            </p>
-            <p className="text-xs text-gray-400 flex items-center gap-1 font-medium">
-              Made with <span className="text-red-400 text-[10px]">❤️</span> by <span className="text-text-main font-bold">Antigravity</span>
+              © 2026 IMG-TOOLS. All rights reserved.
             </p>
           </div>
         </div>

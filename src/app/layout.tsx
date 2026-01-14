@@ -16,9 +16,6 @@ export const metadata: Metadata = {
   },
   description:
     "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。プライバシー重視で画像はサーバーに送られません。",
-  keywords: ["スタンプ作成", "画像編集", "背景削除", "背景透過", "画像分割", "トリミング", "LINEスタンプ", "無料ツール", "ブラウザ"],
-  authors: [{ name: "Antigravity" }],
-  creator: "Antigravity",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
   openGraph: {
     title: "IMG-TOOLS | スタンプ作りに最適な無料画像編集ツール",
