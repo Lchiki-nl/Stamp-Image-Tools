@@ -27,7 +27,7 @@ export function CTASection() {
             <ArrowRight className="ml-2" size={24} />
           </Link>
         </div>
-        <p className="mt-4 text-xs text-gray-400 font-bold">※ クレジットカード登録などは一切不要です</p>
+
       </div>
     </section>
   );

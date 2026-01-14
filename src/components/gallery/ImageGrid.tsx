@@ -21,7 +21,7 @@ export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFil
           <div className="space-y-8">
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-text-main">
-                画像編集をもっと手軽に。<br/>
+                画像加工をもっと手軽に。<br/>
                 <span className="text-primary">ブラウザだけで完結。</span>
               </h2>
               <p className="text-text-sub leading-relaxed">

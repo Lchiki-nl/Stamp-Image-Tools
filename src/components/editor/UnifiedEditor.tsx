@@ -115,7 +115,7 @@ export function UnifiedEditor({
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20">
                   <Smile size={24} strokeWidth={2.5} />
                 </div>
-                <h1 className="font-bold text-lg text-text-main hidden sm:block">画像編集</h1>
+                <h1 className="font-bold text-lg text-text-main hidden sm:block">画像加工</h1>
             </div>
         </div>
 

@@ -28,13 +28,13 @@ export function AdvantagesSection() {
             {
               icon: Zap,
               title: "サクサク動く",
-              description: "最新のブラウザ技術を使っているから、アプリのようにサクサク動きます。待ち時間ゼロでストレスフリー！",
+              description: "ブラウザ完結型技術を使っているから、アプリのようにサクサク動きます。待ち時間ゼロでストレスフリー！",
               color: "text-blue-500",
             },
             {
               icon: Smile,
               title: "誰でもかんたん",
-              description: "難しい設定は一切なし。直感的に使えるデザインなので、画像編集が初めての方でもすぐに使いこなせます。",
+              description: "難しい設定は一切なし。直感的に使えるデザインなので、画像加工が初めての方でもすぐに使いこなせます。",
               color: "text-orange-500",
             },
           ].map((item, index) => (

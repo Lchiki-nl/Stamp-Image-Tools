@@ -26,7 +26,7 @@ export function HeroSection() {
           >
             <div className="inline-flex items-center gap-2 rounded-full bg-primary-light px-4 py-2 text-sm font-bold text-primary shadow-sm border border-primary/10">
               <span className="text-xl">🎨</span>
-              クリエイターのための画像編集
+              クリエイターのための画像加工
             </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight text-text-main sm:text-5xl lg:text-6xl">
               <span className="text-primary whitespace-nowrap">スタンプ作り</span>に<br />
