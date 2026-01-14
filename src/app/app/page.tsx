@@ -338,6 +338,30 @@ export default function AppPage() {
                     initialTool={editorInitialTool}
                     onNext={currentImageIndex < images.length - 1 ? handleNextImage : undefined}
                     onPrev={currentImageIndex > 0 ? handlePrevImage : undefined}
+                    onDelete={() => {
+                        if (!editingImageId) return;
+                        
+                        const deletingIndex = currentImageIndex;
+                        const hasNext = deletingIndex < images.length - 1;
+                        const hasPrev = deletingIndex > 0;
+                        
+                        // Determine next image to show
+                        if (hasNext) {
+                            // Navigate to next (which will shift down after delete)
+                            const nextImage = images[deletingIndex + 1];
+                            setEditingImageId(nextImage.id);
+                        } else if (hasPrev) {
+                            // Navigate to previous
+                            const prevImage = images[deletingIndex - 1];
+                            setEditingImageId(prevImage.id);
+                        } else {
+                            // No more images, go back to gallery
+                            handleBackToGallery();
+                        }
+                        
+                        // Remove the image
+                        removeImages([editingImageId]);
+                    }}
                 />
             </div>
         )}

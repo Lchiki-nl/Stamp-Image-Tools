@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Eraser, Grid3X3, Crop, Scaling, ChevronLeft, ChevronRight, X, CheckCircle2, Smile } from "lucide-react";
+import { Eraser, Grid3X3, Crop, Scaling, ChevronLeft, ChevronRight, X, CheckCircle2, Smile, Trash2 } from "lucide-react";
 import { BackgroundRemovalTool } from "@/components/tools/BackgroundRemovalTool";
 import { ImageSplitTool } from "@/components/tools/ImageSplitTool";
 import { CropTool } from "@/components/tools/CropTool";
@@ -26,6 +26,7 @@ interface UnifiedEditorProps {
     initialTool?: Tool;
     onNext?: () => void;
     onPrev?: () => void;
+    onDelete?: () => void;
 }
 
 export function UnifiedEditor({ 
@@ -37,7 +38,8 @@ export function UnifiedEditor({
     onFileSelect, 
     initialTool = "background",
     onNext,
-    onPrev
+    onPrev,
+    onDelete
 }: UnifiedEditorProps) {
   const [activeTool, setActiveTool] = useState<Tool>(initialTool);
   const [overwriteMode, setOverwriteMode] = useState(true); // true = 上書き, false = 新規
@@ -127,22 +129,7 @@ export function UnifiedEditor({
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-            {/* Overwrite Toggle - Hidden for Split tool */}
-            {activeTool !== 'split' && (
-              <button
-                onClick={() => setOverwriteMode(!overwriteMode)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border
-                  ${overwriteMode 
-                    ? 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100'
-                    : 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'
-                  }
-                `}
-              >
-                <span className={`w-3 h-3 rounded-full ${overwriteMode ? 'bg-amber-500' : 'bg-green-500'}`}></span>
-                {overwriteMode ? '上書き保存' : '新規保存'}
-              </button>
-            )}
-             {/* Close Button Removed from Header */}
+             {/* Buttons moved to tabs area */}
         </div>
       </header>
 
@@ -174,16 +161,58 @@ export function UnifiedEditor({
                 })}
             </nav>
 
-            {/* Close Button Aligned to Right of Tabs (Right edge of content) */}
-            {onBack && (
+            {/* Action Buttons - Right of Tabs */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 z-20">
+              {/* Overwrite Toggle - Hidden for Split tool */}
+              {activeTool !== 'split' && (
+                <div className="flex bg-gray-100 rounded-xl p-0.5 border border-gray-200">
+                  <button
+                    onClick={() => setOverwriteMode(true)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                      ${overwriteMode 
+                        ? 'bg-white text-amber-600 shadow-sm'
+                        : 'text-gray-400 hover:text-gray-600'
+                      }
+                    `}
+                  >
+                    上書き
+                  </button>
+                  <button
+                    onClick={() => setOverwriteMode(false)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                      ${!overwriteMode 
+                        ? 'bg-white text-green-600 shadow-sm'
+                        : 'text-gray-400 hover:text-gray-600'
+                      }
+                    `}
+                  >
+                    新規
+                  </button>
+                </div>
+              )}
+              
+              {/* Delete Button */}
+              {onDelete && (
                 <button
-                    onClick={onBack}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2.5 bg-white border border-red-100 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl shadow-sm transition-all z-20"
-                    title="閉じる"
+                  onClick={onDelete}
+                  className="p-2.5 bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 rounded-xl shadow-sm transition-all"
+                  title="この画像を削除"
                 >
-                    <X size={20} className="stroke-[2.5]" />
+                  <Trash2 size={18} className="stroke-[2]" />
                 </button>
-            )}
+              )}
+              
+              {/* Close Button */}
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="p-2.5 bg-white border border-red-100 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl shadow-sm transition-all"
+                  title="閉じる"
+                >
+                  <X size={18} className="stroke-[2.5]" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Editor Area */}
