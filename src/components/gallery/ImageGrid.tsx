@@ -57,7 +57,7 @@ export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFil
                 </div>
                 <div>
                   <h3 className="font-bold text-text-main">グリッド分割</h3>
-                  <p className="text-sm text-text-sub mt-1">画像を均等に分割。アニメーションスタンプの作成に便利です。</p>
+                  <p className="text-sm text-text-sub mt-1">画像を均等に分割。複数の画像をまとめて切り出すのに便利です。</p>
                 </div>
               </div>
             </div>
