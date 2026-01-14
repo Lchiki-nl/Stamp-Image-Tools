@@ -36,6 +36,15 @@ export function GalleryView({
               {images.length} 枚の画像 (最大30枚)
             </p>
           </div>
+          
+          {images.length > 0 && onSelectAll && (
+              <button
+                  onClick={() => onSelectAll(selectedCount !== images.length)}
+                  className="px-4 py-2 text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors"
+              >
+                  {selectedCount === images.length ? "選択解除" : "全選択"}
+              </button>
+          )}
         </div>
 
         <div className="bg-white rounded-[32px] shadow-sm min-h-[600px] border border-gray-100 relative overflow-hidden">
