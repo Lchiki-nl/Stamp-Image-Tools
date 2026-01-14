@@ -5,6 +5,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://stamp-image-tools.pages.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ## 特徴
@@ -61,12 +62,13 @@ npm run dev
 ```
 src/
 ├── app/
-│   ├── page.tsx           # ランディングページ
+│   ├── page.tsx           # ランディングページ (/)
 │   ├── opengraph-image.tsx # OGP画像生成
 │   ├── robots.ts          # Robots.txt生成
 │   ├── sitemap.ts         # Sitemap生成
-│   └── app/
-│       └── layout.tsx     # ツール画面
+│   └── app/               # ツール画面 (/app)
+│       ├── layout.tsx
+│       └── page.tsx
 ├── components/
 │   ├── shared/            # 共通コンポーネント
 │   │   ├── FileDropzone.tsx

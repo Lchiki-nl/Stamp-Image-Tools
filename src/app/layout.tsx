@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   },
   description:
     "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。プライバシー重視で画像はサーバーに送られません。",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"),
   openGraph: {
     title: "EzStampify | スタンプ作りに最適な無料画像加工ツール",
     description:
