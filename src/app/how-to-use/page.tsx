@@ -79,7 +79,7 @@ export default function HowToUsePage() {
       description: "加工した画像を保存します。",
       details: [
         "編集画面の「新規保存」または「上書き保存」でギャラリーに反映されます。",
-        "ギャラリー画面で画像を選択し、「ダウンロード」ボタンを押すとPCに保存されます。",
+        "ギャラリー画面で画像を選択し、「ダウンロード」ボタンを押すとお使いのデバイスに保存されます。",
         "複数選択してダウンロードすると、ZIP形式でまとめて保存できます。"
       ],
       color: "text-pink-500",
@@ -175,7 +175,7 @@ export default function HowToUsePage() {
                           src={`/images/guide/${step.id}.png`} 
                           alt={step.title} 
                           fill
-                          className="object-cover"
+                          className="object-contain"
                         />
                       ) : (
                         /* Placeholder for others */
