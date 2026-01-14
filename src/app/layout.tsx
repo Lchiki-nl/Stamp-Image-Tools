@@ -11,23 +11,23 @@ const mPlusRounded = M_PLUS_Rounded_1c({
 
 export const metadata: Metadata = {
   title: {
-    default: "IMG-TOOLS | スタンプ作りに最適な無料画像編集ツール",
-    template: "%s | IMG-TOOLS",
+    default: "EzStampify | スタンプ作りに最適な無料画像編集ツール",
+    template: "%s | EzStampify",
   },
   description:
     "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。プライバシー重視で画像はサーバーに送られません。",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
   openGraph: {
-    title: "IMG-TOOLS | スタンプ作りに最適な無料画像編集ツール",
+    title: "EzStampify | スタンプ作りに最適な無料画像編集ツール",
     description:
       "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
-    siteName: "IMG-TOOLS",
+    siteName: "EzStampify",
     locale: "ja_JP",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "IMG-TOOLS | スタンプ作りに最適な無料画像編集ツール",
+    title: "EzStampify | スタンプ作りに最適な無料画像編集ツール",
     description: "登録不要、ずっと無料。背景透過、画像分割など、スタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
   },
   icons: {

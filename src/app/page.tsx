@@ -28,7 +28,7 @@ export default function LandingPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20 transform -rotate-6">
               <Smile size={24} strokeWidth={2.5} />
             </div>
-            <h1 className="text-xl font-extrabold tracking-tight text-text-main">IMG-TOOLS</h1>
+            <h1 className="text-xl font-extrabold tracking-tight text-text-main">EzStampify</h1>
           </div>
           <nav className="hidden md:flex items-center gap-8">
             <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="#features">機能</a>
@@ -112,7 +112,7 @@ export default function LandingPage() {
                     <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
                   </div>
-                  <div className="text-xs font-bold text-gray-400 ml-auto">IMG-TOOLS Editor</div>
+                  <div className="text-xs font-bold text-gray-400 ml-auto">EzStampify Editor</div>
                 </div>
                 <div className="p-8 h-full flex items-center justify-center relative bg-checkerboard">
                   <div className="absolute w-48 h-48 rounded-2xl border-4 border-dashed border-gray-300 flex items-center justify-center transform -translate-x-12 -translate-y-4 opacity-50">
@@ -307,7 +307,7 @@ export default function LandingPage() {
                 <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
                   <Smile size={20} strokeWidth={2.5} />
                 </div>
-                <span className="font-black text-xl">IMG-TOOLS</span>
+                <span className="font-black text-xl">EzStampify</span>
               </div>
               <p className="text-xs font-bold text-gray-400">
                 Creative Tools for Stamp Creators.
@@ -320,7 +320,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-12 border-t border-gray-50 pt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
             <p className="text-xs text-gray-400 font-medium">
-              © 2026 IMG-TOOLS. All rights reserved.
+              © 2026 EzStampify. All rights reserved.
             </p>
           </div>
         </div>
