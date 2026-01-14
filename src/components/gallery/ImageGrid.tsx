@@ -21,11 +21,11 @@ export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFil
           <div className="space-y-8">
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-text-main">
-                画像加工をもっと手軽に。<br/>
-                <span className="text-primary">ブラウザだけで完結。</span>
+                画像加工をもっと手軽に。
+                <span className="text-primary block sm:inline sm:ml-2">ブラウザだけで完結。</span>
               </h2>
               <p className="text-text-sub leading-relaxed">
-                スタンプ画像作成に便利なツールをひとまとめにしました。<br/>
+                スタンプ画像作成に便利なツールをひとまとめにしました。
                 登録不要、すべての処理はお使いのブラウザで行われます。
               </p>
             </div>
