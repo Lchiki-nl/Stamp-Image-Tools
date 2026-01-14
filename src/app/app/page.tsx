@@ -158,11 +158,11 @@ export default function AppPage() {
       setProgress({ current: 0, total: targets.length });
 
       try {
-          console.log("Starting batch execution. Action:", processingAction, "Config:", config, "Overwrite:", overwrite);
+
           for (let i = 0; i < targets.length; i++) {
               const img = targets[i];
               const file = img.file;
-              console.log(`Processing image ${i + 1}/${targets.length}:`, img.name);
+
               
               let resultBlobs: Blob[] = [];
 
@@ -175,7 +175,7 @@ export default function AppPage() {
                   resultBlobs = [blob];
               } else if (processingAction === 'split') {
                   resultBlobs = await processSplit(file, config);
-                  console.log(`Split generated ${resultBlobs.length} parts`);
+
               } else if (processingAction === 'resize') {
                   const blob = await processResize(file, config);
                   resultBlobs = [blob];
@@ -198,7 +198,7 @@ export default function AppPage() {
                   resultBlobs.forEach((blob, index) => {
                       const suffix = resultBlobs.length > 1 ? `_${index + 1}` : '_processed';
                       const newFile = new File([blob], `${baseName}${suffix}.png`, { type: 'image/png' });
-                      console.log("Adding new file:", newFile.name, newFile.size);
+
                       addProcessedImage(newFile, img.id);
                   });
               }

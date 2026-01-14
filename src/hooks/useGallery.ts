@@ -106,7 +106,7 @@ export function useGallery() {
      addImages([file]);
      // originalId があれば紐付けなどができるが、現状はフラットに追加
      if (originalId) {
-         console.log("Processed from:", originalId);
+
      }
   }, [addImages]);
 
