@@ -25,8 +25,7 @@ export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFil
                 <span className="text-primary block sm:inline-block">ブラウザだけで完結。</span>
               </h2>
               <p className="text-text-sub leading-relaxed">
-                <span className="inline-block">スタンプ画像作成に便利なツールをひとまとめにしました。</span>
-                <span className="inline-block">登録不要、すべての処理はお使いのブラウザで行われます。</span>
+                <span className="inline-block">スタンプ画像作成に便利なツールをひとまとめにしました。登録不要、すべての処理はお使いのブラウザで行われます。</span>
               </p>
             </div>
 
