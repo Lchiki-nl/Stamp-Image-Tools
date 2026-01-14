@@ -33,7 +33,7 @@ export function FeaturesSection() {
             {
               icon: Crop,
               title: "余白をぴったりカット",
-              description: "画像のまわりの無駄な余白を数値を指定してカット。スタンプの申請サイズに合わせてスッキリ整えます。",
+              description: "スライダー操作で画像の余白をまとめてカット。スタンプの申請サイズに合わせてスッキリ整えます。",
               color: "orange",
             },
           ].map((feature, index) => (

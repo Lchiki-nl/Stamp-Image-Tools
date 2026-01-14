@@ -47,7 +47,7 @@ export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFil
                 </div>
                 <div>
                   <h3 className="font-bold text-text-main">スマートトリミング</h3>
-                  <p className="text-sm text-text-sub mt-1">余白を自動検出してカット。手動での微調整も簡単です。</p>
+                  <p className="text-sm text-text-sub mt-1">スライダーで余白を一括カット。手動での微調整も簡単です。</p>
                 </div>
               </div>
 
