@@ -198,7 +198,7 @@ export function UnifiedEditor({
                   className="p-2.5 bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 rounded-xl shadow-sm transition-all"
                   title="この画像を削除"
                 >
-                  <Trash2 size={18} className="stroke-[2]" />
+                  <Trash2 size={18} className="stroke-2" />
                 </button>
               )}
               
