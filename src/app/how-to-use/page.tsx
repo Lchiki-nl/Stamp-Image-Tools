@@ -53,8 +53,8 @@ export default function HowToUsePage() {
       description: "1枚の画像を均等なサイズに分割して切り出します。",
       details: [
         "「分割」タブを選択します。",
-        "横（列数）と縦（行数）を指定します（例：4x4など）。",
-        "アニメーションスタンプのコマ割り画像を作成するのに便利です。"
+        "横（列数）と縦（行数）を指定します（例：3x3、4x4など）。",
+        "複数のイラストを1枚にまとめた画像を、個別のファイルに分割できます。"
       ],
       color: "text-green-500",
       bg: "bg-green-50"
@@ -92,16 +92,16 @@ export default function HowToUsePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md px-3 sm:px-6 py-3 sm:py-4 shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-shrink">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 shrink">
             <Link href="/" className="flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity">
-              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20 transform -rotate-6 flex-shrink-0">
+              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20 transform -rotate-6 shrink-0">
                 <Smile size={20} className="sm:hidden" strokeWidth={2.5} />
                 <Smile size={24} className="hidden sm:block" strokeWidth={2.5} />
               </div>
               <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-text-main truncate">EzStampify</h1>
             </Link>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
              <Link
               href="/"
               className="flex items-center gap-1 text-sm font-bold text-text-sub hover:text-primary transition-colors"
