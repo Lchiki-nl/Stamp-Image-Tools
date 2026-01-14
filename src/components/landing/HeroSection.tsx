@@ -14,9 +14,13 @@ export function HeroSection() {
   const [currentEmoji, setCurrentEmoji] = useState("😸");
 
   useEffect(() => {
-    const CAT_EMOJIS = ["😸", "😺", "😻", "😼", "😽", "🙀", "😿", "😹", "😾"];
-    const randomEmoji = CAT_EMOJIS[Math.floor(Math.random() * CAT_EMOJIS.length)];
-    setCurrentEmoji(randomEmoji);
+    // マウント後にランダムな絵文字を設定（ハイドレーション不一致防止 & Warning回避）
+    const timer = setTimeout(() => {
+      const CAT_EMOJIS = ["😸", "😺", "😻", "😼", "😽", "🙀", "😿", "😹", "😾"];
+      const randomEmoji = CAT_EMOJIS[Math.floor(Math.random() * CAT_EMOJIS.length)];
+      setCurrentEmoji(randomEmoji);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
