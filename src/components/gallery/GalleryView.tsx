@@ -100,7 +100,7 @@ export function GalleryView({
            </a>
         </div>
         <p className="mt-4 opacity-50 text-xs">
-          © 2024 EzStampify
+          © 2026 EzStampify
         </p>
       </footer>
     </div>
