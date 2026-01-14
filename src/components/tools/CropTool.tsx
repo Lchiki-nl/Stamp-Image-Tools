@@ -31,6 +31,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
   const [cropBounds, setCropBounds] = useState<CropBounds | null>(null);
   const [manualCrop, setManualCrop] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
+  const [uniformCrop, setUniformCrop] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // 画像読み込み
@@ -44,6 +45,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
           setOriginalImageData(imageData);
           setCropBounds(null);
           setManualCrop({ top: 0, right: 0, bottom: 0, left: 0 });
+          setUniformCrop(0);
         }
       }, 100);
     };
@@ -61,26 +63,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     }
   }, [embeddedCanvasRef]);
 
-  // 自動トリミング検出
-  const handleAutoDetect = useCallback(() => {
-    if (!originalImageData) return;
 
-    setIsProcessing(true);
-
-    requestAnimationFrame(() => {
-      const bounds = detectBoundingBox(originalImageData);
-      if (bounds) {
-        setCropBounds(bounds);
-        setManualCrop({
-          top: bounds.top,
-          right: originalImageData.width - bounds.right - 1,
-          bottom: originalImageData.height - bounds.bottom - 1,
-          left: bounds.left,
-        });
-      }
-      setIsProcessing(false);
-    });
-  }, [originalImageData]);
 
   // 手動入力からの cropBounds 計算 (useMemo でメモ化)
   const computedCropBounds = useMemo(() => {
@@ -122,25 +105,12 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
       canvasRef.current.reset();
       setCropBounds(null);
       setManualCrop({ top: 0, right: 0, bottom: 0, left: 0 });
+      setUniformCrop(0);
     }
   };
 
   // ダウンロード
-  const handleDownload = async () => {
-    if (!canvasRef.current) return;
 
-    const blob = await canvasRef.current.toBlob("image/png");
-    if (!blob) return;
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cropped.png";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   // 適用 (Unified Editor用)
   const handleApply = async () => {
@@ -183,21 +153,33 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-80 h-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
             <Crop size={20} />
             余白カット設定
           </h3>
 
-          {/* Auto Detect Button */}
-          <button
-            onClick={handleAutoDetect}
-            disabled={isProcessing}
-            className="w-full btn-secondary flex items-center justify-center gap-2 bg-orange-100 text-orange-600 hover:bg-orange-200"
-          >
-            <Wand2 size={18} />
-            自動検出
-          </button>
+
+
+          {/* Uniform Crop Slider */}
+          <div className="space-y-3 pt-2 border-t border-gray-100">
+             <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+               一括カット (px)
+               <span className="text-primary font-bold">{uniformCrop}px</span>
+             </label>
+             <input
+               type="range"
+               min="0"
+               max="100" // reasonable default, or use image dimension / 2
+               value={uniformCrop}
+               onChange={(e) => {
+                   const val = parseInt(e.target.value);
+                   setUniformCrop(val);
+                   setManualCrop({ top: val, right: val, bottom: val, left: val });
+               }}
+               className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+             />
+          </div>
 
           {/* Manual Input */}
           <div className="space-y-4">
@@ -243,13 +225,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 適用して次へ
               </button>
             )}
-            <button
-              onClick={handleDownload}
-              className="w-full btn-primary flex items-center justify-center gap-2"
-            >
-              <Download size={20} />
-              ダウンロード
-            </button>
+
             <button
               onClick={handleReset}
               className="w-full btn-secondary flex items-center justify-center gap-2"

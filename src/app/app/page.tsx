@@ -9,7 +9,9 @@ import { ProcessingModal, type ProcessingAction } from "@/components/gallery/Pro
 import { processRemoveBackground, processCrop, processSplit } from "@/lib/batch-processing";
 import { type GalleryAction } from "@/types/gallery";
 
-type ViewMode = "gallery" | "editor";
+
+// type ViewMode = "gallery" | "editor"; // Removed
+
 
 export default function AppPage() {
   const { 
@@ -23,7 +25,7 @@ export default function AppPage() {
     toggleSelection 
   } = useGallery();
   
-  const [viewMode, setViewMode] = useState<ViewMode>("gallery");
+  // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [editorInitialTool, setEditorInitialTool] = useState<"background" | "crop" | "split">("background");
 
@@ -49,7 +51,7 @@ export default function AppPage() {
        const firstImage = images[0];
        setEditingImageId(firstImage.id);
        setEditorInitialTool("background");
-       setViewMode("editor");
+       // setViewMode("editor"); 
     }
     prevImageCount.current = images.length;
   }, [images]);
@@ -99,7 +101,7 @@ export default function AppPage() {
       if (action === 'split' && selectedImages.length === 1) {
           setEditingImageId(selectedImages[0].id);
           setEditorInitialTool('split');
-          setViewMode('editor');
+          // setViewMode('editor');
           return;
       }
 
@@ -175,13 +177,49 @@ export default function AppPage() {
   const handleSelectForEdit = (id: string) => {
     setEditingImageId(id);
     setEditorInitialTool("background");
-    setViewMode("editor");
+    // Add history entry
+    window.history.pushState({ mode: "editor" }, "", window.location.pathname);
+  };
+  
+  // Handle Browser Back Button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+        // If we go back and editingImageId is set, clean it up
+        setEditingImageId(null);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // 編集完了/戻る (UIボタンから)
+  const handleBackToGallery = () => {
+    // History state check: Only go back if we pushed a state
+    const state = window.history.state;
+    if (state && state.mode === "editor") {
+        window.history.back();
+    } else {
+        // Otherwise just close the modal manually
+        setEditingImageId(null);
+    }
   };
 
-  // 編集完了/戻る
-  const handleBackToGallery = () => {
-    setEditingImageId(null);
-    setViewMode("gallery");
+  // Navigation Logic
+  const currentImageIndex = images.findIndex(img => img.id === editingImageId);
+  
+  const handleNextImage = () => {
+      if (currentImageIndex !== -1 && currentImageIndex < images.length - 1) {
+          const nextImg = images[currentImageIndex + 1];
+          setEditingImageId(nextImg.id);
+          // Tool state might need reset or persist? Currently resets to initialTool default
+      }
+  };
+
+  const handlePrevImage = () => {
+      if (currentImageIndex > 0) {
+          const prevImg = images[currentImageIndex - 1];
+          setEditingImageId(prevImg.id);
+      }
   };
 
   // 適用 (UnifiedEditorからのコールバック)
@@ -200,19 +238,6 @@ export default function AppPage() {
       }
   };
 
-  if (viewMode === "editor" && editingImage) {
-    return (
-        <UnifiedEditor 
-            previewUrl={editingImage.previewUrl}  
-            onBack={handleBackToGallery}
-            onApply={handleApply}
-            embeddedImage={null}
-            onFileSelect={(file) => handleAddFiles([file])}
-            initialTool={editorInitialTool}
-        />
-    );
-  }
-
   return (
     <>
         <GalleryView 
@@ -227,6 +252,30 @@ export default function AppPage() {
             onClearSelection={() => selectAll(false)}
         />
         
+        {/* Editor Modal Overlay */}
+        {editingImage && (
+            <div 
+                className="fixed inset-0 z-50 bg-background-soft animate-in slide-in-from-bottom-5 duration-300"
+                onClick={(e) => {
+                    // Close if clicking the backdrop itself
+                    if (e.target === e.currentTarget) {
+                        handleBackToGallery();
+                    }
+                }}
+            >
+                <UnifiedEditor 
+                    previewUrl={editingImage.previewUrl}  
+                    onBack={handleBackToGallery}
+                    onApply={handleApply}
+                    embeddedImage={null}
+                    onFileSelect={(file) => handleAddFiles([file])}
+                    initialTool={editorInitialTool}
+                    onNext={currentImageIndex < images.length - 1 ? handleNextImage : undefined}
+                    onPrev={currentImageIndex > 0 ? handlePrevImage : undefined}
+                />
+            </div>
+        )}
+
         <ProcessingModal
             isOpen={!!processingAction}
             onClose={() => setProcessingAction(null)}

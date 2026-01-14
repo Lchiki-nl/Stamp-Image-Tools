@@ -23,7 +23,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
 
   const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
   const [targetColor, setTargetColor] = useState<RGBColor>({ r: 255, g: 255, b: 255 });
-  const [tolerance, setTolerance] = useState(30);
+  const [tolerance, setTolerance] = useState(0);
   const [feather, setFeather] = useState(0);
   const [isEyedropperActive] = useState(true); // 将来的に切り替え機能をつけるなら setIsEyedropperActive も必要だが現状はtrue固定
   const [isProcessing, setIsProcessing] = useState(false);
@@ -45,13 +45,48 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
       }
   };
 
+  // 画像がロードされたら右上のピクセルをデフォルト色として取得
+  useEffect(() => {
+    if (originalImageData) {
+        const { width, data } = originalImageData;
+        // Top Right Pixel: (width - 1, 0)
+        // ensure width > 0
+        if (width > 0) {
+            const x = width - 1;
+            const y = 0;
+            const idx = (y * width + x) * 4;
+            if (idx < data.length) {
+                const r = data[idx];
+                const g = data[idx + 1];
+                const b = data[idx + 2];
+                // Prevent synchronous setState warning
+                setTimeout(() => setTargetColor({ r, g, b }), 0);
+            }
+        }
+    }
+  }, [originalImageData]);
+
   // スポイトで色を取得
   const handleCanvasClick = useCallback(
-    (_x: number, _y: number, color: { r: number; g: number; b: number; a: number }) => {
+    (x: number, y: number) => {
       if (!isEyedropperActive) return;
-      setTargetColor({ r: color.r, g: color.g, b: color.b });
+
+      // オリジナル画像データから色を取得 (透明化後の黒などを拾わないように)
+      if (originalImageData) {
+        const index = (y * originalImageData.width + x) * 4;
+        if (index >= 0 && index < originalImageData.data.length) {
+            const r = originalImageData.data[index];
+            const g = originalImageData.data[index + 1];
+            const b = originalImageData.data[index + 2];
+            setTargetColor({ r, g, b });
+            return;
+        }
+      }
+      
+      // Fallback (通常はCanvasClickで取得した色だが、基本ここには来ないはず)
+      // setTargetColor({ r: color.r, g: color.g, b: color.b });
     },
-    [isEyedropperActive]
+    [isEyedropperActive, originalImageData]
   );
 
   // 背景削除処理
@@ -83,7 +118,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
     if (originalImageData && canvasRef.current) {
       canvasRef.current.putImageData(originalImageData);
     }
-    setTolerance(30);
+    setTolerance(0);
     setFeather(0);
     setTargetColor({ r: 255, g: 255, b: 255 });
   };
@@ -95,21 +130,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   }, [isEmbedded]);
 
   // ダウンロード
-  const handleDownload = async () => {
-    if (!canvasRef.current) return;
 
-    const blob = await canvasRef.current.toBlob("image/png");
-    if (!blob) return;
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "background_removed.png";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   // 適用 (Unified Editor用)
   const handleApply = async () => {
@@ -153,7 +174,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-80 h-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main">設定</h3>
 
           {/* Color Picker */}
@@ -229,13 +250,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
                 適用して次へ
               </button>
             )}
-            <button
-              onClick={handleDownload}
-              className="w-full btn-primary flex items-center justify-center gap-2 whitespace-nowrap"
-            >
-              <Download size={20} />
-              ダウンロード
-            </button>
+
             <div className="flex gap-3">
               <button
                 onClick={handleReset}

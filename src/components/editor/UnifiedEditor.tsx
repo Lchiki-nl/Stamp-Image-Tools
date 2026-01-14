@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import Link from "next/link";
-import { Eraser, Grid3X3, Crop, ArrowLeft } from "lucide-react";
+import { Eraser, Grid3X3, Crop } from "lucide-react";
 import { BackgroundRemovalTool } from "@/components/tools/BackgroundRemovalTool";
 import { ImageSplitTool } from "@/components/tools/ImageSplitTool";
 import { CropTool } from "@/components/tools/CropTool";
@@ -23,9 +22,21 @@ interface UnifiedEditorProps {
     onApply?: (blob: Blob | Blob[]) => void;
     onFileSelect?: (file: File) => void;
     initialTool?: Tool;
+    onNext?: () => void;
+    onPrev?: () => void;
 }
 
-export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embeddedCanvasRef, onFileSelect, initialTool = "background" }: UnifiedEditorProps) {
+export function UnifiedEditor({ 
+    previewUrl, 
+    onBack, 
+    onApply, 
+    embeddedImage, 
+    embeddedCanvasRef, 
+    onFileSelect, 
+    initialTool = "background",
+    onNext,
+    onPrev
+}: UnifiedEditorProps) {
   const [activeTool, setActiveTool] = useState<Tool>(initialTool);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
@@ -96,42 +107,31 @@ export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embe
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-soft">
+    <div className="flex flex-col h-full bg-background-soft">
       {/* Header Bar */}
       <header className="px-4 lg:px-8 py-4 flex items-center justify-between bg-white border-b border-gray-100 sticky top-0 z-30">
         <div className="flex items-center gap-4">
-            {onBack ? (
-                <button 
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-bold"
-                >
-                    <ArrowLeft size={20} />
-                    戻る
-                </button>
-            ) : (
-                <Link
-                    href="/"
-                    className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary"
-                >
-                    <span className="material-symbols-outlined">sentiment_satisfied</span>
-                </Link>
-            )}
-            <div className="h-6 w-px bg-gray-200" />
-            <h1 className="font-bold text-lg text-text-main hidden sm:block">画像編集</h1>
+            <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20">
+                  <span className="material-symbols-outlined text-[24px]">sentiment_satisfied</span>
+                </div>
+                <h1 className="font-bold text-lg text-text-main hidden sm:block">画像編集</h1>
+            </div>
         </div>
 
-
-
-        {/* Image Status */}
-        <div className="flex items-center">
+        {/* Right Actions */}
+        <div className="flex items-center gap-4">
+             {/* Image Status */}
             {image && (
-                <div className="flex items-center gap-3 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
-                    <span className="text-xs font-bold text-gray-500 hidden sm:inline">サイズ:</span>
+                <div className="hidden sm:flex items-center gap-3 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                    <span className="text-xs font-bold text-gray-500">サイズ:</span>
                     <span className="text-xs font-mono font-bold text-gray-700">
                         {image.naturalWidth} x {image.naturalHeight}
                     </span>
                 </div>
             )}
+            
+             {/* Close Button Removed from Header */}
         </div>
       </header>
 
@@ -165,28 +165,68 @@ export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embe
           </div>
 
           {/* Editor Area */}
-          <div className="glass-card rounded-[32px] p-6 h-[640px] shadow-xl shadow-slate-200/50 block flex-1 border border-white/50">
-             {!image ? (
-                <div className="flex flex-col items-center justify-center h-full">
-                    <div className="w-full max-w-xl">
-                        <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
-                        <p className="text-center text-gray-400 text-sm mt-4">
-                            画像をドラッグ&ドロップして編集を開始
-                        </p>
-                    </div>
-                </div>
-             ) : (
-                <div className="animate-in fade-in duration-300 h-full">
-                    <ActiveComponent 
-                        embeddedImage={image} 
-                        embeddedCanvasRef={embeddedCanvasRef}
-                        onApply={handleApply}
-                    />
-                </div>
+          <div className="relative flex-1">
+             {/* Navigation Buttons - Left */}
+             {onPrev && (
+                 <button 
+                    onClick={onPrev}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-20 p-3 rounded-full bg-white/90 text-gray-500 shadow-xl hover:bg-white hover:text-primary transition-all hidden xl:flex"
+                    title="前の画像"
+                 >
+                    <span className="material-symbols-outlined text-3xl">chevron_left</span>
+                 </button>
              )}
+
+             {/* Navigation Buttons - Right */}
+             {onNext && (
+                 <button 
+                    onClick={onNext}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-20 p-3 rounded-full bg-white/90 text-gray-500 shadow-xl hover:bg-white hover:text-primary transition-all hidden xl:flex"
+                    title="次の画像"
+                 >
+                    <span className="material-symbols-outlined text-3xl">chevron_right</span>
+                 </button>
+             )}
+
+            <div className="glass-card rounded-[32px] p-6 h-[640px] shadow-xl shadow-slate-200/50 block w-full border border-white/50 relative">
+                {!image ? (
+                    <div className="flex flex-col items-center justify-center h-full">
+                        <div className="w-full max-w-xl">
+                            <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
+                            <p className="text-center text-gray-400 text-sm mt-4">
+                                画像をドラッグ&ドロップして編集を開始
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="animate-in fade-in duration-300 h-full">
+                        <ActiveComponent 
+                            embeddedImage={image} 
+                            embeddedCanvasRef={embeddedCanvasRef}
+                            onApply={handleApply}
+                        />
+                    </div>
+                )}
+            </div>
           </div>
         </div>
       </main>
+
+
+      {/* Prominent Close Button (Fixed Top Right) */}
+      {onBack && (
+        <button
+            onClick={onBack}
+            className="fixed top-6 right-6 z-[60] flex flex-col items-center justify-center group"
+        >
+            <div className="w-14 h-14 bg-red-500 rounded-full shadow-xl shadow-red-500/30 flex items-center justify-center text-white transition-transform group-hover:scale-110 group-active:scale-95">
+                <span className="material-symbols-outlined text-3xl font-bold">close</span>
+            </div>
+            <span className="mt-1 text-xs font-bold text-gray-500 bg-white/90 px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm group-hover:text-red-500 transition-colors">
+                閉じる
+            </span>
+        </button>
+      )}
 
       {/* Notification Toast */}
       {notification && (

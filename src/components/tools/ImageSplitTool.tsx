@@ -44,57 +44,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
      // 分割ツールは初期化処理不要だが、描画完了を確実にするためにコールバックを受け取る
   }, []);
 
-  // ZIP でダウンロード
-  const handleDownload = useCallback(async () => {
-    if (!canvasRef.current || !image) return;
 
-    setIsProcessing(true);
-
-    try {
-      const imageData = canvasRef.current.getImageData();
-      if (!imageData) return;
-
-      const splitParts = splitImage(imageData, rows, cols);
-      const zip = new JSZip();
-
-      // 各パーツを PNG としてZIPに追加
-      for (let i = 0; i < splitParts.length; i++) {
-        const row = Math.floor(i / cols) + 1;
-        const col = (i % cols) + 1;
-        const partData = splitParts[i];
-
-        // 一時的な Canvas で Blob に変換
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = partData.width;
-        tempCanvas.height = partData.height;
-        const ctx = tempCanvas.getContext("2d");
-        if (!ctx) continue;
-
-        ctx.putImageData(partData, 0, 0);
-
-        const blob = await new Promise<Blob | null>((resolve) => {
-          tempCanvas.toBlob((b) => resolve(b), "image/png");
-        });
-
-        if (blob) {
-          zip.file(`${fileName}_${row}_${col}.png`, blob);
-        }
-      }
-
-      // ZIP をダウンロード
-      const content = await zip.generateAsync({ type: "blob" });
-      const url = URL.createObjectURL(content);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${fileName}_split_${rows}x${cols}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [image, rows, cols, fileName, canvasRef]);
 
   // 適用 (Unified Editor用)
   // 適用 (Unified Editor用)
@@ -189,7 +139,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-80 h-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
             <Grid3X3 size={20} />
             グリッド設定
@@ -261,14 +211,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
                 適用して次へ
               </button>
            )}
-          <button
-            onClick={handleDownload}
-            disabled={isProcessing}
-            className="w-full btn-primary flex items-center justify-center gap-2"
-          >
-            <Download size={20} />
-            ZIP でダウンロード
-          </button>
+
 
           {/* Clear Button */}
           {!isEmbedded && (

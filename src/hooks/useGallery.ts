@@ -1,10 +1,36 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { GalleryImage } from '@/types/gallery';
+import { saveGalleryState, loadGalleryState, clearGalleryState } from '@/lib/storage';
 
 export const MAX_IMAGES = 30;
 
 export function useGallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
+  const isLoadedRef = useRef(false);
+
+  // Load from DB on mount
+  useEffect(() => {
+    let active = true;
+    (async () => {
+        const storedImages = await loadGalleryState();
+        if (active && storedImages.length > 0) {
+            setImages(storedImages);
+        }
+        isLoadedRef.current = true;
+    })();
+    return () => { active = false; };
+  }, []);
+
+  // Save to DB on change
+  useEffect(() => {
+    if (!isLoadedRef.current) return; // Don't save empty state before load
+    
+    // Debounce saving slightly or just save (IndexedDB is async/fast enough for small counts)
+    const timeoutId = setTimeout(() => {
+        saveGalleryState(images);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [images]);
 
   // Note: URL cleanup is handled in removeImages to avoid premature revocation
 
