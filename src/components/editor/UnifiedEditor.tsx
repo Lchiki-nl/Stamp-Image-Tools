@@ -142,14 +142,14 @@ export function UnifiedEditor({
                     key={tool.id}
                     onClick={() => setActiveTool(tool.id)}
                     className={`
-                        flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all
+                        flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap
                         ${isActive 
                         ? "bg-primary/10 text-primary" 
                         : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}
                     `}
                     >
                     <Icon size={18} />
-                    <span>{tool.label}</span>
+                    <span className="hidden md:inline">{tool.label}</span>
                     </button>
                 );
                 })}
@@ -191,7 +191,7 @@ export function UnifiedEditor({
                  </button>
              )}
 
-            <div className="glass-card rounded-[32px] p-6 h-[640px] shadow-xl shadow-slate-200/50 block w-full border border-white/50 relative">
+            <div className="glass-card rounded-[32px] p-4 md:p-6 h-[calc(100dvh-180px)] md:h-[640px] shadow-xl shadow-slate-200/50 block w-full border border-white/50 relative">
                 {!image ? (
                     <div className="flex flex-col items-center justify-center h-full">
                         <div className="w-full max-w-xl">
@@ -223,7 +223,7 @@ export function UnifiedEditor({
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
            <div className="bg-gray-900/90 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3 backdrop-blur-sm">
              <CheckCircle2 size={24} className="text-green-400" />
-             <span className="font-bold text-sm">{notification}</span>
+             <span className="font-bold text-sm whitespace-nowrap">{notification}</span>
            </div>
         </div>
       )}

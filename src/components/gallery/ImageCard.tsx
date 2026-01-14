@@ -59,7 +59,7 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
           e.stopPropagation();
           onRemove(image.id);
         }}
-        className="absolute bottom-3 right-3 z-10 w-9 h-9 bg-white/90 text-red-500 rounded-xl shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50"
+        className="absolute bottom-3 right-3 z-10 w-9 h-9 bg-white/90 text-red-500 rounded-xl shadow-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-red-50"
         title="削除"
       >
         <Trash2 size={18} />

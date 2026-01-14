@@ -11,13 +11,13 @@ interface FloatingActionBarProps {
 
 export function FloatingActionBar({ count, onAction, onClearSelection }: FloatingActionBarProps) {
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-10 fade-in duration-300">
-      <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl px-2 py-2 border border-gray-200/50 flex items-center gap-1 md:gap-2">
+    <div className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-10 fade-in duration-300 w-[calc(100%-2rem)] md:w-auto max-w-full">
+      <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl px-2 py-2 border border-gray-200/50 flex items-center gap-1 md:gap-2 justify-center">
         
         {/* Counter & Clear */}
         <div className="flex items-center gap-3 px-3 border-r border-gray-200 mr-1">
           <span className="font-black text-gray-800 whitespace-nowrap">
-            {count} <span className="text-xs font-normal text-gray-500">選択中</span>
+            {count} <span className="text-xs font-normal text-gray-500 hidden md:inline">選択中</span>
           </span>
           <button 
             onClick={onClearSelection}
@@ -77,7 +77,7 @@ interface ActionButtonProps {
 }
 
 function ActionButton({ icon: Icon, label, onClick, color, variant = 'solid' }: ActionButtonProps) {
-  const baseClass = "flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all gap-1";
+  const baseClass = "flex flex-col items-center justify-center w-10 h-10 md:w-16 md:h-14 rounded-xl transition-all gap-0.5 md:gap-1";
   
   // Tailwind colors need to be complete strings for safelist/JIT if not already used elsewhere.
   // Using direct classes for reliability.
@@ -97,8 +97,8 @@ function ActionButton({ icon: Icon, label, onClick, color, variant = 'solid' }: 
 
   return (
     <button onClick={onClick} className={`${baseClass} ${colorClass}`}>
-      <Icon size={20} className="mb-0.5" />
-      <span className="text-[10px] font-bold">{label}</span>
+      <Icon size={20} className="md:mb-0.5" />
+      <span className="text-[10px] font-bold hidden md:block">{label}</span>
     </button>
   );
 }

@@ -2,6 +2,21 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { 
+  Smile, 
+  Edit, 
+  CheckCircle2, 
+  Wand2, 
+  Scissors, 
+  Grid3X3, 
+  Crop, 
+  Lock, 
+  Zap, 
+  ImagePlus, 
+  Sparkles, 
+  Download, 
+  ArrowRight 
+} from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -11,7 +26,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20 transform -rotate-6">
-              <span className="material-symbols-outlined text-[24px]">sentiment_satisfied</span>
+              <Smile size={24} strokeWidth={2.5} />
             </div>
             <h1 className="text-xl font-extrabold tracking-tight text-text-main">IMG-TOOLS</h1>
           </div>
@@ -61,21 +76,21 @@ export default function LandingPage() {
                   href="/app"
                   className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-lg font-bold text-white shadow-xl shadow-primary/30 transition hover:bg-primary-dark hover:-translate-y-1"
                 >
-                  <span className="material-symbols-outlined">edit_square</span>
+                  <Edit size={24} />
                   <span>今すぐ作る</span>
                 </Link>
               </div>
               <div className="flex items-center gap-6 pt-4 text-sm text-text-sub font-bold">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-[22px]">check_circle</span>
+                  <CheckCircle2 size={22} className="text-primary" />
                   <span>登録なしでOK</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-[22px]">check_circle</span>
+                  <CheckCircle2 size={22} className="text-primary" />
                   <span>ずっと無料</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-[22px]">check_circle</span>
+                  <CheckCircle2 size={22} className="text-primary" />
                   <span>スマホも対応</span>
                 </div>
               </div>
@@ -112,10 +127,10 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <div className="absolute top-1/2 right-8 bg-white p-3 rounded-xl shadow-lg border border-gray-100 animate-bounce" style={{ animationDuration: "3s" }}>
-                    <span className="material-symbols-outlined text-primary text-2xl">auto_fix</span>
+                    <Wand2 className="text-primary" size={24} />
                   </div>
                   <div className="absolute bottom-12 left-12 bg-white p-3 rounded-xl shadow-lg border border-gray-100 animate-bounce" style={{ animationDuration: "4s" }}>
-                    <span className="material-symbols-outlined text-blue-400 text-2xl">content_cut</span>
+                    <Scissors className="text-blue-400" size={24} />
                   </div>
                 </div>
               </div>
@@ -135,21 +150,21 @@ export default function LandingPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                icon: "magic_button",
+                icon: Sparkles,
                 title: "サクッと背景削除",
-                description: "写真やイラストの背景を一瞬で透明に！AIが自動で切り抜くから、面倒なパス切り作業とはおさらばです。",
+                description: "写真やイラストの背景を一瞬で透明に！クリックした色を自動で切り抜くので、面倒なパス切り作業とはおさらばです。",
                 color: "green",
               },
               {
-                icon: "grid_on",
+                icon: Grid3X3,
                 title: "まとめて画像分割",
                 description: "大きなイラストをスタンプ用に分割したり、SNS投稿用にグリッド分割したり。使い方は自由自在！",
                 color: "blue",
               },
               {
-                icon: "crop_free",
+                icon: Crop,
                 title: "余白をぴったりカット",
-                description: "画像のまわりの無駄な余白を自動でトリミング。スタンプの申請サイズに合わせてスッキリ整えます。",
+                description: "画像のまわりの無駄な余白を数値を指定してカット。スタンプの申請サイズに合わせてスッキリ整えます。",
                 color: "orange",
               },
             ].map((feature, index) => (
@@ -162,7 +177,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <div className={`mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-${feature.color}-100 text-${feature.color}-600 group-hover:bg-${feature.color}-500 group-hover:text-white transition-colors duration-300 shadow-sm`}>
-                  <span className="material-symbols-outlined text-[32px]">{feature.icon}</span>
+                  <feature.icon size={32} />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-text-main">{feature.title}</h3>
                 <p className="text-sm font-medium leading-relaxed text-text-sub">{feature.description}</p>
@@ -184,19 +199,19 @@ export default function LandingPage() {
           <div className="grid gap-8 md:grid-cols-3">
             {[
               {
-                icon: "lock_person",
+                icon: Lock,
                 title: "画像は送られません",
                 description: "サーバーへのアップロード不要！あなたのブラウザの中で処理が完結するので、大事なイラストが流出する心配はありません。",
                 color: "text-primary",
               },
               {
-                icon: "speed",
+                icon: Zap,
                 title: "サクサク動く",
                 description: "最新のブラウザ技術を使っているから、アプリのようにサクサク動きます。待ち時間ゼロでストレスフリー！",
                 color: "text-blue-500",
               },
               {
-                icon: "sentiment_very_satisfied",
+                icon: Smile,
                 title: "誰でもかんたん",
                 description: "難しい設定は一切なし。直感的に使えるデザインなので、画像編集が初めての方でもすぐに使いこなせます。",
                 color: "text-orange-500",
@@ -211,7 +226,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <div className={`mb-6 rounded-full bg-white p-4 ${item.color} shadow-md`}>
-                  <span className="material-symbols-outlined text-[32px]">{item.icon}</span>
+                  <item.icon size={32} />
                 </div>
                 <h3 className="text-xl font-bold text-text-main mb-3">{item.title}</h3>
                 <p className="text-sm text-text-sub leading-relaxed font-medium">{item.description}</p>
@@ -231,9 +246,9 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative max-w-4xl mx-auto">
             <div className="hidden md:block absolute top-12 left-0 w-full h-[3px] border-t-4 border-dotted border-gray-300 z-0"></div>
             {[
-              { icon: "add_photo_alternate", step: "STEP 1", title: "画像を選ぶ", active: false },
-              { icon: "wand_shine", step: "STEP 2", title: "自動で加工", active: true },
-              { icon: "save_alt", step: "STEP 3", title: "保存する", active: false },
+              { icon: ImagePlus, step: "STEP 1", title: "画像を選ぶ", active: false },
+              { icon: Wand2, step: "STEP 2", title: "ツールで加工", active: true },
+              { icon: Download, step: "STEP 3", title: "保存する", active: false },
             ].map((item, index) => (
               <motion.div
                 key={item.step}
@@ -244,7 +259,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.5, delay: index * 0.15 }}
               >
                 <div className={`flex h-24 w-24 items-center justify-center rounded-full border-4 border-white ${item.active ? "bg-primary text-white shadow-xl shadow-primary/30 animate-pulse" : "bg-white text-gray-400 shadow-lg"} group-hover:scale-110 transition-transform`}>
-                  <span className="material-symbols-outlined text-[40px]">{item.icon}</span>
+                  <item.icon size={40} />
                 </div>
                 <div className="text-center bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl">
                   <span className="block text-primary font-black text-lg mb-1">{item.step}</span>
@@ -276,7 +291,7 @@ export default function LandingPage() {
               className="flex min-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary h-16 px-10 text-white text-xl font-bold shadow-2xl shadow-primary/40 transition hover:bg-primary-dark hover:scale-105 active:scale-95"
             >
               無料で始める
-              <span className="material-symbols-outlined ml-2 text-2xl">arrow_forward</span>
+              <ArrowRight className="ml-2" size={24} />
             </Link>
           </div>
           <p className="mt-4 text-xs text-gray-400 font-bold">※ クレジットカード登録などは一切不要です</p>
@@ -290,7 +305,7 @@ export default function LandingPage() {
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 text-text-main">
                 <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
-                  <span className="material-symbols-outlined text-[20px]">sentiment_satisfied</span>
+                  <Smile size={20} strokeWidth={2.5} />
                 </div>
                 <span className="font-black text-xl">IMG-TOOLS</span>
               </div>
@@ -299,9 +314,8 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-8 text-sm font-bold text-text-sub">
-              <a className="hover:text-primary transition-colors" href="#">プライバシーポリシー</a>
-              <a className="hover:text-primary transition-colors" href="#">利用規約</a>
-              <a className="hover:text-primary transition-colors" href="#">運営会社</a>
+              <Link className="hover:text-primary transition-colors" href="/privacy">プライバシーポリシー</Link>
+              <Link className="hover:text-primary transition-colors" href="/terms">利用規約</Link>
             </div>
           </div>
           <div className="mt-12 border-t border-gray-50 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">

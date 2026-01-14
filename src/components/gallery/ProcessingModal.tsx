@@ -153,7 +153,7 @@ export function ProcessingModal({
                             type="text" 
                             value={bgConfig.targetColor}
                             onChange={(e) => setBgConfig(p => ({ ...p, targetColor: e.target.value }))}
-                            className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                            className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-base font-mono focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
                             placeholder="#FFFFFF"
                         />
                     </div>
@@ -204,7 +204,7 @@ export function ProcessingModal({
                                             [side]: Number(e.target.value) 
                                         } 
                                     }))}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-base"
                                 />
                             </div>
                         ))}
