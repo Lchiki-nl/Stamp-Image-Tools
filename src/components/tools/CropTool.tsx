@@ -35,9 +35,17 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
   // 画像読み込み
   const handleFileSelect = (file: File) => {
+    const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      if (!isEmbedded) setInternalImage(img);
+      if (!isEmbedded) {
+          setInternalImage((prev) => {
+            if (prev && prev.src.startsWith("blob:")) {
+                URL.revokeObjectURL(prev.src);
+            }
+            return img;
+          });
+      }
       setTimeout(() => {
         if (canvasRef.current) {
           const imageData = canvasRef.current.getImageData();
@@ -48,8 +56,17 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
         }
       }, 100);
     };
-    img.src = URL.createObjectURL(file);
+    img.src = url;
   };
+
+  // Cleanup
+  useEffect(() => {
+      return () => {
+          if (internalImage && internalImage.src.startsWith("blob:")) {
+              URL.revokeObjectURL(internalImage.src);
+          }
+      };
+  }, [internalImage]);
 
   // 画像ロード時の処理 (Embedded対応)
   const handleImageLoaded = useCallback(() => {

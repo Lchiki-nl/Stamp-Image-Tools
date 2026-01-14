@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, type RefObject } from "react";
+import { useState, useRef, useCallback, useEffect, type RefObject } from "react";
 import { Grid3X3, Check } from "lucide-react";
 
 import { FileDropzone } from "@/components/shared/FileDropzone";
@@ -33,12 +33,29 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
     const name = file.name.replace(/\.[^/.]+$/, "");
     setFileName(name);
 
+    const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      if (!isEmbedded) setInternalImage(img);
+      if (!isEmbedded) {
+          setInternalImage((prev) => {
+            if (prev && prev.src.startsWith("blob:")) {
+                URL.revokeObjectURL(prev.src);
+            }
+            return img;
+          });
+      }
     };
-    img.src = URL.createObjectURL(file);
+    img.src = url;
   }, [isEmbedded]);
+
+  // Cleanup
+  useEffect(() => {
+      return () => {
+          if (internalImage && internalImage.src.startsWith("blob:")) {
+              URL.revokeObjectURL(internalImage.src);
+          }
+      };
+  }, [internalImage]);
 
   const handleImageLoaded = useCallback(() => {
      // 分割ツールは初期化処理不要だが、描画完了を確実にするためにコールバックを受け取る

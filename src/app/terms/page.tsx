@@ -17,7 +17,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">1. 規約への同意</h2>
             <p>
-              当ツール（IMG-TOOLS）を利用することで、本規約に同意したものとみなします。
+              当ツール（EzStampify）を利用することで、本規約に同意したものとみなします。
             </p>
           </section>
 

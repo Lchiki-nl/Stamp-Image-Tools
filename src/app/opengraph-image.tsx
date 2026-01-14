@@ -1,8 +1,9 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
+export const dynamic = 'force-static'
 
-export const alt = 'IMG-TOOLS | スタンプ作りに最適な無料画像編集ツール'
+export const alt = 'EzStampify | スタンプ作りに最適な無料画像編集ツール'
 export const size = {
   width: 1200,
   height: 630,
@@ -83,7 +84,7 @@ export default async function Image() {
                 letterSpacing: '-0.02em',
               }}
             >
-              IMG-TOOLS
+              EzStampify
             </h1>
           </div>
 

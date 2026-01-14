@@ -17,7 +17,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">1. 個人情報の収集について</h2>
             <p>
-              当ツール（IMG-TOOLS）は、ユーザーの個人情報を収集しません。
+              当ツール（EzStampify）は、ユーザーの個人情報を収集しません。
               ユーザーがアップロードした画像は、すべてユーザーのブラウザ（クライアントサイド）内でのみ処理されます。
               画像データが当社のサーバーに送信・保存されることは一切ありません。
             </p>

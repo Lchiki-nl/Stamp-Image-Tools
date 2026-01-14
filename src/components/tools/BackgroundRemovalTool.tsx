@@ -32,12 +32,34 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
 
   // 画像読み込み
   const handleFileSelect = useCallback((file: File) => {
+    const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      if (!isEmbedded) setInternalImage(img);
+      if (!isEmbedded) {
+        setInternalImage((prev) => {
+          // 前の画像のURLを解放
+          if (prev && prev.src.startsWith("blob:")) {
+            URL.revokeObjectURL(prev.src);
+          }
+          return img;
+        });
+      } else {
+          // Embedded modeでもロード用に使ったURLは解放してよいか？
+          // ImageCanvasで使われるので、internalImageとして保持しないなら解放タイミングが難しい
+          // ここではinternalImageを使うケース（スタンドアロン）のみ考える
+      }
     };
-    img.src = URL.createObjectURL(file);
+    img.src = url;
   }, [isEmbedded]);
+
+  // コンポーネントのアンマウント時にクリーンアップ
+  useEffect(() => {
+      return () => {
+          if (internalImage && internalImage.src.startsWith("blob:")) {
+              URL.revokeObjectURL(internalImage.src);
+          }
+      };
+  }, [internalImage]);
 
   // ImageCanvas 描画完了後の処理
   const handleImageLoaded = useCallback(() => {

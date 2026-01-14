@@ -32,6 +32,19 @@ export function useGallery() {
     return () => clearTimeout(timeoutId);
   }, [images]);
 
+  // Keep track of images for unmount cleanup
+  const imagesRef = useRef(images);
+  useEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
+
+  // Cleanup all URLs on unmount
+  useEffect(() => {
+      return () => {
+          imagesRef.current.forEach(img => URL.revokeObjectURL(img.previewUrl));
+      };
+  }, []);
+
   // Note: URL cleanup is handled in removeImages to avoid premature revocation
 
   const addImages = useCallback((files: File[]) => {
