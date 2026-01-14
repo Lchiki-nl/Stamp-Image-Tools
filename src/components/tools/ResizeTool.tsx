@@ -83,7 +83,8 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
     }
   };
   
-  // originalImageData の Effect は不要になったので削除 (handleImageLoadedでセットするため)
+  // Refactor: originalImageDataをStateに持つ必要がある (CropTool同様)
+  const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
 
   // サイズ入力ハンドラ
   const handleDimensionChange = (key: 'width' | 'height', value: number) => {
@@ -148,10 +149,23 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
       }, 100);
 
       return () => clearTimeout(timer);
-  }, [targetDimensions, originalImageData, canvasRef]); // originalImageData dependency added
+  }, [targetDimensions, originalImageData, canvasRef]);
 
 
-  // ... (reset code remains similar)
+  // リセット
+  const handleReset = () => {
+    if (originalImageData && canvasRef.current) {
+        setTargetDimensions({ width: originalImageData.width, height: originalImageData.height });
+        setSelectedPresetIndex(null);
+        
+        const canvas = canvasRef.current.getCanvas();
+        if (canvas) {
+            canvas.width = originalImageData.width;
+            canvas.height = originalImageData.height;
+            canvasRef.current.putImageData(originalImageData);
+        }
+    }
+  };
 
   // 適用
   const handleApply = async () => {
