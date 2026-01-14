@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Eraser, Grid3X3, Crop, X, Check, Loader2 } from "lucide-react";
-import type { RemoveBackgroundConfig, CropConfig, SplitConfig } from "@/lib/batch-processing";
+import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock } from "lucide-react";
+import type { RemoveBackgroundConfig, CropConfig, SplitConfig, ResizeConfig } from "@/lib/batch-processing";
 
-export type ProcessingAction = 'remove-background' | 'split' | 'crop';
+export type ProcessingAction = 'remove-background' | 'split' | 'crop' | 'resize';
 
 export interface ProcessingModalProps {
   isOpen: boolean;
@@ -11,7 +11,7 @@ export interface ProcessingModalProps {
   selectedCount: number;
   isProcessing: boolean;
   progress: { current: number; total: number };
-  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig) => void;
+  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig) => void;
 }
 
 export function ProcessingModal({
@@ -45,13 +45,21 @@ export function ProcessingModal({
     cols: 2,
   });
 
+  // Resize
+  const [resizeConfig, setResizeConfig] = useState<ResizeConfig>({
+    width: 370,
+    height: 320,
+    keepAspectRatio: true
+  });
+
   if (!isOpen || !action) return null;
 
   const handleExecute = () => {
-    let config: RemoveBackgroundConfig | CropConfig | SplitConfig;
+    let config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig;
     if (action === 'remove-background') config = bgConfig;
     else if (action === 'crop') config = cropConfig;
     else if (action === 'split') config = splitConfig;
+    else if (action === 'resize') config = resizeConfig;
     else return;
     
     onExecute(config);
@@ -62,6 +70,7 @@ export function ProcessingModal({
       case 'remove-background': return '背景削除の一括処理';
       case 'crop': return '余白カットの一括処理';
       case 'split': return '画像分割の一括処理';
+      case 'resize': return 'サイズ変更の一括処理';
       default: return '一括処理';
     }
   };
@@ -70,6 +79,7 @@ export function ProcessingModal({
       'remove-background': Eraser,
       'crop': Crop,
       'split': Grid3X3,
+      'resize': Scaling,
   };
   
   const ActionIcon = action ? iconMap[action] : Check;
@@ -90,6 +100,7 @@ export function ProcessingModal({
             <div className={`p-2 rounded-xl ${
                 action === 'remove-background' ? 'bg-green-100 text-green-600' :
                 action === 'crop' ? 'bg-orange-100 text-orange-600' :
+                action === 'resize' ? 'bg-pink-100 text-pink-600' :
                 'bg-blue-100 text-blue-600'
             }`}>
               <ActionIcon size={20} />
@@ -271,6 +282,74 @@ export function ProcessingModal({
                          </p>
                     </div>
                 </div>
+
+              )}
+
+              {action === 'resize' && (
+                <div className="space-y-6">
+                     <div className="space-y-2 pb-4 border-b border-gray-100">
+                         <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold text-gray-700">プリセット</label>
+                         </div>
+                         <div className="grid grid-cols-2 gap-2">
+                             {[
+                                 { label: "メイン", w: 240, h: 240 },
+                                 { label: "スタンプ", w: 370, h: 320 },
+                                 { label: "タブ", w: 96, h: 74 },
+                                 { label: "絵文字", w: 180, h: 180 },
+                             ].map(preset => (
+                                 <button
+                                    key={preset.label}
+                                    onClick={() => setResizeConfig(p => ({ ...p, width: preset.w, height: preset.h }))}
+                                    className={`px-3 py-2 rounded-xl text-sm font-bold border transition-colors
+                                        ${resizeConfig.width === preset.w && resizeConfig.height === preset.h
+                                            ? "bg-pink-50 text-pink-600 border-pink-200"
+                                            : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}
+                                    `}
+                                 >
+                                    {preset.label} <span className="opacity-60 text-xs">({preset.w}x{preset.h})</span>
+                                 </button>
+                             ))}
+                         </div>
+                     </div>
+
+                     <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold text-gray-700">カスタムサイズ</label>
+                            <button
+                                onClick={() => setResizeConfig(p => ({ ...p, keepAspectRatio: !p.keepAspectRatio }))}
+                                className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold
+                                    ${resizeConfig.keepAspectRatio ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400"}
+                                `}
+                            >
+                                {resizeConfig.keepAspectRatio ? <Lock size={14} /> : <Unlock size={14} />}
+                                {resizeConfig.keepAspectRatio ? "比率固定" : "解除"}
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-center">
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-400">幅 (W)</label>
+                                <input
+                                    type="number"
+                                    value={resizeConfig.width}
+                                    onChange={(e) => setResizeConfig(p => ({ ...p, width: Number(e.target.value) }))}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center font-mono font-bold"
+                                />
+                            </div>
+                            <span className="text-gray-300 pt-5">×</span>
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-400">高さ (H)</label>
+                                <input
+                                    type="number"
+                                    value={resizeConfig.height}
+                                    onChange={(e) => setResizeConfig(p => ({ ...p, height: Number(e.target.value) }))}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center font-mono font-bold"
+                                />
+                            </div>
+                        </div>
+                     </div>
+                </div>
               )}
             </div>
           )}
@@ -284,6 +363,7 @@ export function ProcessingModal({
               className={`w-full py-3.5 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]
                 ${action === 'remove-background' ? 'bg-green-500 hover:bg-green-600 shadow-green-200' :
                   action === 'crop' ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200' :
+                  action === 'resize' ? 'bg-pink-500 hover:bg-pink-600 shadow-pink-200' :
                   'bg-blue-500 hover:bg-blue-600 shadow-blue-200'}
               `}
             >

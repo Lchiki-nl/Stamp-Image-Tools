@@ -223,3 +223,32 @@ export function cropImage(
 
   return new ImageData(newData, newWidth, newHeight);
 }
+
+/**
+ * 画像をリサイズ
+ * @param imageData 元の ImageData
+ * @param width 目標の幅
+ * @param height 目標の高さ
+ */
+export function resizeImage(imageData: ImageData, width: number, height: number): ImageData {
+    const canvas = document.createElement('canvas');
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error("Could not get canvas context");
+    
+    ctx.putImageData(imageData, 0, 0);
+    
+    const newCanvas = document.createElement('canvas');
+    newCanvas.width = width;
+    newCanvas.height = height;
+    const newCtx = newCanvas.getContext('2d');
+    if (!newCtx) throw new Error("Could not get new canvas context");
+    
+    // 品質向上のための設定
+    newCtx.imageSmoothingEnabled = true;
+    newCtx.imageSmoothingQuality = 'high';
+    
+    newCtx.drawImage(canvas, 0, 0, width, height);
+    return newCtx.getImageData(0, 0, width, height);
+}

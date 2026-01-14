@@ -7,7 +7,7 @@ import { UnifiedEditor } from "@/components/editor/UnifiedEditor";
 import { useGallery } from "@/hooks/useGallery";
 import { ProcessingModal, type ProcessingAction } from "@/components/gallery/ProcessingModal";
 import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
-import { processRemoveBackground, processCrop, processSplit } from "@/lib/batch-processing";
+import { processRemoveBackground, processCrop, processSplit, processResize } from "@/lib/batch-processing";
 import { type GalleryAction } from "@/types/gallery";
 
 
@@ -28,7 +28,7 @@ export default function AppPage() {
   
   // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
-  const [editorInitialTool, setEditorInitialTool] = useState<"background" | "crop" | "split">("background");
+  const [editorInitialTool, setEditorInitialTool] = useState<"background" | "crop" | "split" | "resize">("background");
 
   // Batch Processing State
   const [processingAction, setProcessingAction] = useState<ProcessingAction | null>(null);
@@ -136,6 +136,13 @@ export default function AppPage() {
           return;
       }
 
+      // Single image resize -> Open Unified Editor
+      if (action === 'resize' && selectedImages.length === 1) {
+          setEditingImageId(selectedImages[0].id);
+          setEditorInitialTool('resize');
+          return;
+      }
+
       // Open Modal for processing actions
       setProcessingAction(action as ProcessingAction);
   };
@@ -168,6 +175,9 @@ export default function AppPage() {
               } else if (processingAction === 'split') {
                   resultBlobs = await processSplit(file, config);
                   console.log(`Split generated ${resultBlobs.length} parts`);
+              } else if (processingAction === 'resize') {
+                  const blob = await processResize(file, config);
+                  resultBlobs = [blob];
               }
 
               // Add results to gallery

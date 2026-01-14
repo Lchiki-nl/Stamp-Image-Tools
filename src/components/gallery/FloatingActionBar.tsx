@@ -1,6 +1,6 @@
 "use client";
 
-import { Eraser, Grid3X3, Crop, Download, Trash2, X, type LucideIcon } from "lucide-react";
+import { Eraser, Grid3X3, Crop, Scaling, Download, Trash2, X, type LucideIcon } from "lucide-react";
 import { type GalleryAction } from "@/types/gallery";
 
 interface FloatingActionBarProps {
@@ -40,6 +40,12 @@ export function FloatingActionBar({ count, onAction, onClearSelection }: Floatin
           label="余白カット" 
           onClick={() => onAction('crop')} 
           color="orange" 
+        />
+        <ActionButton 
+          icon={Scaling} 
+          label="リサイズ" 
+          onClick={() => onAction('resize')} 
+          color="pink" 
         />
         <ActionButton 
           icon={Grid3X3} 
@@ -89,6 +95,7 @@ function ActionButton({ icon: Icon, label, onClick, color, variant = 'solid' }: 
      // solid-ish (colored text on hover)
      if (color === "green") colorClass = "hover:bg-green-50 text-gray-600 hover:text-green-600";
      else if (color === "orange") colorClass = "hover:bg-orange-50 text-gray-600 hover:text-orange-600";
+     else if (color === "pink") colorClass = "hover:bg-pink-50 text-gray-600 hover:text-pink-600";
      else if (color === "blue") colorClass = "hover:bg-blue-50 text-gray-600 hover:text-blue-600";
      else if (color === "gray") colorClass = "hover:bg-gray-100 text-gray-600 hover:text-gray-900";
      else if (color === "red") colorClass = "hover:bg-red-50 text-red-500 hover:text-red-600";

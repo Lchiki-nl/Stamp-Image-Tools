@@ -4,6 +4,7 @@ import {
     cropImage, 
     splitImage, 
     detectBoundingBox,
+    resizeImage,
     hexToRgb
 } from './image-utils';
 
@@ -118,4 +119,32 @@ export async function processSplit(file: File, config: SplitConfig): Promise<Blo
     
     const blobs = await Promise.all(parts.map(part => imageDataToBlob(part)));
     return blobs;
+}
+
+export interface ResizeConfig {
+    width: number;
+    height: number;
+    keepAspectRatio: boolean;
+}
+
+export async function processResize(file: File, config: ResizeConfig): Promise<Blob> {
+    const { imageData } = await loadImageData(file);
+    let targetWidth = config.width;
+    let targetHeight = config.height;
+
+    // アスペクト比維持の計算 (もし0が渡された場合などのフォールバックも兼ねて)
+    if (config.keepAspectRatio) {
+        const aspect = imageData.width / imageData.height;
+        // 基本的にはwidth/height両方指定される前提だが、どちらか片方だけ変更されたケースなどを考慮してもよい
+        // ここでは単純に指定されたサイズにリサイズする実装にする（UI側でアスペクト比計算を行う）
+        // ただし、もし片方が0なら自動計算するロジックも便利
+        if (targetWidth === 0 && targetHeight > 0) {
+            targetWidth = Math.round(targetHeight * aspect);
+        } else if (targetHeight === 0 && targetWidth > 0) {
+            targetHeight = Math.round(targetWidth / aspect);
+        }
+    }
+
+    const resultData = resizeImage(imageData, targetWidth, targetHeight);
+    return imageDataToBlob(resultData);
 }
