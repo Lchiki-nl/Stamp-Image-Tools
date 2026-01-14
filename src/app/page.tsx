@@ -65,8 +65,8 @@ export default function LandingPage() {
                 クリエイターのための画像編集
               </div>
               <h1 className="text-4xl font-black leading-tight tracking-tight text-text-main sm:text-5xl lg:text-6xl">
-                <span className="text-primary">スタンプ作り</span>に<br />
-                最適な画像ツール！
+                <span className="text-primary whitespace-nowrap">スタンプ作り</span>に<br />
+                <span className="whitespace-nowrap">最適な画像ツール！</span>
               </h1>
               <p className="max-w-xl text-lg font-medium leading-relaxed text-text-sub">
                 背景透過も、サイズ調整もこれひとつ。プライバシー重視で、画像はサーバーに送られません。安心してスタンプ制作に集中できます✨
@@ -80,17 +80,17 @@ export default function LandingPage() {
                   <span>今すぐ作る</span>
                 </Link>
               </div>
-              <div className="flex items-center gap-6 pt-4 text-sm text-text-sub font-bold">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={22} className="text-primary" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 pt-4 text-sm text-text-sub font-bold">
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <CheckCircle2 size={22} className="text-primary shrink-0" />
                   <span>登録なしでOK</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={22} className="text-primary" />
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <CheckCircle2 size={22} className="text-primary shrink-0" />
                   <span>ずっと無料</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={22} className="text-primary" />
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <CheckCircle2 size={22} className="text-primary shrink-0" />
                   <span>スマホも対応</span>
                 </div>
               </div>

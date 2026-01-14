@@ -28,6 +28,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   const [feather, setFeather] = useState(0);
   const [isEyedropperActive] = useState(true); // 将来的に切り替え機能をつけるなら setIsEyedropperActive も必要だが現状はtrue固定
   const [isProcessing, setIsProcessing] = useState(false);
+  const [clickFeedback, setClickFeedback] = useState<{ x: number; y: number; color: string } | null>(null);
 
   // 画像読み込み
   const handleFileSelect = useCallback((file: File) => {
@@ -86,12 +87,15 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
             const g = originalImageData.data[index + 1];
             const b = originalImageData.data[index + 2];
             setTargetColor({ r, g, b });
+            
+            // 視覚フィードバック: クリック位置に色インジケータを表示
+            const pickedHex = rgbToHex(r, g, b);
+            setClickFeedback({ x, y, color: pickedHex });
+            // 1秒後に自動で消える
+            setTimeout(() => setClickFeedback(null), 1000);
             return;
         }
       }
-      
-      // Fallback (通常はCanvasClickで取得した色だが、基本ここには来ないはず)
-      // setTargetColor({ r: color.r, g: color.g, b: color.b });
     },
     [isEyedropperActive, originalImageData]
   );
@@ -167,6 +171,21 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
                 onImageLoaded={handleImageLoaded}
                 className="max-h-[500px] shadow-lg"
               />
+              {/* Eyedropper Feedback Toast */}
+              {clickFeedback && (
+                <div 
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg px-4 py-2 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200"
+                >
+                  <div 
+                    className="w-6 h-6 rounded-lg border-2 border-gray-200 shrink-0" 
+                    style={{ backgroundColor: clickFeedback.color }}
+                  />
+                  <span className="text-sm font-mono font-bold text-gray-700">
+                    {clickFeedback.color.toUpperCase()}
+                  </span>
+                  <Pipette size={14} className="text-gray-400" />
+                </div>
+              )}
               {isProcessing && (
                 <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl">
                   <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
