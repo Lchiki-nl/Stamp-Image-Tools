@@ -9,7 +9,14 @@ import {
   Scissors
 } from "lucide-react";
 
-export function HeroSection() {
+  const [currentEmoji, setCurrentEmoji] = useState("😸");
+
+  useEffect(() => {
+    const CAT_EMOJIS = ["😸", "😺", "😻", "😼", "😽", "🙀", "😿", "😹", "😾"];
+    const randomEmoji = CAT_EMOJIS[Math.floor(Math.random() * CAT_EMOJIS.length)];
+    setCurrentEmoji(randomEmoji);
+  }, []);
+
   return (
     <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-32 bg-white">
       <div className="absolute inset-0 z-0 bg-soft-pattern pointer-events-none"></div>
@@ -84,7 +91,9 @@ export function HeroSection() {
                 </div>
                 <div className="relative z-10 w-56 h-56 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center transform rotate-6 border-4 border-white ring-4 ring-primary/20">
                   <div className="w-full h-full bg-linear-to-br from-orange-100 to-amber-50 rounded-lg flex items-center justify-center overflow-hidden relative">
-                    <div className="text-8xl transform hover:scale-110 transition-transform cursor-pointer filter drop-shadow-lg">😸</div>
+                    <div className="text-8xl transform hover:scale-110 transition-transform cursor-pointer filter drop-shadow-lg">
+                      {currentEmoji}
+                    </div>
                     <div className="absolute bottom-4 right-4 bg-white px-3 py-1 rounded-full text-[10px] font-bold text-primary shadow-sm border border-primary/10">
                       背景透過 OK!
                     </div>
