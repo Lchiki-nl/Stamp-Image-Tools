@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Smile, Upload, ImageMinus, Crop, Grid3X3, Scaling, Download, ArrowRight, Home } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -169,10 +170,11 @@ export default function HowToUsePage() {
                    <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-video relative group">
                       {/* Show real images for steps that have them */}
                       {['upload', 'background', 'crop', 'split', 'resize', 'save'].includes(step.id) ? (
-                        <img 
+                        <Image 
                           src={`/images/guide/${step.id}.png`} 
                           alt={step.title} 
-                          className="w-full h-full object-cover" 
+                          fill
+                          className="object-cover"
                         />
                       ) : (
                         /* Placeholder for others */
