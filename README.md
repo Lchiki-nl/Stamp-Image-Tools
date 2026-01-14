@@ -8,6 +8,8 @@
 [![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://stamp-image-tools.pages.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+**デモサイト**: [https://stamp-image-tools.pages.dev/](https://stamp-image-tools.pages.dev/)
+
 ## 特徴
 
 - **完全クライアントサイド処理** - 画像はサーバーに送信されません
@@ -34,6 +36,17 @@
 - 一括カット（Uniform Crop）スライダー
 - 上下左右のピクセル単位調整
 - リアルタイムプレビュー
+
+### 4. サイズ変更 (Resize)
+
+- プリセット選択（スタンプ用、HD 等）
+- アスペクト比固定オプション
+- カスタムサイズ入力
+
+### 5. 保存モード (Save Modes)
+
+- **新規保存 (Save as New)**: 編集結果を新しい画像として保存
+- **上書き保存 (Overwrite)**: 元の画像を更新（ギャラリー管理が容易）
 
 ## Getting Started
 
@@ -76,7 +89,8 @@ src/
 │   └── tools/             # ツールコンポーネント
 │       ├── BackgroundRemovalTool.tsx
 │       ├── ImageSplitTool.tsx
-│       └── CropTool.tsx
+│       ├── CropTool.tsx
+│       └── ResizeTool.tsx
 └── lib/
     ├── image-utils.ts     # 画像処理ロジック
     └── storage.ts         # データ永続化ロジック
@@ -94,7 +108,3 @@ npm run build
 ## ライセンス
 
 MIT License - 詳細は [LICENSE](LICENSE) を参照
-
-## コントリビューション
-
-Issue や Pull Request を歓迎します！
