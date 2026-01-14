@@ -10,6 +10,7 @@ import {
   Scissors
 } from "lucide-react";
 
+export function HeroSection() {
   const [currentEmoji, setCurrentEmoji] = useState("😸");
 
   useEffect(() => {
