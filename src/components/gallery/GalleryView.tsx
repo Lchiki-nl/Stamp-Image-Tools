@@ -83,7 +83,7 @@ export function GalleryView({
       <footer className="py-8 text-center text-text-sub text-sm">
         <div className="flex items-center justify-center gap-6 font-bold">
            <a 
-             href="https://note.com/shikileon" 
+             href="https://note.com/lchiki_nl/m/me2fbf42ae315" 
              target="_blank" 
              rel="noopener noreferrer"
              className="hover:text-primary transition-colors"
@@ -91,7 +91,7 @@ export function GalleryView({
              作者のnote
            </a>
            <a 
-             href="https://store.line.me/emojishop/author/603383" 
+             href="https://store.line.me/emojishop/author/10517625/ja" 
              target="_blank" 
              rel="noopener noreferrer"
              className="hover:text-primary transition-colors"
