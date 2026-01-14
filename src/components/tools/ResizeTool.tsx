@@ -53,6 +53,9 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   };
 
   // Cleanup
+  // Refactor: originalImageDataをStateに持つ必要がある (CropTool同様)
+  const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
+
   // 画像変更時に状態をリセット
   useEffect(() => {
     setInternalImage(null);
@@ -62,29 +65,45 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
     setSelectedPresetIndex(null);
   }, [embeddedImage]);
 
-  // 画像ロード時の初期化
+  // 画像データ初期化 (CanvasRef依存ではなく、ソース画像から直接生成)
+  useEffect(() => {
+      if (!image) return;
+
+      // 画像がロード完了しているか確認
+      if (image.complete && image.naturalWidth > 0) {
+          initFromImage(image);
+      } else {
+          image.onload = () => initFromImage(image);
+      }
+
+      function initFromImage(img: HTMLImageElement) {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              setOriginalImageData(data);
+              setOriginalDimensions({ width: data.width, height: data.height });
+              
+              // 初回のみターゲットサイズを設定
+              setTargetDimensions(prev => {
+                  if (prev.width === 0) {
+                      return { width: data.width, height: data.height };
+                  }
+                  return prev;
+              });
+              setSelectedPresetIndex(null);
+          }
+      }
+  }, [image]);
+
+  // Canvasのロード完了ハンドラ（表示用）
   const handleImageLoaded = () => {
-    if (canvasRef.current) {
-        try {
-            const data = canvasRef.current.getImageData();
-            if (data) {
-                const { width, height } = data;
-                setOriginalDimensions({ width, height });
-                // Only set target if it's 0 (first load) to avoid overwriting user input during re-renders if logic changes
-                if (targetDimensions.width === 0) {
-                     setTargetDimensions({ width, height });
-                }
-                setOriginalImageData(data); // ここで直接セット
-                setSelectedPresetIndex(null);
-            }
-        } catch (e) {
-            console.error("Failed to get image data", e);
-        }
-    }
+    // 表示用Canvasの準備ができても、データソースは上記のuseEffectで管理するため
+    // ここでは特別な処理は不要だが、もし同期ズレがある場合の保険として残す
   };
-  
-  // Refactor: originalImageDataをStateに持つ必要がある (CropTool同様)
-  const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
 
   // サイズ入力ハンドラ
   const handleDimensionChange = (key: 'width' | 'height', value: number) => {

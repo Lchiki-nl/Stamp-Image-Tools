@@ -28,14 +28,24 @@ export function GalleryView({
   selectedCount 
 }: GalleryViewProps) {
   return (
-    <div className="min-h-screen bg-background-soft">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background-soft flex flex-col">
+      <div className="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-black text-text-main">ギャラリー</h1>
-            <p className="text-sm text-text-sub mt-1">
-              {images.length} 枚の画像 (最大30枚)
-            </p>
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-black text-text-main">ギャラリー</h1>
+              <p className="text-sm text-text-sub mt-1">
+                {images.length} 枚の画像 (最大30枚)
+              </p>
+            </div>
+            <a 
+              href="/how-to-use" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors ml-2"
+            >
+              使い方ガイド
+            </a>
           </div>
           
           {images.length > 0 && onSelectAll && (
@@ -68,6 +78,31 @@ export function GalleryView({
           />
         )}
       </div>
+
+      {/* Gallery Footer */}
+      <footer className="py-8 text-center text-text-sub text-sm">
+        <div className="flex items-center justify-center gap-6 font-bold">
+           <a 
+             href="https://note.com/shikileon" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             className="hover:text-primary transition-colors"
+           >
+             作者のnote
+           </a>
+           <a 
+             href="https://store.line.me/emojishop/author/603383" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             className="hover:text-primary transition-colors"
+           >
+             作者のLINE絵文字
+           </a>
+        </div>
+        <p className="mt-4 opacity-50 text-xs">
+          © 2024 EzStampify
+        </p>
+      </footer>
     </div>
   );
 }
