@@ -56,28 +56,23 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   // Refactor: originalImageDataをStateに持つ必要がある (CropTool同様)
   const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
 
-  // 画像変更時に状態をリセット
+  // 画像データ初期化 (ソース画像から直接生成 & 状態リセット)
   useEffect(() => {
-    setInternalImage(null);
-    setOriginalDimensions(null);
-    setOriginalImageData(null);
-    setTargetDimensions({ width: 0, height: 0 });
-    setSelectedPresetIndex(null);
-  }, [embeddedImage]);
+      // 画像が変わったらまずはリセット
+      setOriginalDimensions(null);
+      setOriginalImageData(null);
+      setTargetDimensions({ width: 0, height: 0 });
+      setSelectedPresetIndex(null);
 
-  // 画像データ初期化 (CanvasRef依存ではなく、ソース画像から直接生成)
-  useEffect(() => {
       if (!image) return;
+
+      const init = () => initFromImage(image);
 
       // 画像がロード完了しているか確認
       if (image.complete && image.naturalWidth > 0) {
-          initFromImage(image);
+          init();
       } else {
-          const handler = () => initFromImage(image);
-          image.addEventListener('load', handler, { once: true });
-          return () => {
-              image.removeEventListener('load', handler);
-          };
+          image.addEventListener('load', init, { once: true });
       }
 
       function initFromImage(img: HTMLImageElement) {
@@ -88,19 +83,21 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
           if (ctx) {
               ctx.drawImage(img, 0, 0);
               const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              
+              // 状態更新
               setOriginalImageData(data);
               setOriginalDimensions({ width: data.width, height: data.height });
               
-              // 初回のみターゲットサイズを設定
               setTargetDimensions(prev => {
-                  if (prev.width === 0) {
-                      return { width: data.width, height: data.height };
-                  }
-                  return prev;
+                  // リセット直後なので常に設定する
+                  return { width: data.width, height: data.height };
               });
-              setSelectedPresetIndex(null);
           }
       }
+
+      return () => {
+          image.removeEventListener('load', init);
+      };
   }, [image]);
 
   // Canvasのロード完了ハンドラ（表示用）
