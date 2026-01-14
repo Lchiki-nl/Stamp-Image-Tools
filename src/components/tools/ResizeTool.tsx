@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo, type RefObject } from 'react';
+import { useState, useRef, useEffect, type RefObject } from 'react';
 import { Scaling, RotateCcw, Check, Lock, Unlock } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
