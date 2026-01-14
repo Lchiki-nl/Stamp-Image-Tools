@@ -163,12 +163,12 @@ export function UnifiedEditor({
 
             {/* Action Buttons - Right of Tabs */}
             <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 z-20">
-              {/* Overwrite Toggle - Hidden for Split tool */}
+              {/* Overwrite Toggle - Hidden for Split tool, Hidden on mobile */}
               {activeTool !== 'split' && (
-                <div className="flex bg-gray-100 rounded-xl p-0.5 border border-gray-200">
+                <div className="hidden sm:flex bg-gray-100 rounded-xl p-0.5 border border-gray-200">
                   <button
                     onClick={() => setOverwriteMode(true)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                    className={`px-2 py-1 rounded-lg text-xs font-bold transition-all
                       ${overwriteMode 
                         ? 'bg-white text-amber-600 shadow-sm'
                         : 'text-gray-400 hover:text-gray-600'
@@ -179,7 +179,7 @@ export function UnifiedEditor({
                   </button>
                   <button
                     onClick={() => setOverwriteMode(false)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                    className={`px-2 py-1 rounded-lg text-xs font-bold transition-all
                       ${!overwriteMode 
                         ? 'bg-white text-green-600 shadow-sm'
                         : 'text-gray-400 hover:text-gray-600'

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, type RefObject } from "react";
+import { useState, useRef, useEffect, useMemo, type RefObject } from 'react';
 import { Scaling, RotateCcw, Check, Lock, Unlock } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
@@ -62,10 +62,8 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   }, [internalImage]);
 
   // 画像ロード時の初期化
-  const handleImageLoaded = useCallback(() => {
+  const handleImageLoaded = () => {
     if (canvasRef.current) {
-        // canvasRef.current might be null in cleanup or race conditions, logic safe.
-        // Assuming getImageData returns ImageData.
         try {
             const data = canvasRef.current.getImageData();
             if (data) {
@@ -78,7 +76,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
             console.error("Failed to get image data", e);
         }
     }
-  }, []);
+  };
 
   // サイズ入力ハンドラ
   const handleDimensionChange = (key: 'width' | 'height', value: number) => {
@@ -259,7 +257,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
                          className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center font-mono font-bold focus:outline-none focus:ring-2 focus:ring-primary/50"
                      />
                  </div>
-                 <span className="text-gray-300 pt-5">×</span>
+
                  <div className="space-y-1">
                      <label className="text-xs text-gray-400">高さ (H)</label>
                      <input
