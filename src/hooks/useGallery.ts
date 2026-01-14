@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { GalleryImage } from '@/types/gallery';
 
 export const MAX_IMAGES = 30;
@@ -6,12 +6,7 @@ export const MAX_IMAGES = 30;
 export function useGallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
 
-  // プレビューURLのクリーンアップ
-  useEffect(() => {
-    return () => {
-      images.forEach(img => URL.revokeObjectURL(img.previewUrl));
-    };
-  }, [images]);
+  // Note: URL cleanup is handled in removeImages to avoid premature revocation
 
   const addImages = useCallback((files: File[]) => {
     setImages(prev => {
@@ -71,6 +66,9 @@ export function useGallery() {
   const addProcessedImage = useCallback((file: File, originalId?: string) => {
      addImages([file]);
      // originalId があれば紐付けなどができるが、現状はフラットに追加
+     if (originalId) {
+         console.log("Processed from:", originalId);
+     }
   }, [addImages]);
 
   const selectedImages = images.filter(img => img.isSelected);

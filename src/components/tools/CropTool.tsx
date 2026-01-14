@@ -34,7 +34,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [isProcessing, setIsProcessing] = useState(false);
 
   // 画像読み込み
-  const handleFileSelect = useCallback((file: File) => {
+  const handleFileSelect = (file: File) => {
     const img = new Image();
     img.onload = () => {
       if (!isEmbedded) setInternalImage(img);
@@ -48,7 +48,18 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
       }, 100);
     };
     img.src = URL.createObjectURL(file);
-  }, [isEmbedded, canvasRef]);
+  };
+
+  // 画像ロード時の処理 (Embedded対応)
+  const handleImageLoaded = useCallback(() => {
+    const ref = embeddedCanvasRef || internalCanvasRef;
+    if (ref.current) {
+      const imageData = ref.current.getImageData();
+      setOriginalImageData(imageData);
+      setCropBounds(null);
+      setManualCrop({ top: 0, right: 0, bottom: 0, left: 0 });
+    }
+  }, [embeddedCanvasRef]);
 
   // 自動トリミング検出
   const handleAutoDetect = useCallback(() => {
@@ -95,25 +106,27 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     );
 
     // Canvas サイズを更新して描画
-    const canvas = canvasRef.current.getCanvas();
-    if (canvas) {
-      canvas.width = cropped.width;
-      canvas.height = cropped.height;
-      canvasRef.current.putImageData(cropped);
+    if (cropped && canvasRef.current) {
+      const canvas = canvasRef.current.getCanvas();
+      if (canvas) {
+        canvas.width = cropped.width;
+        canvas.height = cropped.height;
+        canvasRef.current.putImageData(cropped);
+      }
     }
   }, [computedCropBounds, originalImageData, canvasRef]);
 
   // リセット
-  const handleReset = useCallback(() => {
+  const handleReset = () => {
     if (originalImageData && canvasRef.current && image) {
       canvasRef.current.reset();
       setCropBounds(null);
       setManualCrop({ top: 0, right: 0, bottom: 0, left: 0 });
     }
-  }, [originalImageData, image, canvasRef]);
+  };
 
   // ダウンロード
-  const handleDownload = useCallback(async () => {
+  const handleDownload = async () => {
     if (!canvasRef.current) return;
 
     const blob = await canvasRef.current.toBlob("image/png");
@@ -127,14 +140,14 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, [canvasRef]);
+  };
 
   // 適用 (Unified Editor用)
-  const handleApply = useCallback(async () => {
+  const handleApply = async () => {
     if (!canvasRef.current || !onApply) return;
     const blob = await canvasRef.current.toBlob("image/png");
     if (blob) onApply(blob);
-  }, [onApply, canvasRef]);
+  };
 
   // 入力ハンドラー
   const handleManualChange = (key: keyof typeof manualCrop, value: number) => {
@@ -145,17 +158,18 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   };
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-6 ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-start h-full ${className}`}>
       {/* Canvas Area */}
       <div className="flex-1 flex flex-col">
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-            <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
+            <div className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200">
               <ImageCanvas
                 ref={canvasRef}
                 image={image}
                 showCheckerboard={true}
+                onImageLoaded={handleImageLoaded}
                 className="max-h-[500px] shadow-lg"
               />
               {isProcessing && (
@@ -169,7 +183,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-72 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
             <Crop size={20} />
             余白カット設定

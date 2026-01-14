@@ -25,6 +25,7 @@ export default function AppPage() {
   
   const [viewMode, setViewMode] = useState<ViewMode>("gallery");
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
+  const [editorInitialTool, setEditorInitialTool] = useState<"background" | "crop" | "split">("background");
 
   // Batch Processing State
   const [processingAction, setProcessingAction] = useState<ProcessingAction | null>(null);
@@ -47,6 +48,7 @@ export default function AppPage() {
     if (prevImageCount.current === 0 && images.length === 1) {
        const firstImage = images[0];
        setEditingImageId(firstImage.id);
+       setEditorInitialTool("background");
        setViewMode("editor");
     }
     prevImageCount.current = images.length;
@@ -92,6 +94,15 @@ export default function AppPage() {
           return;
       }
       
+      
+      // Single image split -> Open Unified Editor
+      if (action === 'split' && selectedImages.length === 1) {
+          setEditingImageId(selectedImages[0].id);
+          setEditorInitialTool('split');
+          setViewMode('editor');
+          return;
+      }
+
       // Open Modal for processing actions
       setProcessingAction(action as ProcessingAction);
   };
@@ -163,6 +174,7 @@ export default function AppPage() {
   // ギャラリーからの選択
   const handleSelectForEdit = (id: string) => {
     setEditingImageId(id);
+    setEditorInitialTool("background");
     setViewMode("editor");
   };
 
@@ -173,11 +185,19 @@ export default function AppPage() {
   };
 
   // 適用 (UnifiedEditorからのコールバック)
-  const handleApply = (blob: Blob) => {
-      // 編集結果を新規保存
-      // 名前は適当
-      const newFile = new File([blob], "edited_image.png", { type: "image/png" });
-      addImages([newFile]);
+  const handleApply = (blob: Blob | Blob[]) => {
+      if (Array.isArray(blob)) {
+          // 複数画像 (Split等)
+          const currDate = new Date().toISOString().replace(/[:.]/g, "-");
+          const newFiles = blob.map((b, i) => 
+              new File([b], `processed_${currDate}_${i + 1}.png`, { type: "image/png" })
+          );
+          addImages(newFiles);
+      } else {
+          // 単一画像
+          const newFile = new File([blob], "edited_image.png", { type: "image/png" });
+          addImages([newFile]);
+      }
   };
 
   if (viewMode === "editor" && editingImage) {
@@ -188,6 +208,7 @@ export default function AppPage() {
             onApply={handleApply}
             embeddedImage={null}
             onFileSelect={(file) => handleAddFiles([file])}
+            initialTool={editorInitialTool}
         />
     );
   }

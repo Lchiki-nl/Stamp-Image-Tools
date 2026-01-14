@@ -112,22 +112,27 @@ export function ProcessingModal({
         <div className="p-6 overflow-y-auto">
           {isProcessing ? (
             <div className="flex flex-col items-center justify-center py-8 space-y-6">
-              <div className="relative w-20 h-20">
-                 <Loader2 className="w-20 h-20 text-primary animate-spin" />
-                 <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-primary">
-                    {Math.round((progress.current / progress.total) * 100)}%
+              <div className="relative w-24 h-24">
+                 <Loader2 className="w-24 h-24 text-primary animate-spin" />
+                 <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <span className="text-xl font-black text-primary">
+                        {Math.round((progress.current / progress.total) * 100)}%
+                    </span>
                  </div>
               </div>
-              <div className="text-center">
-                <p className="text-sm font-bold text-gray-700 mb-1">
-                  処理中... ({progress.current} / {progress.total})
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-bold text-gray-800">処理中...</h3>
+                <p className="text-text-sub font-mono text-xl">
+                  <span className="font-bold text-primary">{progress.current}</span>
+                  <span className="text-gray-300 mx-2">/</span>
+                  <span className="font-bold text-gray-400">{progress.total}</span>
                 </p>
                 <p className="text-xs text-gray-400">
                   そのままお待ちください
                 </p>
               </div>
               {/* Progress Bar */}
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div 
                     className="h-full bg-primary transition-all duration-300 ease-out"
                     style={{ width: `${(progress.current / progress.total) * 100}%` }}

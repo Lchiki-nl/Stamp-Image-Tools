@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { Eraser, Grid3X3, Crop, Menu, X, ArrowLeft } from "lucide-react";
+import { Eraser, Grid3X3, Crop, ArrowLeft } from "lucide-react";
 import { BackgroundRemovalTool } from "@/components/tools/BackgroundRemovalTool";
 import { ImageSplitTool } from "@/components/tools/ImageSplitTool";
 import { CropTool } from "@/components/tools/CropTool";
@@ -20,14 +20,15 @@ interface UnifiedEditorProps {
     onBack?: () => void; // Callback to return to gallery
     embeddedImage?: HTMLImageElement | null;
     embeddedCanvasRef?: React.RefObject<ImageCanvasHandle>;
-    onApply?: (blob: Blob) => void;
+    onApply?: (blob: Blob | Blob[]) => void;
     onFileSelect?: (file: File) => void;
+    initialTool?: Tool;
 }
 
-export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embeddedCanvasRef, onFileSelect }: UnifiedEditorProps) {
-  const [activeTool, setActiveTool] = useState<Tool>("background");
+export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embeddedCanvasRef, onFileSelect, initialTool = "background" }: UnifiedEditorProps) {
+  const [activeTool, setActiveTool] = useState<Tool>(initialTool);
+
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // previewUrl から画像をロード
   useEffect(() => {
@@ -65,18 +66,26 @@ export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embe
     img.src = URL.createObjectURL(file);
   }, [onFileSelect]);
 
+  const [notification, setNotification] = useState<string | null>(null);
+
   // 適用して画像更新
-  const handleApply = useCallback((blob: Blob) => {
+  // 適用して画像更新
+  const handleApply = useCallback((blob: Blob | Blob[]) => {
     if (onApply) onApply(blob);
 
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = () => {
-      setImage(img);
-      // メモリリーク防止のため古いURLを解放すべきだが、履歴管理するならとっておく
-      // 今回はシンプルに上書き
-    };
-    img.src = url;
+    // 単一画像の場合のみプレビューを更新
+    if (blob instanceof Blob) {
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+        setImage(img);
+        };
+        img.src = url;
+    }
+
+    // 完了通知を表示
+    setNotification("画像を更新しました");
+    setTimeout(() => setNotification(null), 3000);
   }, [onApply]);
 
   const ActiveComponent = 
@@ -84,57 +93,79 @@ export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embe
     activeTool === "split" ? ImageSplitTool :
     CropTool;
 
-  const currentToolDef = tools.find((t) => t.id === activeTool);
+
 
   return (
-    <div className="flex min-h-screen bg-background-soft">
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-4 right-4 z-50 lg:hidden flex items-center justify-center w-12 h-12 rounded-2xl bg-white shadow-lg border border-gray-100 text-gray-600"
-      >
-        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+    <div className="flex flex-col min-h-screen bg-background-soft">
+      {/* Header Bar */}
+      <header className="px-4 lg:px-8 py-4 flex items-center justify-between bg-white border-b border-gray-100 sticky top-0 z-30">
+        <div className="flex items-center gap-4">
+            {onBack ? (
+                <button 
+                    onClick={onBack}
+                    className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-bold"
+                >
+                    <ArrowLeft size={20} />
+                    戻る
+                </button>
+            ) : (
+                <Link
+                    href="/"
+                    className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary"
+                >
+                    <span className="material-symbols-outlined">sentiment_satisfied</span>
+                </Link>
+            )}
+            <div className="h-6 w-px bg-gray-200" />
+            <h1 className="font-bold text-lg text-text-main hidden sm:block">画像編集</h1>
+        </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 lg:p-8 overflow-y-auto order-1 lg:order-1">
-        <div className="max-w-6xl mx-auto h-full flex flex-col">
-          {/* Header */}
-          <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-black text-text-main flex items-center gap-3">
-                {currentToolDef?.label}
-              </h1>
-              <p className="text-sm text-text-sub mt-1">
-                {currentToolDef?.description}
-              </p>
-            </div>
-            
-            {/* Image Status */}
+
+
+        {/* Image Status */}
+        <div className="flex items-center">
             {image && (
-                <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
-                    <span className="text-xs font-bold text-gray-400">編集中:</span>
-                    <span className="text-sm font-bold text-gray-700">
-                        {image.naturalWidth} x {image.naturalHeight} px
+                <div className="flex items-center gap-3 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                    <span className="text-xs font-bold text-gray-500 hidden sm:inline">サイズ:</span>
+                    <span className="text-xs font-mono font-bold text-gray-700">
+                        {image.naturalWidth} x {image.naturalHeight}
                     </span>
-                    <button 
-                        onClick={() => {
-                            if (onBack) {
-                                onBack();
-                            } else {
-                                setImage(null);
-                            }
-                        }}
-                        className="text-xs text-red-500 hover:text-red-600 font-bold hover:underline"
-                    >
-                        画像を閉じる
-                    </button>
                 </div>
             )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
+        <div className="max-w-6xl mx-auto h-full flex flex-col">
+            
+          {/* Tool Tabs */}
+          <div className="flex justify-center mb-4">
+            <nav className="items-center bg-white p-1 rounded-xl border border-gray-100 shadow-sm inline-flex">
+                {tools.map((tool) => {
+                const Icon = tool.icon;
+                const isActive = activeTool === tool.id;
+                return (
+                    <button
+                    key={tool.id}
+                    onClick={() => setActiveTool(tool.id)}
+                    className={`
+                        flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all
+                        ${isActive 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}
+                    `}
+                    >
+                    <Icon size={18} />
+                    <span>{tool.label}</span>
+                    </button>
+                );
+                })}
+            </nav>
           </div>
 
           {/* Editor Area */}
-          <div className="glass-card rounded-3xl p-6 min-h-[600px] shadow-xl shadow-slate-200/50 block flex-1">
+          <div className="glass-card rounded-[32px] p-6 h-[640px] shadow-xl shadow-slate-200/50 block flex-1 border border-white/50">
              {!image ? (
                 <div className="flex flex-col items-center justify-center h-full">
                     <div className="w-full max-w-xl">
@@ -145,7 +176,7 @@ export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embe
                     </div>
                 </div>
              ) : (
-                <div className="animate-in fade-in zoom-in-95 duration-300 h-full">
+                <div className="animate-in fade-in duration-300 h-full">
                     <ActiveComponent 
                         embeddedImage={image} 
                         embeddedCanvasRef={embeddedCanvasRef}
@@ -157,74 +188,14 @@ export function UnifiedEditor({ previewUrl, onBack, onApply, embeddedImage, embe
         </div>
       </main>
 
-      {/* Right Sidebar (Tabs) */}
-      <aside
-        className={`
-          fixed lg:static inset-y-0 right-0 z-40
-          w-72 lg:w-20 bg-white border-l border-gray-100 shadow-sm
-          transform transition-transform duration-300 ease-in-out
-          flex flex-col items-center py-4 gap-4
-          order-2 lg:order-2
-          ${sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}
-        `}
-      >
-          {/* Back Button */}
-            {onBack ? (
-                <button 
-                    onClick={onBack}
-                    className="flex flex-col items-center justify-center p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors w-16 h-16"
-                    title="ギャラリーへ戻る"
-                >
-                    <ArrowLeft size={24} />
-                    <span className="text-[10px] font-bold mt-1">戻る</span>
-                </button>
-            ) : (
-                <Link
-                    href="/"
-                    className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4"
-                >
-                    <span className="material-symbols-outlined">sentiment_satisfied</span>
-                </Link>
-            )}
-
-          {/* Tool Tabs */}
-          <nav className="flex flex-col w-full gap-2 px-2">
-            {tools.map((tool) => {
-              const Icon = tool.icon;
-              const isActive = activeTool === tool.id;
-              return (
-                <button
-                  key={tool.id}
-                  onClick={() => {
-                    setActiveTool(tool.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={`
-                    relative flex flex-col items-center justify-center py-3 px-1 rounded-xl transition-all duration-200 group w-full
-                    ${isActive 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"}
-                  `}
-                >
-                  <Icon size={24} strokeWidth={isActive ? 2.5 : 2} className="mb-1" />
-                  <span className="text-[10px] font-bold">{tool.label}</span>
-                  
-                  {/* Active Indicator (Right Border style for Tab) */}
-                  {isActive && (
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-l-full" />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-      </aside>
-
-      {/* Backdrop */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+      {/* Notification Toast */}
+      {notification && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+           <div className="bg-gray-900/90 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3 backdrop-blur-sm">
+             <span className="material-symbols-outlined text-green-400">check_circle</span>
+             <span className="font-bold text-sm">{notification}</span>
+           </div>
+        </div>
       )}
     </div>
   );

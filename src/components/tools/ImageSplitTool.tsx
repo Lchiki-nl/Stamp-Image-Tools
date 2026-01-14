@@ -11,7 +11,7 @@ interface ImageSplitToolProps {
   className?: string;
   embeddedImage?: HTMLImageElement | null;
   embeddedCanvasRef?: RefObject<ImageCanvasHandle>;
-  onApply?: (blob: Blob) => void;
+  onApply?: (blob: Blob | Blob[]) => void;
 }
 
 export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRef, onApply }: ImageSplitToolProps) {
@@ -39,6 +39,10 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
     };
     img.src = URL.createObjectURL(file);
   }, [isEmbedded]);
+
+  const handleImageLoaded = useCallback(() => {
+     // 分割ツールは初期化処理不要だが、描画完了を確実にするためにコールバックを受け取る
+  }, []);
 
   // ZIP でダウンロード
   const handleDownload = useCallback(async () => {
@@ -90,31 +94,55 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
     } finally {
       setIsProcessing(false);
     }
-  }, [image, rows, cols, fileName]);
+  }, [image, rows, cols, fileName, canvasRef]);
 
   // 適用 (Unified Editor用)
+  // 適用 (Unified Editor用)
   const handleApply = useCallback(async () => {
-    // SplitToolは通常最後の工程だが、一応実装
-    // Canvas全体（未分割）の状態を次へ渡す
-    if (!canvasRef.current || !onApply) return;
-    const blob = await canvasRef.current.toBlob("image/png");
-    if (blob) onApply(blob);
-  }, [onApply]);
+    const ref = embeddedCanvasRef || internalCanvasRef;
+    if (!ref.current || !onApply) return;
+    
+    setIsProcessing(true);
+    try {
+        const imageData = ref.current.getImageData();
+        if (!imageData) return;
+
+        const splitParts = splitImage(imageData, rows, cols);
+        const blobs: Blob[] = [];
+
+        for (const part of splitParts) {
+             const tempCanvas = document.createElement("canvas");
+             tempCanvas.width = part.width;
+             tempCanvas.height = part.height;
+             const ctx = tempCanvas.getContext("2d");
+             if (ctx) {
+                 ctx.putImageData(part, 0, 0);
+                 const blob = await new Promise<Blob | null>(r => tempCanvas.toBlob(r, "image/png"));
+                 if (blob) blobs.push(blob);
+             }
+        }
+        
+        onApply(blobs);
+    } finally {
+        setIsProcessing(false);
+    }
+  }, [onApply, embeddedCanvasRef, rows, cols]);
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-6 ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-start h-full ${className}`}>
       {/* Canvas Area */}
       <div className="flex-1 flex flex-col">
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-            <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
+            <div className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200">
               {/* Grid Overlay */}
               <div className="relative">
                 <ImageCanvas
                   ref={canvasRef}
                   image={image}
                   showCheckerboard={false}
+                  onImageLoaded={handleImageLoaded}
                   className="max-h-[500px] shadow-lg"
                 />
                 {/* Grid Lines Overlay */}
@@ -161,7 +189,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-72 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
             <Grid3X3 size={20} />
             グリッド設定

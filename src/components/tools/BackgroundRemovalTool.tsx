@@ -38,12 +38,12 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   }, [isEmbedded]);
 
   // ImageCanvas 描画完了後の処理
-  const handleImageLoaded = useCallback(() => {
+  const handleImageLoaded = () => {
       if (canvasRef.current) {
           const imageData = canvasRef.current.getImageData();
           setOriginalImageData(imageData);
       }
-  }, [canvasRef]);
+  };
 
   // スポイトで色を取得
   const handleCanvasClick = useCallback(
@@ -55,36 +55,38 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   );
 
   // 背景削除処理
-  const processRemoval = useCallback(() => {
-    if (!originalImageData || !canvasRef.current) return;
 
-    setIsProcessing(true);
-
-    // 非同期で処理してUIをブロックしない
-    requestAnimationFrame(() => {
-      const result = removeBackground(originalImageData, targetColor, tolerance, feather);
-      canvasRef.current?.putImageData(result);
-      setIsProcessing(false);
-    });
-  }, [originalImageData, targetColor, tolerance, feather, canvasRef]);
 
   // パラメータ変更時に自動で処理を実行
   useEffect(() => {
     if (originalImageData && image) {
+      const processRemoval = () => {
+        if (!originalImageData || !canvasRef.current) return;
+  
+        setIsProcessing(true);
+  
+        // 非同期で処理してUIをブロックしない
+        requestAnimationFrame(() => {
+          const result = removeBackground(originalImageData, targetColor, tolerance, feather);
+          canvasRef.current?.putImageData(result);
+          setIsProcessing(false);
+        });
+      };
+
       const timeoutId = setTimeout(processRemoval, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [targetColor, tolerance, feather, originalImageData, image, processRemoval]);
+  }, [targetColor, tolerance, feather, originalImageData, image, canvasRef]);
 
   // リセット
-  const handleReset = useCallback(() => {
+  const handleReset = () => {
     if (originalImageData && canvasRef.current) {
       canvasRef.current.putImageData(originalImageData);
     }
     setTolerance(30);
     setFeather(0);
     setTargetColor({ r: 255, g: 255, b: 255 });
-  }, [originalImageData, canvasRef]);
+  };
 
   // 画像クリア
   const handleClear = useCallback(() => {
@@ -93,7 +95,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   }, [isEmbedded]);
 
   // ダウンロード
-  const handleDownload = useCallback(async () => {
+  const handleDownload = async () => {
     if (!canvasRef.current) return;
 
     const blob = await canvasRef.current.toBlob("image/png");
@@ -107,14 +109,14 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, [canvasRef]);
+  };
 
   // 適用 (Unified Editor用)
-  const handleApply = useCallback(async () => {
+  const handleApply = async () => {
     if (!canvasRef.current || !onApply) return;
     const blob = await canvasRef.current.toBlob("image/png");
     if (blob) onApply(blob);
-  }, [onApply, canvasRef]);
+  };
 
   // Hex 入力からの色更新
   const handleHexChange = useCallback((hex: string) => {
@@ -125,13 +127,13 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   }, []);
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-6 ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-start h-full ${className}`}>
       {/* Canvas Area */}
       <div className="flex-1 flex flex-col">
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-            <div className="relative flex-1 flex items-center justify-center bg-gray-100 rounded-2xl p-4 min-h-[400px]">
+            <div className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200">
               <ImageCanvas
                 ref={canvasRef}
                 image={image} // 画像をPropsとして渡す
@@ -151,7 +153,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-80 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main">設定</h3>
 
           {/* Color Picker */}
