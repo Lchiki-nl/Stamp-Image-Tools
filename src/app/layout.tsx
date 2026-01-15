@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const mPlusRounded = M_PLUS_Rounded_1c({
   weight: ["400", "500", "700", "800"],
@@ -47,6 +48,29 @@ export default function RootLayout({
 
       </head>
       <body className={`${mPlusRounded.variable} font-body antialiased`}>
+        <JsonLd data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "name": "EzStampify",
+              "url": process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev",
+            },
+            {
+              "@type": "SoftwareApplication",
+              "name": "EzStampify",
+              "applicationCategory": "DesignApplication",
+              "operatingSystem": "Web Browser",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "JPY"
+              },
+              "featureList": ["Background Removal", "Image Splitting", "Cropping", "Resizing"],
+              "screenshot": `${process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"}/opengraph-image`
+            }
+          ]
+        }} />
         {children}
       </body>
     </html>

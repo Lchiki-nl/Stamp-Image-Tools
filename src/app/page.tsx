@@ -18,7 +18,7 @@ export default function LandingPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20 transform -rotate-6">
               <Smile size={24} strokeWidth={2.5} />
             </div>
-            <h1 className="text-xl font-extrabold tracking-tight text-text-main">EzStampify</h1>
+            <div className="text-xl font-extrabold tracking-tight text-text-main">EzStampify</div>
           </div>
           <nav className="hidden md:flex items-center gap-8">
             <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="#features">機能</a>
