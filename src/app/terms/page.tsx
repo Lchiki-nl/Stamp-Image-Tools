@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "利用規約",
-  description: "EzStampifyの利用規約。当ツールの利用条件、禁止事項、免責事項、著作権についてご確認ください。",
+  description: "EzStampifyの利用規約。本サービスの利用条件、禁止事項、免責事項、著作権についてご確認ください。",
   alternates: {
     canonical: "./",
   },
@@ -25,7 +25,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">1. 規約への同意</h2>
             <p>
-              当ツール（EzStampify）を利用することで、本規約に同意したものとみなします。
+              本サービス（EzStampify）をご利用いただくことで、本規約に同意したものとみなします。
             </p>
           </section>
 
@@ -44,9 +44,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">3. 免責事項</h2>
             <p>
-              当ツールは現状有姿で提供されます。
-              不具合やバグがないことを保証するものではなく、利用により生じたいかなる損害についても責任を負いません。
-              また、予告なくサービスの内容変更や停止を行う場合があります。
+              本サービスは、明示的か黙示的かを問わず、現状のまま提供されるものとします。
+              不具合やバグがないことを保証するものではなく、ご利用により生じたいかなる損害についても責任を負いかねます。
+              また、予告なくサービスの内容変更または停止を行う場合があります。
             </p>
           </section>
 
@@ -54,7 +54,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">4. 著作権</h2>
             <p>
               ユーザーが加工した画像の著作権は、ユーザー自身または元の権利者に帰属します。
-              当ツールがその権利を主張することはありません。
+              本サービスが、加工された画像に関する著作権を取得することはありません。
             </p>
           </section>
         </div>
