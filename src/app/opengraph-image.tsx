@@ -12,8 +12,21 @@ export const size = {
 export const contentType = 'image/png'
 
 export default async function Image() {
-  // フォントはデフォルトのsans-serifを使用
+  // CSSからフォントファイルのURLを抽出（簡易的な実装）
+  // 実際の運用ではフォントファイルをpublicに置いてfsで読むか、
+  // Google FontsのAPIから直接ttfを取得するURLを構築するのが確実ですが、
+  // ここでは簡便のため、ttfファイルを直接fetchするURLを指定します。
   
+  // M PLUS Rounded 1c Bold (700)
+  const fontBold = await fetch(
+    `https://github.com/googlefonts/m-plus-rounded-1c/raw/main/fonts/ttf/MPLUSRounded1c-Bold.ttf`
+  ).then((res) => res.arrayBuffer());
+  
+  // M PLUS Rounded 1c Black (900)
+  const fontBlack = await fetch(
+     `https://github.com/googlefonts/m-plus-rounded-1c/raw/main/fonts/ttf/MPLUSRounded1c-Black.ttf`
+  ).then((res) => res.arrayBuffer());
+
   return new ImageResponse(
     (
       <div
@@ -26,7 +39,7 @@ export default async function Image() {
           alignItems: 'center',
           justifyContent: 'center',
           color: 'white',
-          fontFamily: '"M PLUS Rounded 1c", sans-serif', // フォントがロードされていない場合はsans-serifにフォールバック
+          fontFamily: '"M PLUS Rounded 1c"',
         }}
       >
         {/* Decorative Grid Pattern Background */}
@@ -82,6 +95,7 @@ export default async function Image() {
                 margin: 0,
                 color: '#333',
                 letterSpacing: '-0.02em',
+                fontFamily: '"M PLUS Rounded 1c Black"',
               }}
             >
               EzStampify
@@ -112,6 +126,20 @@ export default async function Image() {
     ),
     {
       ...size,
+      fonts: [
+        {
+          name: 'M PLUS Rounded 1c',
+          data: fontBold,
+          style: 'normal',
+          weight: 700,
+        },
+        {
+          name: 'M PLUS Rounded 1c Black',
+          data: fontBlack,
+          style: 'normal',
+          weight: 900,
+        },
+      ],
     }
   )
 }
