@@ -1,6 +1,14 @@
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "利用規約",
+  description: "EzStampifyの利用規約。当ツールの利用条件、禁止事項、免責事項、著作権についてご確認ください。",
+  alternates: {
+    canonical: "./",
+  },
+};
 
 export default function TermsPage() {
   return (

@@ -55,19 +55,28 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "EzStampify",
               "url": process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev",
+              "description": "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
+              "inLanguage": "ja"
             },
             {
               "@type": "SoftwareApplication",
               "name": "EzStampify",
               "applicationCategory": "DesignApplication",
               "operatingSystem": "Web Browser",
+              "description": "LINEスタンプ制作に最適な無料画像加工ツール。背景透過、画像分割、トリミング、リサイズ機能を搭載。",
               "offers": {
                 "@type": "Offer",
                 "price": "0",
                 "priceCurrency": "JPY"
               },
-              "featureList": ["Background Removal", "Image Splitting", "Cropping", "Resizing"],
-              "screenshot": `${process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"}/opengraph-image`
+              "featureList": [
+                "背景透過（Background Removal）",
+                "画像分割（Image Splitting）",
+                "余白カット（Cropping）",
+                "サイズ変更（Resizing）"
+              ],
+              "screenshot": `${process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"}/opengraph-image`,
+              "inLanguage": "ja"
             }
           ]
         }} />

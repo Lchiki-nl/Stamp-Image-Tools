@@ -1,6 +1,14 @@
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "プライバシーポリシー",
+  description: "EzStampifyのプライバシーポリシー。当ツールは個人情報を収集せず、アップロードされた画像はすべてブラウザ内で処理されます。",
+  alternates: {
+    canonical: "./",
+  },
+};
 
 export default function PrivacyPage() {
   return (

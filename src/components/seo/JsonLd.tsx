@@ -1,5 +1,7 @@
 
-export const JsonLd = ({ data }: { data: Record<string, any> }) => {
+type JsonLdData = Record<string, unknown> | Record<string, unknown>[];
+
+export const JsonLd = ({ data }: { data: JsonLdData }) => {
   return (
     <script
       type="application/ld+json"
@@ -7,3 +9,4 @@ export const JsonLd = ({ data }: { data: Record<string, any> }) => {
     />
   );
 };
+
