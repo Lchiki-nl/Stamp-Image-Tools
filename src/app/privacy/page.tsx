@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー",
-  description: "EzStampifyのプライバシーポリシー。当ツールは個人情報を収集せず、アップロードされた画像はすべてブラウザ内で処理されます。",
+  description: "EzStampifyのプライバシーポリシー。本サービスは個人情報を収集せず、アップロードされた画像はすべてブラウザ内で処理されます。",
   alternates: {
     canonical: "./",
   },
@@ -25,16 +25,16 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">1. 個人情報の収集について</h2>
             <p>
-              当ツール（EzStampify）は、ユーザーの個人情報を収集しません。
-              ユーザーがアップロードした画像は、すべてユーザーのブラウザ（クライアントサイド）内でのみ処理されます。
-              画像データが当社のサーバーに送信・保存されることは一切ありません。
+              本サービス（EzStampify）では、ユーザーの個人情報を収集・保存することはありません。
+              アップロードされた画像データは、すべてユーザーのブラウザ（クライアントサイド）内でのみ処理されます。
+              当社のサーバーに画像データが送信・保存されることは一切ありませんので、安心してご利用ください。
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">2. アクセス解析について</h2>
             <p>
-              当サイトでは、サービスの向上を目的として、Google Analyticsなどのアクセス解析ツールを使用する場合があります。
+              本サービスでは、サービスの向上を目的として、Google Analyticsなどのアクセス解析ツールを使用する場合があります。
               これらは匿名のトラフィックデータを収集するものであり、個人を特定する情報は含まれません。
             </p>
           </section>
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">3. 免責事項</h2>
             <p>
-              当ツールの利用により生じた損害について、当社は一切の責任を負いません。
+              本サービスのご利用により生じたいかなる損害についても、当社は一切の責任を負いかねます。
             </p>
           </section>
         </div>
