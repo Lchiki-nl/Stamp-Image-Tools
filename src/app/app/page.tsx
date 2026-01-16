@@ -90,7 +90,7 @@ export default function AppPage() {
               try {
                   const dims = await getImageDimensions(img.file);
                   return { img, ...dims };
-              } catch (_) {
+              } catch {
                   return { img, width: 0, height: 0 };
               }
           }));
