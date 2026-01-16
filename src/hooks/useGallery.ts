@@ -140,7 +140,7 @@ export function useGallery() {
     // So we MUST depend on `images` to know the order.
     // Updating dependency to `[images, lastInteractedIndex]`.
     
-    setLastInteractedIndex(prevIndices => {
+    setLastInteractedIndex(() => {
        // access images from closure (will require adding to deps)
        return images.findIndex(img => img.id === id);
     });
