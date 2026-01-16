@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   },
   description:
     "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。プライバシー重視で画像はサーバーに送られません。",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"
+  ),
   openGraph: {
     title: "EzStampify | スタンプ作りに最適な無料画像加工ツール",
     description:
@@ -25,11 +27,14 @@ export const metadata: Metadata = {
     siteName: "EzStampify",
     locale: "ja_JP",
     type: "website",
+    images: ["/opengraph-image.jpg"],
   },
   twitter: {
     card: "summary_large_image",
     title: "EzStampify | スタンプ作りに最適な無料画像加工ツール",
-    description: "登録不要、ずっと無料。背景透過、画像分割など、スタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
+    description:
+      "登録不要、ずっと無料。背景透過、画像分割など、スタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
+    images: ["/opengraph-image.jpg"],
   },
   icons: {
     icon: "/icon.png",
@@ -44,42 +49,49 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <head>
-
-      </head>
+      <head></head>
       <body className={`${mPlusRounded.variable} font-body antialiased`}>
-        <JsonLd data={{
-          "@context": "https://schema.org",
-          "@graph": [
-            {
-              "@type": "WebSite",
-              "name": "EzStampify",
-              "url": process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev",
-              "description": "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
-              "inLanguage": "ja"
-            },
-            {
-              "@type": "SoftwareApplication",
-              "name": "EzStampify",
-              "applicationCategory": "DesignApplication",
-              "operatingSystem": "Web Browser",
-              "description": "LINEスタンプ制作に最適な無料画像加工ツール。背景透過、画像分割、トリミング、リサイズ機能を搭載。",
-              "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "JPY"
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "WebSite",
+                name: "EzStampify",
+                url:
+                  process.env.NEXT_PUBLIC_BASE_URL ||
+                  "https://stamp-image-tools.pages.dev",
+                description:
+                  "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
+                inLanguage: "ja",
               },
-              "featureList": [
-                "背景透過（Background Removal）",
-                "画像分割（Image Splitting）",
-                "余白カット（Cropping）",
-                "サイズ変更（Resizing）"
-              ],
-              "screenshot": `${process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"}/opengraph-image`,
-              "inLanguage": "ja"
-            }
-          ]
-        }} />
+              {
+                "@type": "SoftwareApplication",
+                name: "EzStampify",
+                applicationCategory: "DesignApplication",
+                operatingSystem: "Web Browser",
+                description:
+                  "LINEスタンプ制作に最適な無料画像加工ツール。背景透過、画像分割、トリミング、リサイズ機能を搭載。",
+                offers: {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "JPY",
+                },
+                featureList: [
+                  "背景透過（Background Removal）",
+                  "画像分割（Image Splitting）",
+                  "余白カット（Cropping）",
+                  "サイズ変更（Resizing）",
+                ],
+                screenshot: `${
+                  process.env.NEXT_PUBLIC_BASE_URL ||
+                  "https://stamp-image-tools.pages.dev"
+                }/opengraph-image`,
+                inLanguage: "ja",
+              },
+            ],
+          }}
+        />
         {children}
       </body>
     </html>
