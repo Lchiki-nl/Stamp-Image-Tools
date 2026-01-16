@@ -12,18 +12,41 @@ const mPlusRounded = M_PLUS_Rounded_1c({
 
 export const metadata: Metadata = {
   title: {
-    default: "EzStampify | スタンプ作りに最適な無料画像加工ツール",
+    default: "EzStampify | LINEスタンプ作りに最適な無料画像加工ツール",
     template: "%s | EzStampify",
   },
+  keywords: [
+    "LINEスタンプ",
+    "画像分割",
+    "切り出し",
+    "切り抜き",
+    "分割",
+    "透過",
+    "背景透過",
+    "サイズ変更",
+    "リサイズ",
+    "タブ画像",
+    "メイン画像",
+    "一括",
+    "イラスト分割",
+    "LINE Emoji",
+    "無料",
+    "登録不要",
+    "iPhone",
+    "Android",
+    "Mac",
+    "PC",
+    "iPad",
+  ],
   description:
-    "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。プライバシー重視で画像はサーバーに送られません。",
+    "登録不要、ずっと無料。LINEスタンプ制作に必須の背景透過、イラスト分割、リサイズ、タブ画像・メイン画像生成を一括で行えるブラウザ完結型ツールです。iPhone・Android・Mac・PCすべてに対応。",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"
   ),
   openGraph: {
-    title: "EzStampify | スタンプ作りに最適な無料画像加工ツール",
+    title: "EzStampify | LINEスタンプ作りに最適な無料画像加工ツール",
     description:
-      "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
+      "登録不要、ずっと無料。LINEスタンプ制作に必須の背景透過、イラスト分割、リサイズ、タブ画像・メイン画像生成を一括で行えるブラウザ完結型ツールです。",
     siteName: "EzStampify",
     locale: "ja_JP",
     type: "website",
@@ -31,9 +54,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "EzStampify | スタンプ作りに最適な無料画像加工ツール",
+    title: "EzStampify | LINEスタンプ作りに最適な無料画像加工ツール",
     description:
-      "登録不要、ずっと無料。背景透過、画像分割など、スタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
+      "登録不要、ずっと無料。LINEスタンプ制作に必須の背景透過、イラスト分割、リサイズ、タブ画像・メイン画像生成を一括で行えるブラウザ完結型ツールです。",
     images: ["/opengraph-image.jpg"],
   },
   icons: {
@@ -62,7 +85,7 @@ export default function RootLayout({
                   process.env.NEXT_PUBLIC_BASE_URL ||
                   "https://stamp-image-tools.pages.dev",
                 description:
-                  "登録不要、ずっと無料。背景透過、画像分割、余白カットなど、LINEスタンプ制作に便利な機能が揃ったブラウザ完結型ツールです。",
+                  "登録不要、ずっと無料。LINEスタンプ制作に必須の背景透過、イラスト分割、リサイズ、タブ画像・メイン画像生成を一括で行えるブラウザ完結型ツールです。iPhone・Android・Mac・PCすべてに対応。",
                 inLanguage: "ja",
               },
               {

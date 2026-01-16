@@ -12,7 +12,7 @@ export function CTASection() {
       </div>
       <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
         <h2 className="text-3xl font-black text-text-main sm:text-4xl mb-6">
-          さあ、あなたもスタンプクリエイター！
+          さあ、あなたもLINEスタンプクリエイター！
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-lg font-medium text-text-sub">
           インストール不要、面倒な登録もなし。<br className="hidden sm:block" />

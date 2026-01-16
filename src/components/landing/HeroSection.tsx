@@ -42,11 +42,11 @@ export function HeroSection() {
               クリエイターのための画像加工
             </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight text-text-main sm:text-5xl lg:text-6xl">
-              <span className="text-primary whitespace-nowrap">スタンプ作り</span>に<br />
+              <span className="text-primary whitespace-nowrap">LINEスタンプ</span>作りに<br />
               <span className="whitespace-nowrap">最適な画像ツール！</span>
             </h1>
             <p className="max-w-xl text-lg font-medium leading-relaxed text-text-sub">
-              背景透過も、サイズ調整もこれひとつ。プライバシー重視で、画像はサーバーに送られません。安心してスタンプ制作に集中できます✨
+              背景透過も、タブ画像・メイン画像へのリサイズもこれひとつ。プライバシー重視で、画像はサーバーに送られません。安心してスタンプ制作に集中できます✨
             </p>
             <div className="flex flex-col w-full sm:flex-row gap-4 mt-2">
               <Link
@@ -68,7 +68,7 @@ export function HeroSection() {
               </div>
               <div className="flex items-center gap-2 whitespace-nowrap">
                 <CheckCircle2 size={22} className="text-primary shrink-0" />
-                <span>スマホも対応</span>
+                <span>iPhone・Android・Mac対応</span>
               </div>
             </div>
           </motion.div>
