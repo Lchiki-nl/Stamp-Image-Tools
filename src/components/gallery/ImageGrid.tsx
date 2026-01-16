@@ -9,9 +9,10 @@ interface ImageGridProps {
   onToggleSelect: (id: string) => void;
   onRemove: (id: string) => void;
   onAddFiles: (files: File[]) => void;
+  gridSize?: "small" | "large";
 }
 
-export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFiles }: ImageGridProps) {
+export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFiles, gridSize = "large" }: ImageGridProps) {
   if (images.length === 0) {
     return (
       <div className="min-h-[500px] flex flex-col items-center justify-center p-8">
@@ -89,8 +90,12 @@ export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFil
   // FileDropzone は複数ファイル対応が必要だが、既存のコンポーネントが単一ファイルのみなら改修が必要。
   // 一旦、グリッドの最後に追加ボタン（ドロップゾーン）を置くスタイルにする。
   
+  const gridClass = gridSize === 'large' 
+      ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+      : "grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8";
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4 pb-24">
+    <div className={`grid ${gridClass} gap-4 p-4 pb-24`}>
       {images.map((img) => (
         <ImageCard
           key={img.id}

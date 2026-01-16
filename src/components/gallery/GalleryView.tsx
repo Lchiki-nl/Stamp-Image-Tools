@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { ImageGrid } from "./ImageGrid";
 import { FloatingActionBar } from "./FloatingActionBar";
 import { type GalleryAction, type GalleryImage } from "@/types/gallery";
+import { LayoutGrid, Grid3X3 } from "lucide-react";
 
 interface GalleryViewProps {
   images: GalleryImage[];
@@ -27,6 +29,8 @@ export function GalleryView({
   onSelectAll,
   selectedCount 
 }: GalleryViewProps) {
+  const [gridSize, setGridSize] = useState<"small" | "large">("large");
+
   return (
     <div className="min-h-screen bg-background-soft flex flex-col">
       <div className="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
@@ -48,13 +52,42 @@ export function GalleryView({
             </a>
           </div>
           
-          {images.length > 0 && onSelectAll && (
-              <button
-                  onClick={() => onSelectAll(selectedCount !== images.length)}
-                  className="px-4 py-2 text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors"
-              >
-                  {selectedCount === images.length ? "選択解除" : "全選択"}
-              </button>
+          {images.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="bg-gray-100 p-1 rounded-xl flex items-center gap-1">
+                <button
+                  onClick={() => setGridSize("large")}
+                  className={`p-2 rounded-lg transition-all ${
+                    gridSize === "large"
+                      ? "bg-white text-primary shadow-sm"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                  title="大表示"
+                >
+                  <LayoutGrid size={20} />
+                </button>
+                <button
+                  onClick={() => setGridSize("small")}
+                  className={`p-2 rounded-lg transition-all ${
+                    gridSize === "small"
+                      ? "bg-white text-primary shadow-sm"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                  title="小表示"
+                >
+                  <Grid3X3 size={20} />
+                </button>
+              </div>
+
+              {onSelectAll && (
+                  <button
+                      onClick={() => onSelectAll(selectedCount !== images.length)}
+                      className="px-4 py-2 text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors h-[42px]"
+                  >
+                      {selectedCount === images.length ? "選択解除" : "全選択"}
+                  </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -66,6 +99,7 @@ export function GalleryView({
               onToggleSelect={onToggleSelect}
               onRemove={(id) => onRemoveImages([id])}
               onAddFiles={onAddImages}
+              gridSize={gridSize}
             />
           </div>
         </div>
