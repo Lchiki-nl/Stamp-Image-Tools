@@ -67,7 +67,11 @@ export function removeBackground(
   const featherRange = (feather / 100) * maxDistance;
 
   // 新しい ImageData を作成
-  const newImageData = new ImageData(new Uint8ClampedArray(data), width, height);
+  const newImageData = new ImageData(
+    new Uint8ClampedArray(data),
+    width,
+    height
+  );
   const newData = newImageData.data;
 
   for (let i = 0; i < data.length; i += 4) {
@@ -230,25 +234,53 @@ export function cropImage(
  * @param width 目標の幅
  * @param height 目標の高さ
  */
-export function resizeImage(imageData: ImageData, width: number, height: number): ImageData {
-    const canvas = document.createElement('canvas');
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error("Could not get canvas context");
-    
-    ctx.putImageData(imageData, 0, 0);
-    
-    const newCanvas = document.createElement('canvas');
-    newCanvas.width = width;
-    newCanvas.height = height;
-    const newCtx = newCanvas.getContext('2d');
-    if (!newCtx) throw new Error("Could not get new canvas context");
-    
-    // 品質向上のための設定
-    newCtx.imageSmoothingEnabled = true;
-    newCtx.imageSmoothingQuality = 'high';
-    
-    newCtx.drawImage(canvas, 0, 0, width, height);
-    return newCtx.getImageData(0, 0, width, height);
+export function resizeImage(
+  imageData: ImageData,
+  width: number,
+  height: number
+): ImageData {
+  const canvas = document.createElement("canvas");
+  canvas.width = imageData.width;
+  canvas.height = imageData.height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not get canvas context");
+
+  ctx.putImageData(imageData, 0, 0);
+
+  const newCanvas = document.createElement("canvas");
+  newCanvas.width = width;
+  newCanvas.height = height;
+  const newCtx = newCanvas.getContext("2d");
+  if (!newCtx) throw new Error("Could not get new canvas context");
+
+  // 品質向上のための設定
+  newCtx.imageSmoothingEnabled = true;
+  newCtx.imageSmoothingQuality = "high";
+
+  newCtx.drawImage(canvas, 0, 0, width, height);
+  return newCtx.getImageData(0, 0, width, height);
+}
+
+/**
+ * Fileオブジェクトから画像の幅と高さを取得する
+ */
+export function getImageDimensions(
+  file: File
+): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      resolve({ width: img.width, height: img.height });
+      URL.revokeObjectURL(url);
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Failed to load image"));
+    };
+
+    img.src = url;
+  });
 }

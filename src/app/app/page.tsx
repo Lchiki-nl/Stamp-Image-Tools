@@ -8,6 +8,7 @@ import { useGallery } from "@/hooks/useGallery";
 import { ProcessingModal, type ProcessingAction } from "@/components/gallery/ProcessingModal";
 import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
 import { processRemoveBackground, processCrop, processSplit, processResize } from "@/lib/batch-processing";
+import { getImageDimensions } from "@/lib/image-utils";
 import { type GalleryAction } from "@/types/gallery";
 
 
@@ -70,19 +71,85 @@ export default function AppPage() {
       
       if (action === 'download') {
           if (selectedImages.length === 0) return;
+
+          // Helper to get extension
+          const getExt = (name: string, type: string) => {
+              if (name.includes('.')) return name.split('.').pop() || 'png';
+              return type.split('/')[1] || 'png';
+          };
+
+          // Smart Naming Logic
+          const processedFiles: { file: File, name: string }[] = [];
           
-          if (selectedImages.length === 1) {
-              const img = selectedImages[0];
-              // Use file directly to ensure fresh content
-              const url = URL.createObjectURL(img.file);
+          let otherCounter = 1;
+          const nameMap = new Map<string, number>();
+
+          // Process all selected images to determine names
+          // Use Promise.all to fetch dimensions in parallel
+          const targets = await Promise.all(selectedImages.map(async (img) => {
+              try {
+                  const dims = await getImageDimensions(img.file);
+                  return { img, ...dims };
+              } catch (_) {
+                  return { img, width: 0, height: 0 };
+              }
+          }));
+
+          for (const target of targets) {
+              const { img, width, height } = target;
+              let baseName = "";
+              const isMain = width === 240 && height === 240;
+              const isTab = width === 96 && height === 74;
+
+              if (isMain) {
+                  baseName = "main";
+              } else if (isTab) {
+                  baseName = "tab";
+              } else {
+                  // Other
+                  if (selectedImages.length > 1) {
+                      // Batch mode: sequential numbers
+                      baseName = otherCounter.toString().padStart(2, '0');
+                      otherCounter++;
+                  } else {
+                      // Single mode: original name
+                      baseName = img.name.replace(/\.[^/.]+$/, "");
+                  }
+              }
+
+              // Handle duplicates for main/tab (or accidental collision)
+              // Only apply duplicate logic if it's main or tab, OR if we somehow have name collision in others 
+              // (though others follow sequential counter so usually won't collide unless we have main named "01" etc.)
+              if (isMain || isTab) {
+                  const count = nameMap.get(baseName) || 0;
+                  if (count > 0) {
+                      // main(2), main(3)...
+                      // Use temporary variable to not mess up the map key for next iteration
+                      const numberedName = `${baseName}(${count + 1})`;
+                      nameMap.set(baseName, count + 1);
+                      baseName = numberedName;
+                  } else {
+                      nameMap.set(baseName, 1);
+                  }
+              } else {
+                  // For "Others" (01, 02...), we just assume they are unique enough or don't need (N) unless requested otherwise.
+                  // But let's be safe against existing "main" collision strictly speaking? 
+                  // The user only asked for main/tab special handling and others sequential.
+                  // "01", "02" are unique by definition of counter.
+              }
+
+              const ext = getExt(img.name, img.type);
+              processedFiles.push({
+                  file: img.file,
+                  name: `${baseName}.${ext}`
+              });
+          }
+          
+          if (processedFiles.length === 1) {
+              const { file, name } = processedFiles[0];
+              const url = URL.createObjectURL(file);
               const a = document.createElement("a");
               a.href = url;
-              // Ensure extension
-              let name = img.name;
-              if (!name.includes('.')) {
-                  const ext = img.type.split('/')[1] || 'png';
-                  name = `${name}.${ext}`;
-              }
               a.download = name;
               document.body.appendChild(a);
               a.click();
@@ -92,23 +159,8 @@ export default function AppPage() {
               try {
                   // Batch Download as Zip
                   const zip = new JSZip();
-                  selectedImages.forEach(img => {
-                      let name = img.name;
-                      if (!name.includes('.')) {
-                          const ext = img.type.split('/')[1] || 'png';
-                          name = `${name}.${ext}`;
-                      }
-                      // Handle duplicate names
-                      let finalName = name;
-                      let counter = 1;
-                      while (zip.file(finalName)) {
-                          const parts = name.split('.');
-                          const ext = parts.pop();
-                          const base = parts.join('.');
-                          finalName = `${base}_${counter}.${ext}`;
-                          counter++;
-                      }
-                      zip.file(finalName, img.file);
+                  processedFiles.forEach(({ file, name }) => {
+                      zip.file(name, file);
                   });
                   
                   const content = await zip.generateAsync({ type: "blob" });

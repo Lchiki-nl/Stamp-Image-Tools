@@ -35,7 +35,7 @@ export function GalleryView({
             <div>
               <h1 className="text-2xl font-black text-text-main">ギャラリー</h1>
               <p className="text-sm text-text-sub mt-1">
-                {images.length} 枚の画像 (最大30枚)
+                {images.length} 枚の画像 (最大50枚)
               </p>
             </div>
             <a 
