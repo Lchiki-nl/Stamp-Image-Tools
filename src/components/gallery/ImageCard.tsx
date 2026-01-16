@@ -5,7 +5,7 @@ import { type GalleryImage } from "@/types/gallery";
 interface ImageCardProps {
   image: GalleryImage;
   onSelect: (id: string) => void;
-  onToggleSelect: (id: string) => void;
+  onToggleSelect: (id: string, isShift?: boolean) => void;
   onRemove: (id: string) => void;
 }
 
@@ -16,7 +16,14 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
         group relative aspect-square rounded-2xl overflow-hidden border-2 transition-all cursor-pointer bg-white
         ${image.isSelected ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-gray-100 hover:border-gray-300"}
       `}
-      onClick={() => onSelect(image.id)}
+      onClick={(e) => {
+        if (e.shiftKey) {
+            e.preventDefault();
+            onToggleSelect(image.id, true);
+        } else {
+            onSelect(image.id);
+        }
+      }}
     >
       {/* Thumbnail */}
       <div className="relative w-full h-full bg-gray-50">
@@ -40,7 +47,7 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
         `}
         onClick={(e) => {
           e.stopPropagation();
-          onToggleSelect(image.id);
+          onToggleSelect(image.id, e.shiftKey);
         }}
       >
           <Check size={16} strokeWidth={3} />

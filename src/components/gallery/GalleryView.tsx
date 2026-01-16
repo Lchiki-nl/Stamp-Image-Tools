@@ -11,7 +11,7 @@ interface GalleryViewProps {
   onAddImages: (files: File[]) => void;
   onRemoveImages: (ids: string[]) => void;
   onSelect: (id: string) => void;
-  onToggleSelect: (id: string) => void;
+  onToggleSelect: (id: string, isShift?: boolean) => void;
   onSelectAll?: (selected: boolean) => void;
   onAction: (action: GalleryAction) => void;
   onClearSelection: () => void;

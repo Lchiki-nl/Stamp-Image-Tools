@@ -85,11 +85,67 @@ export function useGallery() {
     });
   }, []);
 
-  const toggleSelection = useCallback((id: string) => {
-    setImages(prev => prev.map(img => 
-      img.id === id ? { ...img, isSelected: !img.isSelected } : img
-    ));
-  }, []);
+  const [lastInteractedIndex, setLastInteractedIndex] = useState<number | null>(null);
+
+  const toggleSelection = useCallback((id: string, isShift: boolean = false) => {
+    setImages(prev => {
+      const currentIndex = prev.findIndex(img => img.id === id);
+      if (currentIndex === -1) return prev;
+      
+      const newImages = [...prev];
+
+      // Range Selection Logic
+      if (isShift && lastInteractedIndex !== null) {
+          const start = Math.min(lastInteractedIndex, currentIndex);
+          const end = Math.max(lastInteractedIndex, currentIndex);
+          
+          // Select everything in range
+          // Note: Standard OS behavior usually mimics the state of the "anchor" or simply selects all.
+          // Here we'll select all in range (additive).
+          for (let i = start; i <= end; i++) {
+              newImages[i] = { ...newImages[i], isSelected: true };
+          }
+      } else {
+          // Normal toggle
+          newImages[currentIndex] = { 
+              ...newImages[currentIndex], 
+              isSelected: !newImages[currentIndex].isSelected 
+          };
+      }
+      
+      return newImages;
+    });
+    
+    // Update last interacted index (even for shift clicks, the "end" becomes the new anchor usually)
+    // We need to resolve the index from current state or just pass it if we trust it doesn't shift? 
+    // Ideally we should find index again but id is stable.
+    // For simplicity, we find index in the next render cycle or use the calculated one.
+    // Since setImages is functional, we can't get new index easily outside. 
+    // We'll just assume id mapping is stable enough for this operation.
+    // But better to use `images` dependency if we need exact index? 
+    // Actually using function updater `prev` is good for state, but for `lastInteractedIndex` we need 
+    // to know the index at the time of click. 
+    // We can just calculate it from current `images` if we didn't use functional update or...
+    // Let's use functional update for `lastInteractedIndex` too or simplfy.
+    
+    // Since we need to know the index *before* update (which we did inside setImages), 
+    // we can calculate `currentIndex` outside if we depend on `images`.
+    // But `toggleSelection` is memoized. Let's rely on `images` dependency update or...
+    // To avoid stale `images`, we can't simply find index outside if images changed without hook update.
+    // But `images` is in dependency array of the hook (no, it is not! `useCallback` usually has it).
+    // Ah, `toggleSelection` currently has `[]` dependency! That's a bug if we use `images` outside.
+    // But previously it used functional update `prev => ...` so it was fine.
+    
+    // To implement range, we need access to the current list order to know indices.
+    // So we MUST depend on `images` to know the order.
+    // Updating dependency to `[images, lastInteractedIndex]`.
+    
+    setLastInteractedIndex(prevIndices => {
+       // access images from closure (will require adding to deps)
+       return images.findIndex(img => img.id === id);
+    });
+
+  }, [images, lastInteractedIndex]);
 
   const selectAll = useCallback((selected: boolean) => {
     setImages(prev => prev.map(img => ({ ...img, isSelected: selected })));

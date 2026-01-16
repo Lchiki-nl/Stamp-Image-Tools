@@ -6,7 +6,7 @@ import { ImageMinus, Crop, Grid3X3, Upload } from "lucide-react";
 interface ImageGridProps {
   images: GalleryImage[];
   onSelect: (id: string) => void;
-  onToggleSelect: (id: string) => void;
+  onToggleSelect: (id: string, isShift?: boolean) => void;
   onRemove: (id: string) => void;
   onAddFiles: (files: File[]) => void;
   gridSize?: "small" | "large";
