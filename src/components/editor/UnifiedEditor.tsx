@@ -269,7 +269,7 @@ export function UnifiedEditor({
                  </button>
              )}
 
-            <div className="glass-card rounded-[32px] p-8 md:p-6 h-[calc(100dvh-180px)] md:h-[640px] shadow-xl shadow-slate-200/50 block w-full border border-white/50 relative">
+            <div className="glass-card rounded-[32px] p-8 md:p-6 h-[calc(100dvh-180px)] md:h-[640px] shadow-xl shadow-slate-200/50 block w-full border border-white/50 relative overflow-y-auto">
                 {!image ? (
                     <div className="flex flex-col items-center justify-center h-full">
                         <div className="w-full max-w-xl">

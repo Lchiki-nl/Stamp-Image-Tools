@@ -175,7 +175,7 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       
       // Mobile display constraints
       const minDisplaySize = 250;
-      const maxDisplayHeight = 350;
+      const maxDisplayHeight = 300;
       const maxDisplayWidth = typeof window !== 'undefined' ? window.innerWidth * 0.85 : 300;
       
       let scale = 1;
