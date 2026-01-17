@@ -466,8 +466,8 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 </label>
                 <input 
                     type="range"
-                    min="0"
-                    max="360"
+                    min="-180"
+                    max="180"
                     value={rotation}
                     onChange={e => setRotation(parseInt(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-teal-500"
