@@ -8,7 +8,7 @@ import { useGallery, MAX_IMAGES_NORMAL, MAX_IMAGES_VIP } from "@/hooks/useGaller
 import { useVipStatus } from "@/hooks/useVipStatus";
 import { ProcessingModal, type ProcessingAction } from "@/components/gallery/ProcessingModal";
 import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
-import { processRemoveBackground, processCrop, processSplit, processResize } from "@/lib/batch-processing";
+import { processRemoveBackground, processRemoveBackgroundAI, processCrop, processSplit, processResize } from "@/lib/batch-processing";
 import { getImageDimensions } from "@/lib/image-utils";
 import { type GalleryAction } from "@/types/gallery";
 import { VipAuthModal } from "@/components/gallery/VipAuthModal";

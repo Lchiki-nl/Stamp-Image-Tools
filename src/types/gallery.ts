@@ -14,4 +14,4 @@ export interface GalleryImage {
   // 将来的に処理パラメータを持たせるならここに追加
 }
 
-export type GalleryAction = 'remove-background' | 'split' | 'crop' | 'resize' | 'delete' | 'download';
+export type GalleryAction = 'remove-background' | 'remove-background-ai' | 'split' | 'crop' | 'resize' | 'delete' | 'download';

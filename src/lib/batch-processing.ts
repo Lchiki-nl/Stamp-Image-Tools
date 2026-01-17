@@ -1,6 +1,6 @@
-
+import { removeBackground as removeBackgroundAI } from "@imgly/background-removal";
 import { 
-    removeBackground, 
+    removeBackground as removeBackgroundManual,
     cropImage, 
     splitImage, 
     detectBoundingBox,
@@ -71,8 +71,14 @@ export async function processRemoveBackground(file: File, config: RemoveBackgrou
     const { imageData } = await loadImageData(file);
     const rgb = hexToRgb(config.targetColor) || { r: 255, g: 255, b: 255 };
     
-    const resultData = removeBackground(imageData, rgb, config.tolerance, config.feather);
+    const resultData = removeBackgroundManual(imageData, rgb, config.tolerance, config.feather);
     return imageDataToBlob(resultData);
+}
+
+export async function processRemoveBackgroundAI(file: File): Promise<Blob> {
+    // @imgly/background-removal を使用して自動背景削除
+    const blob = await removeBackgroundAI(file);
+    return blob;
 }
 
 export interface CropConfig {

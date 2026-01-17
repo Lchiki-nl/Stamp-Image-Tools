@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock } from "lucide-react";
+import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock, Sparkles } from "lucide-react";
 import type { RemoveBackgroundConfig, CropConfig, SplitConfig, ResizeConfig } from "@/lib/batch-processing";
 
-export type ProcessingAction = 'remove-background' | 'split' | 'crop' | 'resize';
+export type ProcessingAction = 'remove-background' | 'remove-background-ai' | 'split' | 'crop' | 'resize';
 
 export interface ProcessingModalProps {
   isOpen: boolean;
@@ -72,6 +72,7 @@ export function ProcessingModal({
   const getTitle = () => {
     switch (action) {
       case 'remove-background': return '背景削除の一括処理';
+      case 'remove-background-ai': return 'AI背景削除の一括処理';
       case 'crop': return '余白カットの一括処理';
       case 'split': return '画像分割の一括処理';
       case 'resize': return 'サイズ変更の一括処理';
@@ -81,6 +82,7 @@ export function ProcessingModal({
 
   const iconMap = {
       'remove-background': Eraser,
+      'remove-background-ai': Sparkles,
       'crop': Crop,
       'split': Grid3X3,
       'resize': Scaling,
@@ -104,6 +106,7 @@ export function ProcessingModal({
             <div className={`p-2 rounded-xl ${
                 action === 'remove-background' ? 'bg-green-100 text-green-600' :
                 action === 'crop' ? 'bg-orange-100 text-orange-600' :
+                action === 'remove-background-ai' ? 'bg-purple-100 text-purple-600' :
                 action === 'resize' ? 'bg-pink-100 text-pink-600' :
                 'bg-blue-100 text-blue-600'
             }`}>
@@ -197,6 +200,22 @@ export function ProcessingModal({
                     />
                   </div>
                 </>
+              )}
+
+              {action === 'remove-background-ai' && (
+                <div className="space-y-4 text-center py-6">
+                     <div className="bg-purple-50 p-6 rounded-2xl inline-block mb-2">
+                        <Sparkles size={40} className="text-purple-600" />
+                     </div>
+                     <h3 className="text-lg font-bold text-gray-800">AIによる自動背景削除</h3>
+                     <p className="text-sm text-gray-500 max-w-xs mx-auto leading-relaxed">
+                        AIが被写体を自動で認識して切り抜きます。<br/>
+                        細かい設定は不要です。
+                     </p>
+                     <p className="text-xs text-amber-600 font-bold bg-amber-50 py-2 px-4 rounded-full inline-block mt-2">
+                        ※初回のみモデルの読み込みに時間がかかります
+                     </p>
+                </div>
               )}
 
               {action === 'crop' && (
@@ -384,6 +403,7 @@ export function ProcessingModal({
               onClick={handleExecute}
               className={`w-full py-3.5 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]
                 ${action === 'remove-background' ? 'bg-green-500 hover:bg-green-600 shadow-green-200' :
+                  action === 'remove-background-ai' ? 'bg-purple-500 hover:bg-purple-600 shadow-purple-200' :
                   action === 'crop' ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200' :
                   action === 'resize' ? 'bg-pink-500 hover:bg-pink-600 shadow-pink-200' :
                   'bg-blue-500 hover:bg-blue-600 shadow-blue-200'}

@@ -42,7 +42,8 @@ export function useVipStatus() {
   }, []);
 
   const unlockVip = (password: string): boolean => {
-    if (password === 'vip') { // Dummy password
+    const correctPassword = process.env.NEXT_PUBLIC_VIP_PASSWORD;
+    if (password === correctPassword) {
       sessionStorage.setItem(STORAGE_KEY, encode(true));
       setIsVip(true);
       return true;
