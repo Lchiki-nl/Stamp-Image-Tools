@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Lock, CheckCircle2, ArrowRight, Crown } from 'lucide-react';
+import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles } from 'lucide-react';
 
 interface VipAuthModalProps {
   isOpen: boolean;
@@ -85,17 +85,17 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                     </div>
 
                     <div className="bg-amber-50 p-4 rounded-xl space-y-2 border border-amber-100">
+                        <p className="text-sm font-bold text-purple-700 flex items-center gap-2">
+                             <Sparkles size={16} className="shrink-0 fill-purple-700" />
+                             AI背景削除が無制限に使えます！
+                        </p>
                         <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
                             <CheckCircle2 size={14} className="shrink-0" />
-                            最大100枚まで画像を保存可能
+                            画像の保存枚数が最大100枚に増加
                         </p>
                         <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
                              <CheckCircle2 size={14} className="shrink-0" />
-                            文字入れツールが使い放題
-                        </p>
-                        <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
-                             <CheckCircle2 size={14} className="shrink-0" />
-                            消しゴムツール
+                            将来追加される全機能の制限解除
                         </p>
                     </div>
 
