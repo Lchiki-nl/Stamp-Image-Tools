@@ -62,49 +62,70 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
     if (!text) return;
 
-    // Helper for curved text
-    const drawCurvedText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, curvature: number) => {
-        // Scale curvature exponentially for intuitive control
-        // arch=1 -> very gentle curve, arch=100 -> tight curve
-        const absArch = Math.abs(curvature);
-        const scaledCurve = Math.pow(absArch / 100, 2) * 100; // Quadratic scaling for gentle curves at low values
-        
+    // Helper for curved text - NEW APPROACH
+    // The text center stays at (x, y), and arch controls how much the text bends
+    // arch = 0: straight line
+    // arch = ±100: half circle (tight curve)
+    const drawCurvedText = (ctx: CanvasRenderingContext2D, text: string, centerX: number, centerY: number, archValue: number) => {
         const charWidth = fontSize + letterSpacing;
-        const textWidth = text.length * charWidth;
+        const totalWidth = text.length * charWidth;
         
-        // Calculate radius based on desired curve intensity
-        // Higher scaledCurve = smaller radius = tighter curve
-        const minRadius = textWidth / Math.PI; // Tightest possible (half circle)
-        const maxRadius = textWidth * 20; // Very gentle curve
-        const radius = minRadius + (maxRadius - minRadius) * (1 - scaledCurve / 100);
+        // Convert arch (-100 to 100) to a curve amount
+        // archValue = 0 means straight, ±100 means half-circle
+        const curveAmount = archValue / 100; // -1 to 1
         
-        const anglePerChar = charWidth / radius;
-        const direction = curvature > 0 ? 1 : -1;
+        if (Math.abs(curveAmount) < 0.01) {
+            // Nearly straight - just draw horizontally
+            ctx.save();
+            if ('letterSpacing' in ctx) {
+                ctx.letterSpacing = `${letterSpacing}px`;
+            }
+            ctx.fillText(text, centerX, centerY);
+            if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+            ctx.restore();
+            return;
+        }
         
-        // Calculate center point offset from text position
-        // Keep the center within a reasonable distance to avoid off-canvas rendering
-        const centerOffsetY = Math.min(radius, canvas.height);
-        const cy = y + centerOffsetY * direction;
-        const cx = x;
-
+        // Calculate the arc parameters
+        // For a half-circle (curveAmount = ±1), the chord length = totalWidth
+        // For smaller curves, we use a larger radius
+        const absAmount = Math.abs(curveAmount);
+        
+        // Radius calculation: when absAmount = 1, radius = totalWidth / PI (half circle)
+        // when absAmount is small, radius is large (gentle curve)
+        const radius = totalWidth / (2 * Math.sin(absAmount * Math.PI / 2));
+        
+        // The center of the arc circle
+        // When curving down (positive arch), circle center is above the text
+        // When curving up (negative arch), circle center is below
+        const direction = curveAmount > 0 ? -1 : 1; // -1: center above, 1: center below
+        
+        // Distance from text baseline to circle center
+        const offsetY = Math.sqrt(Math.max(0, radius * radius - (totalWidth / 2) * (totalWidth / 2)));
+        const circleCenterY = centerY + direction * offsetY;
+        const circleCenterX = centerX;
+        
+        // Calculate the starting angle
+        const halfAngle = Math.asin((totalWidth / 2) / radius);
+        const startAngle = direction > 0 ? (-Math.PI / 2 - halfAngle) : (Math.PI / 2 + halfAngle);
+        const angleStep = (2 * halfAngle) / (text.length - 1 || 1);
+        
         ctx.save();
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
-            const charIndex = i - (text.length - 1) / 2;
-            const angle = charIndex * anglePerChar;
-
+            const angle = startAngle + (direction > 0 ? i : -i) * angleStep;
+            
+            // Character position on the arc
+            const charX = circleCenterX + radius * Math.cos(angle);
+            const charY = circleCenterY + radius * Math.sin(angle);
+            
             ctx.save();
-            ctx.translate(cx, cy);
-
-            if (direction > 0) {
-                ctx.rotate(-Math.PI / 2 + angle);
-                ctx.translate(0, -centerOffsetY);
-            } else {
-                ctx.rotate(Math.PI / 2 + angle);
-                ctx.translate(0, centerOffsetY); 
-                ctx.rotate(Math.PI);
-            }
-
+            ctx.translate(charX, charY);
+            
+            // Rotate to be tangent to the arc
+            const tangentAngle = angle + (direction > 0 ? Math.PI / 2 : -Math.PI / 2);
+            ctx.rotate(tangentAngle);
+            
             ctx.fillText(char, 0, 0);
             ctx.restore();
         }
