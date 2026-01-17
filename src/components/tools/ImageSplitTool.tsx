@@ -99,52 +99,38 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
     }
   }, [onApply, embeddedCanvasRef, rows, cols]);
 
-  const renderNumberSelector = (label: string, value: number, onChange: (val: number) => void) => (
+  const handleGridChange = (value: number, setter: (val: number) => void) => {
+    if (!isVip && value >= 4) {
+      setIsVipModalOpen(true);
+      return;
+    }
+    setter(value);
+  };
+
+  const renderSlider = (label: string, value: number, setter: (val: number) => void) => (
     <div className="space-y-3">
       <label className="text-sm font-bold text-text-sub flex items-center justify-between">
         {label}
         <span className="text-primary font-bold text-lg">{value}</span>
       </label>
-      <div className="grid grid-cols-5 gap-2">
-        {[1, 2, 3, 4, 5].map((num) => {
-          const isLocked = !isVip && num >= 4;
-          const isSelected = value === num;
-          
-          return (
-            <button
-              key={num}
-              onClick={() => {
-                if (isLocked) {
-                  setIsVipModalOpen(true);
-                } else {
-                  onChange(num);
-                }
-              }}
-              className={`
-                relative h-10 rounded-lg font-bold text-sm transition-all flex items-center justify-center
-                ${isSelected 
-                  ? "bg-primary text-white shadow-md scale-105 z-10" 
-                  : isLocked
-                    ? "bg-amber-50 text-amber-600 border border-amber-200"
-                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                }
-              `}
-            >
-              {isLocked ? (
-                <Lock size={14} className="stroke-[2.5]" />
-              ) : (
-                num
-              )}
-              {isLocked && (
-                <div className="absolute -top-1 -right-1">
-                   <div className="bg-amber-500 rounded-full p-0.5 shadow-sm">
-                      <Crown size={8} className="text-white fill-white" />
-                   </div>
-                </div>
-              )}
-            </button>
-          );
-        })}
+      <input
+        type="range"
+        min="1"
+        max="5"
+        value={value}
+        onChange={(e) => handleGridChange(Number(e.target.value), setter)}
+        className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary touch-none"
+      />
+      <div className="flex justify-between text-xs text-gray-400 font-medium">
+        <span>1</span>
+        <span>2</span>
+        <span>3</span>
+        <span className={!isVip ? "text-amber-500 flex items-center gap-0.5" : ""}>
+            4{!isVip && <Lock size={8} />}
+        </span>
+        <span className={!isVip ? "text-amber-500 flex items-center gap-0.5" : ""}>
+            5{!isVip && <Lock size={8} />}
+        </span>
       </div>
     </div>
   );
@@ -217,10 +203,10 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
           </h3>
 
           {/* Rows */}
-          {renderNumberSelector("行数", rows, setRows)}
+          {renderSlider("行数", rows, setRows)}
 
           {/* Cols */}
-          {renderNumberSelector("列数", cols, setCols)}
+          {renderSlider("列数", cols, setCols)}
 
           {/* Preview Info */}
           <div className="bg-primary-light/50 rounded-xl p-4 text-center">
