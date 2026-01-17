@@ -11,7 +11,7 @@ export function useVipStatus() {
     // Check storage on mount
     const stored = sessionStorage.getItem('stamp_tool_vip');
     if (stored === 'true') {
-      setIsVip(true);
+      setTimeout(() => setIsVip(true), 0);
     }
   }, []);
 

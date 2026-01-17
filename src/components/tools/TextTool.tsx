@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, type RefObject } from "react";
+import { useState, useRef, useEffect, type RefObject } from "react";
 import { Type, RotateCcw, Check, AlignCenter, Move } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
@@ -40,7 +40,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const dragStartRef = useRef<{ x: number, y: number } | null>(null);
 
   // Draw text logic
-  const drawDetails = useCallback(() => {
+  const drawDetails = () => {
     const canvas = canvasRef.current?.getCanvas();
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx || !image) return;
@@ -103,12 +103,12 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
       drawCurvedText(ctx, text, x, y, arch);
     }
 
-  }, [image, text, fontSize, color, fontFamily, arch, position, letterSpacing]);
+  };
 
   // Re-draw on changes
   useEffect(() => {
     drawDetails();
-  }, [drawDetails, text, fontSize, color, fontFamily, arch, position, letterSpacing, image]);
+  });
 
   const handleFileSelect = (file: File) => {
     const url = URL.createObjectURL(file);
