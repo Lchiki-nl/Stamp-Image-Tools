@@ -42,6 +42,8 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [position, setPosition] = useState({ x: 50, y: 50 }); // Percentage 0-100
   const [letterSpacing, setLetterSpacing] = useState(0); // px
   const [isVertical, setIsVertical] = useState(false); // 縦書き
+  const [rotation, setRotation] = useState(0); // degrees 0-360
+  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');
 
   // Dragging State
   const [isDragging, setIsDragging] = useState(false);
@@ -62,17 +64,27 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
     // Helper for curved text
     const drawCurvedText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, curvature: number) => {
-        // More gradual curve: smaller values = larger radius = gentler curve
-        // Scale curvature so that arch=100 gives a tight curve, arch=1 gives almost straight
-        const adjustedCurvature = Math.pow(Math.abs(curvature) / 100, 1.5) * 100;
-        const minRadius = text.length * (fontSize + letterSpacing) / Math.PI; // Minimum to fit all chars in half circle
-        const maxRadius = 2000;
-        const radius = Math.max(minRadius, maxRadius - (maxRadius - minRadius) * (adjustedCurvature / 100));
+        // Scale curvature exponentially for intuitive control
+        // arch=1 -> very gentle curve, arch=100 -> tight curve
+        const absArch = Math.abs(curvature);
+        const scaledCurve = Math.pow(absArch / 100, 2) * 100; // Quadratic scaling for gentle curves at low values
         
         const charWidth = fontSize + letterSpacing;
-        const anglePerChar = charWidth / radius; 
+        const textWidth = text.length * charWidth;
+        
+        // Calculate radius based on desired curve intensity
+        // Higher scaledCurve = smaller radius = tighter curve
+        const minRadius = textWidth / Math.PI; // Tightest possible (half circle)
+        const maxRadius = textWidth * 20; // Very gentle curve
+        const radius = minRadius + (maxRadius - minRadius) * (1 - scaledCurve / 100);
+        
+        const anglePerChar = charWidth / radius;
         const direction = curvature > 0 ? 1 : -1;
-        const cy = y + radius * direction;
+        
+        // Calculate center point offset from text position
+        // Keep the center within a reasonable distance to avoid off-canvas rendering
+        const centerOffsetY = Math.min(radius, canvas.height);
+        const cy = y + centerOffsetY * direction;
         const cx = x;
 
         ctx.save();
@@ -86,10 +98,10 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
             if (direction > 0) {
                 ctx.rotate(-Math.PI / 2 + angle);
-                ctx.translate(0, -radius);
+                ctx.translate(0, -centerOffsetY);
             } else {
                 ctx.rotate(Math.PI / 2 + angle);
-                ctx.translate(0, radius); 
+                ctx.translate(0, centerOffsetY); 
                 ctx.rotate(Math.PI);
             }
 
@@ -102,11 +114,17 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     // Setup Text Style
     ctx.font = `bold ${fontSize}px ${fontFamily}`;
     ctx.fillStyle = color;
-    ctx.textAlign = "center";
+    ctx.textAlign = textAlign;
     ctx.textBaseline = "middle";
 
     const x = (canvas.width * position.x) / 100;
     const y = (canvas.height * position.y) / 100;
+
+    // Apply rotation
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(-x, -y);
 
     if (arch === 0) {
       if (isVertical) {
@@ -154,7 +172,11 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
           ctx.strokeStyle = '#3b82f6';
           ctx.lineWidth = 2;
           ctx.setLineDash([5, 5]);
-          ctx.strokeRect(x - maxWidth / 2 - 8, startY - fontSize / 2 - 4, maxWidth + 16, totalHeight + 8);
+          // Adjust bounding box based on alignment
+          let boxX = x - maxWidth / 2 - 8;
+          if (textAlign === 'left') boxX = x - 8;
+          if (textAlign === 'right') boxX = x - maxWidth - 8;
+          ctx.strokeRect(boxX, startY - fontSize / 2 - 4, maxWidth + 16, totalHeight + 8);
           ctx.setLineDash([]);
         }
       }
@@ -173,11 +195,19 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
       }
     }
 
+    ctx.restore(); // Restore rotation
   };
 
   // Re-draw on changes
   useEffect(() => {
-    drawDetails();
+    // Ensure fonts are loaded before drawing
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.ready.then(() => {
+        drawDetails();
+      });
+    } else {
+      drawDetails();
+    }
   });
 
   const handleFileSelect = (file: File) => {
@@ -418,6 +448,47 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                     <span>両端が下</span>
                     <span>なし</span>
                     <span>両端が上</span>
+                </div>
+            </div>
+
+            {/* Rotation Slider */}
+            <div className="space-y-2">
+                <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+                    回転
+                    <span className="text-primary font-bold">{rotation}°</span>
+                </label>
+                <input 
+                    type="range"
+                    min="0"
+                    max="360"
+                    value={rotation}
+                    onChange={e => setRotation(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-teal-500"
+                />
+            </div>
+
+            {/* Text Alignment */}
+            <div className="space-y-2">
+                <label className="text-sm font-bold text-text-sub">配置</label>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={() => setTextAlign('left')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${textAlign === 'left' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                        左
+                    </button>
+                    <button 
+                        onClick={() => setTextAlign('center')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${textAlign === 'center' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                        中央
+                    </button>
+                    <button 
+                        onClick={() => setTextAlign('right')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${textAlign === 'right' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                        右
+                    </button>
                 </div>
             </div>
 
