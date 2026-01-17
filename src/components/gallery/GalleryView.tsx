@@ -34,11 +34,11 @@ export function GalleryView({
   return (
     <div className="min-h-screen bg-background-soft flex flex-col">
       <div className="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto justify-start">
             <div>
               <h1 className="text-2xl font-black text-text-main">ギャラリー</h1>
-              <p className="text-sm text-text-sub mt-1">
+              <p className="text-sm text-text-sub mt-1 whitespace-nowrap">
                 {images.length} 枚の画像 (最大100枚)
               </p>
             </div>
@@ -46,14 +46,14 @@ export function GalleryView({
               href="/how-to-use" 
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors ml-2"
+              className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors md:ml-2 whitespace-nowrap"
             >
               使い方ガイド
             </a>
           </div>
           
           {images.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-end md:self-auto">
               <div className="bg-gray-100 p-1 rounded-xl flex items-center gap-1">
                 <button
                   onClick={() => setGridSize("large")}
@@ -82,7 +82,7 @@ export function GalleryView({
               {onSelectAll && (
                   <button
                       onClick={() => onSelectAll(selectedCount !== images.length)}
-                      className="px-4 py-2 text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors h-[42px]"
+                      className="px-4 py-2 text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors md:h-[42px] whitespace-nowrap"
                   >
                       {selectedCount === images.length ? "選択解除" : "全選択"}
                   </button>
