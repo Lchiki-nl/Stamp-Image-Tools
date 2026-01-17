@@ -34,6 +34,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [arch, setArch] = useState(0); // -100 to 100
   const [position, setPosition] = useState({ x: 50, y: 50 }); // Percentage 0-100
   const [letterSpacing, setLetterSpacing] = useState(0); // px
+  const [isVertical, setIsVertical] = useState(false); // 縦書き
 
   // Dragging State
   const [isDragging, setIsDragging] = useState(false);
@@ -95,22 +96,43 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     const y = (canvas.height * position.y) / 100;
 
     if (arch === 0) {
-      if ('letterSpacing' in ctx) {
-         ctx.letterSpacing = `${letterSpacing}px`;
-      }
-      ctx.fillText(text, x, y);
-      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
-      
-      // Draw bounding box on hover
-      if (isHovering && text) {
-        const metrics = ctx.measureText(text);
-        const textWidth = metrics.width;
-        const textHeight = fontSize * 1.2;
-        ctx.strokeStyle = '#3b82f6';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]);
-        ctx.strokeRect(x - textWidth / 2 - 8, y - textHeight / 2 - 4, textWidth + 16, textHeight + 8);
-        ctx.setLineDash([]);
+      if (isVertical) {
+        // Vertical text drawing
+        const lineHeight = fontSize + letterSpacing;
+        for (let i = 0; i < text.length; i++) {
+          const charY = y + (i - (text.length - 1) / 2) * lineHeight;
+          ctx.fillText(text[i], x, charY);
+        }
+        
+        // Draw bounding box on hover
+        if (isHovering && text) {
+          const textHeight = text.length * lineHeight;
+          const textWidth = fontSize * 1.2;
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.strokeRect(x - textWidth / 2 - 4, y - textHeight / 2 - 8, textWidth + 8, textHeight + 16);
+          ctx.setLineDash([]);
+        }
+      } else {
+        // Horizontal text
+        if ('letterSpacing' in ctx) {
+           ctx.letterSpacing = `${letterSpacing}px`;
+        }
+        ctx.fillText(text, x, y);
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+        
+        // Draw bounding box on hover
+        if (isHovering && text) {
+          const metrics = ctx.measureText(text);
+          const textWidth = metrics.width;
+          const textHeight = fontSize * 1.2;
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.strokeRect(x - textWidth / 2 - 8, y - textHeight / 2 - 4, textWidth + 16, textHeight + 8);
+          ctx.setLineDash([]);
+        }
       }
     } else {
       drawCurvedText(ctx, text, x, y, arch);
@@ -277,6 +299,22 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 />
             </div>
 
+            {/* Horizontal/Vertical Toggle */}
+            <div className="flex p-1 bg-gray-100 rounded-xl">
+                <button
+                    onClick={() => setIsVertical(false)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!isVertical ? 'bg-white shadow text-primary' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    横書き
+                </button>
+                <button
+                    onClick={() => setIsVertical(true)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${isVertical ? 'bg-white shadow text-primary' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    縦書き
+                </button>
+            </div>
+
             {/* Font Select */}
             <div className="space-y-2">
                 <label className="text-sm font-bold text-text-sub">フォント</label>
@@ -353,9 +391,9 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                     className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-amber-500"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
-                    <span>下へ</span>
+                    <span>両端が下</span>
                     <span>なし</span>
-                    <span>上へ</span>
+                    <span>両端が上</span>
                 </div>
             </div>
 
