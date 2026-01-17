@@ -4,7 +4,8 @@ import { useState } from "react";
 import { ImageGrid } from "./ImageGrid";
 import { FloatingActionBar } from "./FloatingActionBar";
 import { type GalleryAction, type GalleryImage } from "@/types/gallery";
-import { LayoutGrid, Grid3X3 } from "lucide-react";
+import { LayoutGrid, Grid3X3, Crown } from "lucide-react";
+import { VipAuthModal } from "./VipAuthModal";
 
 interface GalleryViewProps {
   images: GalleryImage[];
@@ -30,26 +31,36 @@ export function GalleryView({
   selectedCount 
 }: GalleryViewProps) {
   const [gridSize, setGridSize] = useState<"small" | "large">("large");
+  const [isVipModalOpen, setIsVipModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background-soft flex flex-col">
       <div className="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <div className="flex items-center gap-4 w-full md:w-auto justify-start">
+          <div className="flex items-center gap-4 w-full md:w-auto justify-start flex-wrap">
             <div>
               <h1 className="text-2xl font-black text-text-main">ギャラリー</h1>
               <p className="text-sm text-text-sub mt-1 whitespace-nowrap">
                 {images.length} 枚の画像 (最大100枚)
               </p>
             </div>
-            <a 
-              href="/how-to-use" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors md:ml-2 whitespace-nowrap"
-            >
-              使い方ガイド
-            </a>
+            <div className="flex items-center gap-2 md:ml-2">
+                <a 
+                href="/how-to-use" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap"
+                >
+                使い方ガイド
+                </a>
+                <button
+                onClick={() => setIsVipModalOpen(true)}
+                className="flex items-center gap-1 text-amber-600 font-bold text-sm bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors whitespace-nowrap border border-amber-200"
+                >
+                <Crown size={14} className="fill-amber-600" />
+                VIP機能
+                </button>
+            </div>
           </div>
           
           {images.length > 0 && (
@@ -137,6 +148,7 @@ export function GalleryView({
           © 2026 EzStampify
         </p>
       </footer>
+      {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} />}
     </div>
   );
 }
