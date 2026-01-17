@@ -240,7 +240,3 @@ MIT License - 詳細は [LICENSE](LICENSE) を参照
 - [@imgly/background-removal](https://github.com/imgly/background-removal-js) - AI背景削除
 - [Lucide](https://lucide.dev/) - アイコンセット
 - [Framer Motion](https://www.framer.com/motion/) - アニメーションライブラリ
-
----
-
-**開発・運営**: [nashikileon](https://github.com/nashikileon)
