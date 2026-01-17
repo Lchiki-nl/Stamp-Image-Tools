@@ -219,6 +219,22 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     ctx.restore(); // Restore rotation
   };
 
+  // Track previous image to detect changes and reset state
+  const prevImageRef = useRef<HTMLImageElement | null>(null);
+  
+  useEffect(() => {
+    // Only reset if this is a NEW image (not initial mount or same image)
+    if (embeddedImage && prevImageRef.current !== null && embeddedImage !== prevImageRef.current) {
+      setText("");
+      setArch(0);
+      setRotation(0);
+      setPosition({ x: 50, y: 50 });
+      setLetterSpacing(0);
+    }
+    prevImageRef.current = embeddedImage ?? null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [embeddedImage]);
+
   // Re-draw on changes
   useEffect(() => {
     // Ensure fonts are loaded before drawing
