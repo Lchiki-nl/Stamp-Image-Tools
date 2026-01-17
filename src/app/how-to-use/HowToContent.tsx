@@ -69,7 +69,12 @@ export function HowToContent() {
                     <div className={`w-12 h-12 rounded-2xl ${step.bg} ${step.color} flex items-center justify-center shrink-0`}>
                       <step.icon size={24} strokeWidth={2.5} />
                     </div>
-                    <h2 className="text-2xl font-bold text-text-main">{step.title}</h2>
+                    <h2 className="text-2xl font-bold text-text-main flex items-center gap-2">
+                      {step.title}
+                      {'isVip' in step && step.isVip && (
+                        <span className="text-xs font-bold bg-amber-100 text-amber-600 px-2 py-1 rounded-full">VIP</span>
+                      )}
+                    </h2>
                   </div>
                   
                   <p className="text-lg text-text-sub font-bold leading-relaxed">
