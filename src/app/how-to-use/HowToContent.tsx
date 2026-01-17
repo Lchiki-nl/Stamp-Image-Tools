@@ -96,7 +96,7 @@ export function HowToContent() {
                       }
                       
                       const isVipContext = step.details.includes("[SEP_VIP]") && step.details.indexOf(detail) > step.details.indexOf("[SEP_VIP]");
-                      const isVipDetail = isVipContext || detail.includes("VIP") || detail.includes("無制限");
+                      const isVipDetail = step.id === 'vip' || isVipContext || detail.includes("VIP") || detail.includes("無制限");
 
                       return (
                         <li key={i} className={`flex items-start gap-3 text-text-sub leading-relaxed ${

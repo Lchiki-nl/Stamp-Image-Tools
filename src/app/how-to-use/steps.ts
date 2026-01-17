@@ -6,13 +6,12 @@ export const steps = [
     id: "upload",
     title: "1. 画像のアップロード",
     icon: Upload,
-    description: "加工したい画像をドラッグ＆ドロップ、またはクリックして選択します。",
+    description: "画像をドラッグ＆ドロップ、またはクリックして選択します。",
     details: [
-      "PNG, JPG, WebP 形式に対応しています。",
-      "一度に最大50枚まで読み込めます。",
+      "最大50枚まで読み込めます。",
+      "読み込んだ画像はブラウザ内でのみ処理され、サーバーには送信されません。",
       "[SEP_VIP]",
-      "最大100枚まで読み込み可能になります。",
-      "読み込んだ画像はブラウザ内でのみ処理され、サーバーには送信されません。"
+      "最大100枚まで読み込み可能になります。"
     ],
     color: "text-blue-500",
     bg: "bg-blue-50"
@@ -31,6 +30,20 @@ export const steps = [
     bg: "bg-purple-50"
   },
   {
+    id: "ai-removal",
+    title: "AI背景削除",
+    icon: Sparkles,
+    description: "AIが被写体を自動認識して切り抜きます。",
+    details: [
+      "ツールバーの「AI削除」ボタンを選択します。",
+      "髪の毛や複雑な形状の透過が得意です。",
+      "[SEP_VIP]",
+      "回数無制限で使えます。"
+    ],
+    color: "text-indigo-500",
+    bg: "bg-indigo-50"
+  },
+  {
     id: "crop",
     title: "3. 余白カット（トリミング）",
     icon: Crop,
@@ -47,7 +60,7 @@ export const steps = [
     id: "split",
     title: "4. グリッド分割",
     icon: Grid3X3,
-    description: "1枚の画像を均等なサイズに分割して切り出します。",
+    description: "画像を均等なサイズに分割して切り出します。",
     details: [
       "「画像分割」タブを選択します。",
       "横（列数）と縦（行数）を指定します（例：3x3、4x4など）。",
@@ -76,7 +89,7 @@ export const steps = [
     icon: Download,
     description: "加工が完了した画像を保存します。",
     details: [
-      "編集画面で「新規保存」か「上書き保存」を選べます。「上書き」すると自動でMain/Tabバッジが更新されます。",
+      "編集画面で「新規保存」か「上書き保存」を選べます。保存したサイズに応じて自動でバッジがつきます。",
       "ギャラリーでは「Shiftキー」を押しながらクリックで範囲選択が可能です。",
       "複数選択して「一括ダウンロード」すると、自動的に「main.png」「tab.png」「01.png...」といった最適なファイル名で保存されます。"
     ],
@@ -124,19 +137,5 @@ export const steps = [
     bg: "bg-teal-50",
     isVip: true
   },
-  {
-    id: "ai-removal",
-    title: "AI背景削除",
-    icon: Sparkles,
-    description: "AIが被写体を自動認識して切り抜きます。",
-    details: [
-      "ツールバーの「AI削除」ボタンを選択します。",
-      "髪の毛や複雑な形状の透過が得意です。",
-      "[SEP_VIP]",
-      "回数無制限で使えます。"
-    ],
-    color: "text-indigo-500",
-    bg: "bg-indigo-50",
-    isVip: true
-  }
+
 ];
