@@ -1,5 +1,5 @@
 
-import { Upload, ImageMinus, Crop, Grid3X3, Scaling, Download } from "lucide-react";
+import { Upload, ImageMinus, Crop, Grid3X3, Scaling, Download, Sparkles, Crown } from "lucide-react";
 
 export const steps = [
   {
@@ -80,5 +80,31 @@ export const steps = [
     ],
     color: "text-pink-500",
     bg: "bg-pink-50"
+  },
+  {
+    id: "ai-removal",
+    title: "AI背景削除",
+    icon: Sparkles,
+    description: "AIが被写体を自動認識して切り抜きます。",
+    details: [
+      "「背景削除」メニューから「AI削除」を選択します。",
+      "髪の毛や複雑な形状もきれいに透過できます。"
+    ],
+    color: "text-indigo-500",
+    bg: "bg-indigo-50"
+  },
+  {
+    id: "vip",
+    title: "VIP機能",
+    icon: Crown,
+    description: "パスワードを入力して制限を解除します。",
+    details: [
+      "画面上の「VIP」ボタンから認証できます。",
+      "AI背景削除が無制限使い放題になります。",
+      "画像の最大読み込み枚数が40枚から100枚に増えます。",
+      "その他、VIP専用の高度な機能が利用可能になります。"
+    ],
+    color: "text-amber-500",
+    bg: "bg-amber-50"
   }
 ];
