@@ -3,7 +3,8 @@ import { GalleryImage } from '@/types/gallery';
 import { saveGalleryState, loadGalleryState } from '@/lib/storage';
 import { getImageDimensions } from '@/lib/image-utils';
 
-export const MAX_IMAGES = 100;
+export const MAX_IMAGES_NORMAL = 50;
+export const MAX_IMAGES_VIP = 100;
 
 export function useGallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -48,8 +49,8 @@ export function useGallery() {
 
   // Note: URL cleanup is handled in removeImages to avoid premature revocation
 
-  const addImages = useCallback((files: File[]) => {
-    const remainingSlots = MAX_IMAGES - images.length;
+  const addImages = useCallback((files: File[], maxImages: number = MAX_IMAGES_NORMAL) => {
+    const remainingSlots = maxImages - images.length;
     if (remainingSlots <= 0) {
       // TODO: 通知などで知らせる
       return;

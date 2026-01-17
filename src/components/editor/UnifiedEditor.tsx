@@ -170,16 +170,19 @@ export function UnifiedEditor({
                             ${isActive 
                             ? "bg-primary/10 text-primary" 
                             : isLocked 
-                                ? "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-600 border border-amber-200/50 shadow-sm hover:from-amber-100 hover:to-yellow-100"
+                                ? "text-amber-600 border border-amber-300 shadow-sm"
                                 : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}
                         `}
+                        style={isLocked && !isActive ? {
+                          background: 'linear-gradient(to right, #fef3c7, #fef9c3)',
+                        } : undefined}
                         >
                         <Icon size={18} className={isLocked ? "text-amber-500" : ""} />
                         <span className="hidden md:inline">{tool.label}</span>
                         {isLocked && (
-                          <span className="flex items-center gap-0.5 ml-1 text-amber-500">
-                            <Lock size={10} />
-                            <span className="text-[10px] font-bold hidden lg:inline">VIP</span>
+                          <span className="flex items-center gap-0.5 ml-1 px-1 py-0.5 bg-amber-500 text-white rounded text-[9px] font-bold">
+                            <Lock size={8} />
+                            VIP
                           </span>
                         )}
                         </button>
