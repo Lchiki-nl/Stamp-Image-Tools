@@ -87,8 +87,8 @@ export const steps = [
     icon: Sparkles,
     description: "AIが被写体を自動認識して切り抜きます。",
     details: [
-      "「背景削除」メニューから「AI削除」を選択します。",
-      "髪の毛や複雑な形状もきれいに透過できます。"
+      "ツールバーの「AI削除」ボタンを選択します。",
+      "髪の毛や複雑な形状の透過が得意です。"
     ],
     color: "text-indigo-500",
     bg: "bg-indigo-50"

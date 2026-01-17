@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Smile, ArrowRight, Home } from "lucide-react";
+import { Smile, ArrowRight, Home, Lock, Crown, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { steps } from "./steps";
 
@@ -97,8 +97,29 @@ export function HowToContent() {
                           fill
                           className="object-contain"
                         />
+                      ) : step.id === 'vip' ? (
+                        /* VIP Visual */
+                        <div className="absolute inset-0 bg-linear-to-br from-amber-50 to-orange-50 flex flex-col items-center justify-center gap-6">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-amber-400 blur-3xl opacity-20 rounded-full" />
+                            <Crown size={80} className="text-amber-500 relative z-10" strokeWidth={1.5} />
+                          </div>
+                          <div className="flex items-center gap-2 px-5 py-2.5 bg-white/60 backdrop-blur-md rounded-full border border-amber-100 shadow-sm">
+                              <Lock size={16} className="text-amber-600" />
+                              <span className="text-sm font-bold text-amber-800">VIP Access Only</span>
+                          </div>
+                        </div>
+                      ) : step.id === 'ai-removal' ? (
+                        /* AI Visual */
+                        <div className="absolute inset-0 bg-linear-to-br from-indigo-50 to-purple-50 flex flex-col items-center justify-center gap-6">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-indigo-400 blur-3xl opacity-20 rounded-full" />
+                                <Sparkles size={80} className="text-indigo-500 relative z-10" strokeWidth={1.5} />
+                            </div>
+                            <span className="text-sm font-bold text-indigo-400/80 tracking-widest uppercase">AI Automated</span>
+                        </div>
                       ) : (
-                        /* Placeholder for others */
+                        /* Default Placeholder */
                         <div className="absolute inset-0 bg-gray-50 flex flex-col items-center justify-center text-gray-300 gap-4">
                            <step.icon size={64} className="opacity-20" />
                            <span className="text-sm font-bold opacity-40">Screenshot: {step.title}</span>
