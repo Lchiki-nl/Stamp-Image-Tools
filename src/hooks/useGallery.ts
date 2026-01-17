@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { GalleryImage } from '@/types/gallery';
 import { saveGalleryState, loadGalleryState } from '@/lib/storage';
+import { getImageDimensions } from '@/lib/image-utils';
 
 export const MAX_IMAGES = 50;
 
@@ -62,17 +63,32 @@ export function useGallery() {
         previewUrl: URL.createObjectURL(file),
         name: file.name,
         type: file.type,
-        width: 0, // ロード後に設定したいが、一旦0
+        width: 0, 
         height: 0,
         status: 'pending',
         isSelected: false,
         createdAt: Date.now(),
       }));
-
-      // 画像サイズを取得（非同期だが、State更新後に副作用で行うか、ここで待つか）
-      // ここではシンプルにState更新を優先し、サイズは後で更新、あるいは表示時に取得する戦略をとる
-      // ただし、正確なサイズが必要なら getImageSize ユーティリティを使うべき
       
+      // Trigger async dimension update
+      // We use the IDs to identify which images to update
+      Promise.all(newImages.map(async (img) => {
+          try {
+              const dims = await getImageDimensions(img.file);
+              return { id: img.id, width: dims.width, height: dims.height };
+          } catch {
+              return { id: img.id, width: 0, height: 0 };
+          }
+      })).then(updates => {
+          setImages(current => current.map(img => {
+              const update = updates.find(u => u.id === img.id);
+              if (update) {
+                  return { ...img, width: update.width, height: update.height };
+              }
+              return img;
+          }));
+      });
+
       return [...prev, ...newImages];
     });
   }, []);

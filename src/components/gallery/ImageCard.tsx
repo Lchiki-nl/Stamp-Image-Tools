@@ -53,11 +53,28 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
           <Check size={16} strokeWidth={3} />
       </div>
 
-      {/* New Badge */}
-      {image.status === 'pending' && !image.isSelected && (
-        <div className="absolute top-3 right-3 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
-          NEW
-        </div>
+      {/* Status Badge */}
+      {!image.isSelected && (
+          <>
+            {/* MAIN Badge (240x240) */}
+            {image.width === 240 && image.height === 240 ? (
+                <div className="absolute top-3 right-3 z-10 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
+                    MAIN
+                </div>
+            ) : 
+            /* TAB Badge (96x74) */
+            image.width === 96 && image.height === 74 ? (
+                <div className="absolute top-3 right-3 z-10 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
+                    TAB
+                </div>
+            ) :
+            /* NEW Badge (Pending) */
+            image.status === 'pending' ? (
+                <div className="absolute top-3 right-3 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
+                    NEW
+                </div>
+            ) : null}
+          </>
       )}
 
       {/* Remove Button (Hover only) */}
