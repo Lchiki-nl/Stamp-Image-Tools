@@ -182,9 +182,9 @@ export function useGallery() {
 
   // 既存の画像を上書き
   const overwriteImage = useCallback((id: string, newFile: File) => {
+    // 1. Update file and URL immediately (keep old dims or 0)
     setImages(prev => prev.map(img => {
       if (img.id === id) {
-        // 古いpreviewUrlを解放
         URL.revokeObjectURL(img.previewUrl);
         return {
           ...img,
@@ -192,10 +192,22 @@ export function useGallery() {
           previewUrl: URL.createObjectURL(newFile),
           name: newFile.name,
           type: newFile.type,
+          // Temporarily set to current known (or 0) until async update?
+          // Keeping old dims might cause weird flicker if aspect changes.
+          // Let's keep it but trigger update fast.
         };
       }
       return img;
     }));
+
+    // 2. Async dimension update
+    getImageDimensions(newFile).then(dims => {
+        setImages(current => current.map(img => 
+            img.id === id ? { ...img, width: dims.width, height: dims.height } : img
+        ));
+    }).catch(() => {
+        // Ignore or handle error
+    });
   }, []);
 
   const selectedImages = images.filter(img => img.isSelected);
