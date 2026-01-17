@@ -33,6 +33,7 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hasImage, setHasImage] = useState(false);
+    const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
     const [, setUpdateCount] = useState(0);
 
     const drawImage = useCallback((img: HTMLImageElement) => {
@@ -48,6 +49,7 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
         ctx.drawImage(img, 0, 0);
         
         requestAnimationFrame(() => {
+          setCanvasDimensions({ width: img.naturalWidth, height: img.naturalHeight });
           setHasImage(true);
           setUpdateCount(c => c + 1);
           if (onImageLoaded) onImageLoaded();
@@ -157,6 +159,47 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       if (onTouchStart) onTouchStart(e);
     };
 
+    // Calculate display dimensions using useMemo (mobile only)
+    const displayDimensions = (() => {
+      if (!hasImage || canvasDimensions.width === 0) {
+        return {};
+      }
+      
+      // Only apply on mobile (width < 768px)
+      if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+        return { maxWidth: '100%', maxHeight: '500px' }; // Desktop: traditional behavior
+      }
+      
+      const naturalW = canvasDimensions.width;
+      const naturalH = canvasDimensions.height;
+      
+      // Mobile display constraints
+      const minDisplaySize = 250;
+      const maxDisplayHeight = 350;
+      const maxDisplayWidth = typeof window !== 'undefined' ? window.innerWidth * 0.85 : 300;
+      
+      let scale = 1;
+      if (naturalW > maxDisplayWidth) {
+        scale = Math.min(scale, maxDisplayWidth / naturalW);
+      }
+      if (naturalH > maxDisplayHeight) {
+        scale = Math.min(scale, maxDisplayHeight / naturalH);
+      }
+      
+      const displayW = naturalW * scale;
+      const displayH = naturalH * scale;
+      
+      if (displayW < minDisplaySize && displayH < minDisplaySize) {
+        const upscale = minDisplaySize / Math.max(displayW, displayH);
+        scale *= upscale;
+      }
+      
+      return {
+        width: naturalW * scale,
+        height: naturalH * scale,
+      };
+    })();
+
     return (
       <div className={`relative inline-block ${className}`}>
         {showCheckerboard && hasImage && (
@@ -171,8 +214,8 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
           onTouchStart={handleTouchStartWrapper}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          className={`relative z-10 block max-w-full rounded-lg cursor-crosshair touch-none ${hasImage ? "" : "hidden"}`}
-          style={{ maxHeight: "500px" }}
+          className={`relative z-10 block rounded-lg cursor-crosshair touch-none ${hasImage ? "" : "hidden"}`}
+          style={displayDimensions}
         />
         {!hasImage && (
           <div className="w-64 h-64 flex items-center justify-center text-gray-400 text-sm">
