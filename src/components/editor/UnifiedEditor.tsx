@@ -166,17 +166,22 @@ export function UnifiedEditor({
                             }
                         }}
                         className={`
-                            flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap
+                            flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap relative
                             ${isActive 
                             ? "bg-primary/10 text-primary" 
                             : isLocked 
-                                ? "text-gray-400 bg-gray-50 opacity-70"
+                                ? "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-600 border border-amber-200/50 shadow-sm hover:from-amber-100 hover:to-yellow-100"
                                 : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}
                         `}
                         >
-                        <Icon size={18} />
+                        <Icon size={18} className={isLocked ? "text-amber-500" : ""} />
                         <span className="hidden md:inline">{tool.label}</span>
-                        {isLocked && <Lock size={12} className="ml-0.5 md:ml-1" />}
+                        {isLocked && (
+                          <span className="flex items-center gap-0.5 ml-1 text-amber-500">
+                            <Lock size={10} />
+                            <span className="text-[10px] font-bold hidden lg:inline">VIP</span>
+                          </span>
+                        )}
                         </button>
                     );
                     })}

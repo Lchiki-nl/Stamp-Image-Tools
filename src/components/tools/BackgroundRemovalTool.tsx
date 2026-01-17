@@ -239,10 +239,6 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
                 onTouchMove={handleEraserMove}
                 onTouchEnd={handleEraserUp}
               />
-              {/* Eraser Cursor Overlay */}
-              {mode === 'eraser' && (
-                  <EraserCursor size={eraserSize} />
-              )}
 
               {clickFeedback && (
                 <div 
@@ -410,6 +406,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
         </div>
       )}
       {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} onAuthenticate={unlockVip} />}
+      {mode === 'eraser' && <EraserCursor size={eraserSize} />}
     </div>
   );
 }
