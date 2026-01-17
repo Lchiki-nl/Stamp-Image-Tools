@@ -52,8 +52,7 @@ export function useGallery() {
   const addImages = useCallback((files: File[], maxImages: number = MAX_IMAGES_NORMAL) => {
     const remainingSlots = maxImages - images.length;
     if (remainingSlots <= 0) {
-      // TODO: 通知などで知らせる
-      return;
+      return false;
     }
 
     const filesToAdd = files.slice(0, remainingSlots);
@@ -90,6 +89,7 @@ export function useGallery() {
             return img;
         }));
     });
+    return true;
   }, [images]);
 
   const removeImages = useCallback((ids: string[]) => {
@@ -174,7 +174,7 @@ export function useGallery() {
 
   // 処理結果などを追加する場合（分割後画像など）
   const addProcessedImage = useCallback((file: File, originalId?: string) => {
-     addImages([file]);
+     return addImages([file]);
      // originalId があれば紐付けなどができるが、現状はフラットに追加
      if (originalId) {
 

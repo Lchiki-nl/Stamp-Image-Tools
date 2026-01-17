@@ -11,6 +11,7 @@ import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
 import { processRemoveBackground, processCrop, processSplit, processResize } from "@/lib/batch-processing";
 import { getImageDimensions } from "@/lib/image-utils";
 import { type GalleryAction } from "@/types/gallery";
+import { VipAuthModal } from "@/components/gallery/VipAuthModal";
 
 
 // type ViewMode = "gallery" | "editor"; // Removed
@@ -29,8 +30,9 @@ export default function AppPage() {
     toggleSelection 
   } = useGallery();
   
-  const { isVip } = useVipStatus();
+  const { isVip, unlockVip } = useVipStatus();
   const maxImages = isVip ? MAX_IMAGES_VIP : MAX_IMAGES_NORMAL;
+  const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   
   // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
@@ -47,7 +49,10 @@ export default function AppPage() {
 
   // 画像が追加された時の処理
   const handleAddFiles = (files: File[]) => {
-    addImages(files, maxImages);
+    const success = addImages(files, maxImages);
+    if (!success) {
+        setIsVipModalOpen(true);
+    }
   };
 
   // 前回の画像数を保持して、0 -> 1 の変化を検知する
@@ -254,12 +259,18 @@ export default function AppPage() {
                   overwriteImage(img.id, newFile);
               } else {
                   // 新規保存モード or 複数結果(Split)
-                  resultBlobs.forEach((blob, index) => {
+                  for (let index = 0; index < resultBlobs.length; index++) {
+                      const blob = resultBlobs[index];
                       const suffix = resultBlobs.length > 1 ? `_${index + 1}` : '_processed';
                       const newFile = new File([blob], `${baseName}${suffix}.png`, { type: 'image/png' });
 
-                      addProcessedImage(newFile, img.id);
-                  });
+                      const success = addProcessedImage(newFile, img.id);
+                      if (!success) {
+                          setIsVipModalOpen(true);
+                          setIsProcessing(false);
+                          return;
+                      }
+                  }
               }
 
               // Apply dummy delay for UI update visibility
@@ -374,6 +385,7 @@ export default function AppPage() {
             selectedCount={selectedCount}
             onSelectAll={selectAll}
             onAction={handleGalleryAction}
+            onRequestVip={() => setIsVipModalOpen(true)}
             onClearSelection={() => selectAll(false)}
         />
         
@@ -440,6 +452,12 @@ export default function AppPage() {
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={handleConfirmDelete}
             count={selectedCount}
+        />
+
+        <VipAuthModal
+            isOpen={isVipModalOpen}
+            onClose={() => setIsVipModalOpen(false)}
+            onAuthenticate={unlockVip}
         />
     </>
   );

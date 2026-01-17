@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Lock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, Lock, CheckCircle2, ArrowRight, Crown } from 'lucide-react';
 
 interface VipAuthModalProps {
   isOpen: boolean;
@@ -7,17 +7,23 @@ interface VipAuthModalProps {
   onAuthenticate?: (password: string) => boolean;
 }
 
-export function VipAuthModal({ isOpen, onClose, onAuthenticate }: VipAuthModalProps) {
+export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'guide' }: VipAuthModalProps & { initialView?: 'guide' | 'auth' }) {
+  const [view, setView] = useState<'guide' | 'auth'>(initialView);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /* Removed problematic useEffect that caused synchronous state updates.
+     State is initialized via useState(initialView) and component remounts on open. */
+
   useEffect(() => {
-    // Focus input on mount
-    const timer = setTimeout(() => inputRef.current?.focus(), 100);
-    return () => clearTimeout(timer);
-  }, []);
+    // Focus input when switching to auth view
+    if (view === 'auth') {
+        const timer = setTimeout(() => inputRef.current?.focus(), 100);
+        return () => clearTimeout(timer);
+    }
+  }, [view]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +56,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate }: VipAuthModalPr
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2 text-amber-500">
                     <Lock size={24} />
-                    <h3 className="font-bold text-lg text-gray-800">VIP機能 認証</h3>
+                    <h3 className="font-bold text-lg text-gray-800">VIP機能</h3>
                 </div>
                 {!success && (
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -65,8 +71,44 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate }: VipAuthModalPr
                     <p className="text-lg font-bold text-gray-800">認証成功！</p>
                     <p className="text-sm text-gray-500 mt-2">VIP機能へアクセスします...</p>
                 </div>
+            ) : view === 'guide' ? (
+                <div className="flex flex-col gap-6 animate-in slide-in-from-right-4 duration-300">
+                    <div className="text-center space-y-3">
+                        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                             <Crown size={32} className="text-amber-500 fill-amber-500" />
+                        </div>
+                        <h4 className="text-xl font-black text-gray-800">ここからはVIPモードです</h4>
+                        <p className="text-sm text-gray-500 leading-relaxed font-bold">
+                            この機能を使用するには<br/>
+                            VIP認証（パスワード入力）が必要です。
+                        </p>
+                    </div>
+
+                    <div className="bg-amber-50 p-4 rounded-xl space-y-2 border border-amber-100">
+                        <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
+                            <CheckCircle2 size={14} className="shrink-0" />
+                            最大100枚まで画像を保存可能
+                        </p>
+                        <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
+                             <CheckCircle2 size={14} className="shrink-0" />
+                            文字入れツールが使い放題
+                        </p>
+                        <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
+                             <CheckCircle2 size={14} className="shrink-0" />
+                            高性能消しゴムツール
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => setView('auth')}
+                        className="w-full py-3 rounded-xl bg-linear-to-r from-amber-400 to-orange-500 text-white font-bold shadow-lg shadow-amber-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 group"
+                    >
+                        VIPモードへ進む
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                </div>
             ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 animate-in slide-in-from-right-4 duration-300">
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-600">パスワードを入力</label>
                         <input

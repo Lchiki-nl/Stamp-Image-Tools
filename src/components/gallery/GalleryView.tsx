@@ -5,7 +5,7 @@ import { ImageGrid } from "./ImageGrid";
 import { FloatingActionBar } from "./FloatingActionBar";
 import { type GalleryAction, type GalleryImage } from "@/types/gallery";
 import { LayoutGrid, Grid3X3, Crown } from "lucide-react";
-import { VipAuthModal } from "./VipAuthModal";
+
 import { useVipStatus } from "@/hooks/useVipStatus";
 import { MAX_IMAGES_NORMAL, MAX_IMAGES_VIP } from "@/hooks/useGallery";
 
@@ -19,6 +19,7 @@ interface GalleryViewProps {
   onAction: (action: GalleryAction) => void;
   onClearSelection: () => void;
   selectedCount: number;
+  onRequestVip: () => void;
 }
 
 export function GalleryView({ 
@@ -30,11 +31,11 @@ export function GalleryView({
   onAction,
   onClearSelection,
   onSelectAll,
-  selectedCount 
+  selectedCount,
+  onRequestVip 
 }: GalleryViewProps) {
   const [gridSize, setGridSize] = useState<"small" | "large">("large");
-  const { isVip, unlockVip } = useVipStatus();
-  const [isVipModalOpen, setIsVipModalOpen] = useState(false);
+  const { isVip } = useVipStatus();
 
   return (
     <div className="min-h-screen bg-background-soft flex flex-col">
@@ -57,7 +58,7 @@ export function GalleryView({
                 使い方ガイド
                 </a>
                 <button
-                onClick={() => !isVip && setIsVipModalOpen(true)}
+                onClick={() => !isVip && onRequestVip()}
                 className={`flex items-center gap-1 font-bold text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap border 
                     ${isVip 
                         ? "bg-amber-100 text-amber-700 border-amber-300 cursor-default" 
@@ -154,7 +155,6 @@ export function GalleryView({
           © 2026 EzStampify
         </p>
       </footer>
-      {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} onAuthenticate={unlockVip} />}
     </div>
   );
 }
