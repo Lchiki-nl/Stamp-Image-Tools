@@ -4,7 +4,7 @@ import "./globals.css";
 import { JsonLd } from "@/components/seo/JsonLd";
 
 const mPlusRounded = M_PLUS_Rounded_1c({
-  weight: ["400", "500", "700", "800"],
+  weight: ["400", "500", "700", "800", "900"],
   subsets: ["latin"],
   variable: "--font-mplus-rounded",
   display: "swap",
@@ -73,9 +73,7 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Yomogi&display=swap" rel="stylesheet" />
+        {/* Google Fonts for Canvas - loaded via globals.css now to fix Next.js warning */}
       </head>
       <body className={`${mPlusRounded.variable} font-body antialiased`}>
         <JsonLd

@@ -4,6 +4,8 @@
    Custom Fonts (@font-face)
    =========================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Yomogi&display=swap');
+
 @font-face {
   font-family: "851MkPOP";
   src: url("/fonts/851MkPOP_101.ttf") format("truetype");
