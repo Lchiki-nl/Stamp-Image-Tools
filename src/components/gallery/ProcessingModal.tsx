@@ -60,6 +60,7 @@ export function ProcessingModal({
   const handleExecute = () => {
     let config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig;
     if (action === 'remove-background') config = bgConfig;
+    else if (action === 'remove-background-ai') config = bgConfig; // Config not used but required for type
     else if (action === 'crop') config = cropConfig;
     else if (action === 'split') config = splitConfig;
     else if (action === 'resize') config = resizeConfig;

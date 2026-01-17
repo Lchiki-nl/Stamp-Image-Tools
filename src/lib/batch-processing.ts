@@ -77,7 +77,12 @@ export async function processRemoveBackground(file: File, config: RemoveBackgrou
 
 export async function processRemoveBackgroundAI(file: File): Promise<Blob> {
     // @imgly/background-removal を使用して自動背景削除
-    const blob = await removeBackgroundAI(file);
+    const blob = await removeBackgroundAI(file, {
+        debug: true,
+        progress: (key, current, total) => {
+            console.log(`AI Model Download [${key}]: ${current}/${total}`);
+        }
+    });
     return blob;
 }
 
