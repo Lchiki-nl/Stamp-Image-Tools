@@ -56,21 +56,21 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
       {/* Status Badge */}
       {!image.isSelected && (
           <>
-            {/* MAIN Badge (240x240) */}
+            {/* MAIN Badge (240x240) - Priority 1 */}
             {image.width === 240 && image.height === 240 ? (
-                <div className="absolute top-3 right-3 z-10 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
+                <div className="absolute top-3 right-3 z-10 bg-indigo-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm pointer-events-none tracking-wider border border-white/20">
                     MAIN
                 </div>
             ) : 
-            /* TAB Badge (96x74) */
+            /* TAB Badge (96x74) - Priority 2 */
             image.width === 96 && image.height === 74 ? (
-                <div className="absolute top-3 right-3 z-10 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
+                <div className="absolute top-3 right-3 z-10 bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm pointer-events-none tracking-wider border border-white/20">
                     TAB
                 </div>
             ) :
-            /* NEW Badge (Pending) */
+            /* NEW Badge (Pending) - Priority 3 */
             image.status === 'pending' ? (
-                <div className="absolute top-3 right-3 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
+                <div className="absolute top-3 right-3 z-10 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm pointer-events-none">
                     NEW
                 </div>
             ) : null}

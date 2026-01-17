@@ -3,7 +3,7 @@ import { GalleryImage } from '@/types/gallery';
 import { saveGalleryState, loadGalleryState } from '@/lib/storage';
 import { getImageDimensions } from '@/lib/image-utils';
 
-export const MAX_IMAGES = 50;
+export const MAX_IMAGES = 100;
 
 export function useGallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
