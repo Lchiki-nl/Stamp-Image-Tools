@@ -124,6 +124,9 @@ export function HowToContent() {
                           alt={step.title} 
                           fill
                           className="object-contain"
+                          priority={step.id === 'upload'}
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          unoptimized
                         />
                       ) : step.id === 'vip' ? (
                         /* VIP Visual */

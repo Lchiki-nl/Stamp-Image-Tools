@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Check, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { type GalleryImage } from "@/types/gallery";
@@ -10,7 +11,7 @@ interface ImageCardProps {
   compact?: boolean;
 }
 
-export function ImageCard({ image, onSelect, onToggleSelect, onRemove, compact = false }: ImageCardProps) {
+export const ImageCard = memo(function ImageCard({ image, onSelect, onToggleSelect, onRemove, compact = false }: ImageCardProps) {
   return (
     <div 
       className={`
@@ -98,4 +99,4 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove, compact =
       )}
     </div>
   );
-}
+});
