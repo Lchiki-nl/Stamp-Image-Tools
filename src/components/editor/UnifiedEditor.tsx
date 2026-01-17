@@ -125,7 +125,7 @@ export function UnifiedEditor({
   return (
     <div className="flex flex-col h-full bg-background-soft">
       {/* Header Bar */}
-      <header className="px-4 lg:px-8 py-4 flex items-center justify-between bg-white border-b border-gray-100 sticky top-0 z-30">
+      <header className="px-4 lg:px-8 py-4 hidden md:flex items-center justify-between bg-white border-b border-gray-100 sticky top-0 z-30">
         <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md shadow-primary/20">
@@ -269,18 +269,18 @@ export function UnifiedEditor({
                  </button>
              )}
 
-            <div className="glass-card rounded-[32px] p-8 md:p-6 h-[calc(100dvh-180px)] md:h-[640px] shadow-xl shadow-slate-200/50 block w-full border border-white/50 relative overflow-y-auto">
+            <div className="glass-card rounded-[24px] md:rounded-[32px] p-4 md:p-6 h-[calc(100dvh-140px)] md:h-[640px] shadow-xl shadow-slate-200/50 block w-full border border-white/50 relative overflow-y-auto">
                 {!image ? (
                     <div className="flex flex-col items-center justify-center h-full">
                         <div className="w-full max-w-xl">
-                            <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
+                            <FileDropzone onFileSelect={handleFileSelect} className="h-[300px] md:h-[400px]" />
                             <p className="text-center text-gray-400 text-sm mt-4">
                                 画像をドラッグ&ドロップして編集を開始
                             </p>
                         </div>
                     </div>
                 ) : (
-                    <div className="animate-in fade-in duration-300 h-full">
+                    <div className="animate-in fade-in duration-300 h-full flex flex-col items-center">
                         <ActiveComponent 
                             embeddedImage={image} 
                             embeddedCanvasRef={embeddedCanvasRef}
