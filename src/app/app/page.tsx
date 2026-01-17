@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import JSZip from "jszip";
 import { GalleryView } from "@/components/gallery/GalleryView";
 import { UnifiedEditor } from "@/components/editor/UnifiedEditor";
-import { useGallery } from "@/hooks/useGallery";
+import { useGallery, MAX_IMAGES_NORMAL, MAX_IMAGES_VIP } from "@/hooks/useGallery";
+import { useVipStatus } from "@/hooks/useVipStatus";
 import { ProcessingModal, type ProcessingAction } from "@/components/gallery/ProcessingModal";
 import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
 import { processRemoveBackground, processCrop, processSplit, processResize } from "@/lib/batch-processing";
@@ -28,6 +29,9 @@ export default function AppPage() {
     toggleSelection 
   } = useGallery();
   
+  const { isVip } = useVipStatus();
+  const maxImages = isVip ? MAX_IMAGES_VIP : MAX_IMAGES_NORMAL;
+  
   // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [editorInitialTool, setEditorInitialTool] = useState<"background" | "crop" | "split" | "resize">("background");
@@ -43,7 +47,7 @@ export default function AppPage() {
 
   // 画像が追加された時の処理
   const handleAddFiles = (files: File[]) => {
-    addImages(files);
+    addImages(files, maxImages);
   };
 
   // 前回の画像数を保持して、0 -> 1 の変化を検知する
@@ -341,7 +345,7 @@ export default function AppPage() {
           const newFiles = blob.map((b, i) => 
               new File([b], `processed_${currDate}_${i + 1}.png`, { type: "image/png" })
           );
-          addImages(newFiles);
+          addImages(newFiles, maxImages);
       } else if (overwrite && editingImageId) {
           // 上書きモード
           const newFile = new File([blob], "edited_image.png", { type: "image/png" });
@@ -349,7 +353,7 @@ export default function AppPage() {
       } else {
           // 新規保存モード
           const newFile = new File([blob], "edited_image.png", { type: "image/png" });
-          addImages([newFile]);
+          addImages([newFile], maxImages);
       }
   };
 
