@@ -304,6 +304,13 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
   return (
     <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-full w-full ${className}`}>
+      {/* Hidden font preload - forces browser to load all fonts */}
+      <div className="sr-only" aria-hidden="true">
+        {FONTS.map(f => (
+          <span key={f.value} style={{ fontFamily: f.value }}>あ</span>
+        ))}
+      </div>
+
       {/* Canvas */}
       <div className="flex-1 flex flex-col w-full">
           {!image ? (
