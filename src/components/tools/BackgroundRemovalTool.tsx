@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, type RefObject } from "react";
-import { Pipette, RotateCcw, Check, Eraser, Lock, Crown } from "lucide-react";
+import { Pipette, RotateCcw, Check, Eraser, Lock } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { removeBackground, rgbToHex, hexToRgb, type RGBColor } from "@/lib/image-utils";
 import { useVipStatus } from "@/hooks/useVipStatus";
 import { VipAuthModal } from "@/components/gallery/VipAuthModal";
+import { EraserCursor } from "./EraserCursor";
 
 interface BackgroundRemovalToolProps {
   className?: string;
@@ -213,22 +214,30 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-            <div className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200">
+            <div className={`relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200 cursor-none`}>
               <ImageCanvas
                 ref={canvasRef}
                 image={image}
                 showCheckerboard={true}
                 onCanvasClick={handleCanvasClick}
                 onImageLoaded={handleImageLoaded}
-                className={`max-h-[500px] shadow-lg ${mode === 'eraser' ? 'cursor-cell' : 'cursor-crosshair'}`}
+                className={`max-h-[500px] shadow-lg ${mode === 'eraser' ? 'cursor-none' : 'cursor-crosshair'}`}
                 onMouseDown={handleEraserDown}
-                onMouseMove={handleEraserMove}
+                onMouseMove={(e) => {
+                    handleEraserMove(e);
+                    // Update cursor position if needed logic here
+                }}
                 onMouseUp={handleEraserUp}
                 onMouseLeave={handleEraserUp}
                 onTouchStart={handleEraserDown}
                 onTouchMove={handleEraserMove}
                 onTouchEnd={handleEraserUp}
               />
+              {/* Eraser Cursor Overlay */}
+              {mode === 'eraser' && (
+                  <EraserCursor size={eraserSize} />
+              )}
+
               {clickFeedback && (
                 <div 
                   className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg px-4 py-2 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200"

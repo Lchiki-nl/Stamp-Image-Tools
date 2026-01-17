@@ -72,7 +72,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <head></head>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Yomogi&display=swap" rel="stylesheet" />
+      </head>
       <body className={`${mPlusRounded.variable} font-body antialiased`}>
         <JsonLd
           data={{

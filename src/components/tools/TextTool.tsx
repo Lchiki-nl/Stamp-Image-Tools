@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, type RefObject } from "react";
-import { Type, RotateCcw, Check, Palette, AlignCenter } from "lucide-react";
+import { useState, useRef, useEffect, useCallback, type RefObject } from "react";
+import { Type, RotateCcw, Check, AlignCenter, Move } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 
@@ -15,8 +15,8 @@ interface TextToolProps {
 const FONTS = [
   { label: "ゴシック", value: "sans-serif" },
   { label: "明朝", value: "serif" },
-  { label: "手書き風", value: "cursive" },
-  { label: "丸文字", value: "'Kosugi Maru', sans-serif" }, // Requires Google Font loading if using specific fonts
+  { label: "手書き風", value: "'Yomogi', cursive" },
+  { label: "丸文字", value: "'Kosugi Maru', sans-serif" },
 ];
 
 export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onApply }: TextToolProps) {
@@ -33,9 +33,73 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [fontFamily, setFontFamily] = useState("sans-serif");
   const [arch, setArch] = useState(0); // -100 to 100
   const [position, setPosition] = useState({ x: 50, y: 50 }); // Percentage 0-100
+  const [letterSpacing, setLetterSpacing] = useState(0); // px
+
+  // Dragging State
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ x: number, y: number } | null>(null);
+
+  const drawCurvedText = useCallback((ctx: CanvasRenderingContext2D, text: string, x: number, y: number, curvature: number) => {
+    // curvature: -100 (down/frown) to 100 (up/smile)
+    // Radius inverse propertional.
+    // Heuristic: Max curve (100) -> Radius ~ fontSize.
+    const radius = Math.max(fontSize, 10000 / (Math.abs(curvature) + 1)); 
+    
+    // Angle per char + adjustments for spacing
+    // Basic arc length per char is approx fontSize (or measured width).
+    // Adding letterSpacing.
+    const charWidth = fontSize + letterSpacing;
+    const anglePerChar = charWidth / radius; 
+
+    // Direction
+    // Curvature > 0 (Smile): Text curves UP at ends. Center is BELOW.
+    // Curvature < 0 (Frown): Text curves DOWN at ends. Center is ABOVE.
+    const direction = curvature > 0 ? 1 : -1;
+    
+    // Center of the circle
+    const cy = y + radius * direction;
+    const cx = x;
+
+    ctx.save();
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        // Centered index
+        const charIndex = i - (text.length - 1) / 2;
+        const angle = charIndex * anglePerChar; // Offset from vertical center line
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        if (direction > 0) {
+            // Smile: Center is below. Text is on top rim.
+            // 0 angle (vertical up) corresponds to -PI/2 in canvas rotation.
+            // We rotate by `angle`.
+            ctx.rotate(-Math.PI / 2 + angle);
+            ctx.translate(0, -radius);
+        } else {
+            // Frown: Center is above. Text is on bottom rim.
+            // 0 angle (vertical down) corresponds to +PI/2 in canvas.
+            // We rotate by `-angle` (to match left-to-right reading).
+            ctx.rotate(Math.PI / 2 + angle);
+            ctx.translate(0, radius); 
+             // Note: if we translate +radius, we go DOWN from center.
+             // Text needs to be upright?
+             // Usually Frown text is upright (readable).
+             // If we just rotate + translate, the text base is at angle.
+             // If we rotate PI/2 (down), text is sideways (pointing right).
+             // We need to rotate text LOCAL to be upright.
+             ctx.rotate(Math.PI); // Flip 180 to be readable
+        }
+
+        ctx.fillText(char, 0, 0);
+        ctx.restore();
+    }
+    ctx.restore();
+  }, [fontSize, letterSpacing]);
 
   // Draw text logic
-  const drawDetails = () => {
+  const drawDetails = useCallback(() => {
     const canvas = canvasRef.current?.getCanvas();
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx || !image) return;
@@ -57,110 +121,23 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
     if (arch === 0) {
       // Normal Text
+      // letterSpacing is supported in modern browsers
+      if ('letterSpacing' in ctx) {
+         ctx.letterSpacing = `${letterSpacing}px`;
+      }
       ctx.fillText(text, x, y);
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
     } else {
       // Curved Text
       drawCurvedText(ctx, text, x, y, arch);
     }
-  };
 
-  const drawCurvedText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, curvature: number) => {
-    // Curvature: -100 (down) to 100 (up). 
-    // Convert to radius. Small curvature = large radius.
-    // Limit curvature to avoid div by zero.
-    
-    // Direction: Positive = Arch Up (Center is below), Negative = Arch Down (Center is above)
-    // Actually, let's say Curvature 100 = Smiley (Ends up), -100 = Frowny (Ends down).
-    // Radius calculation needs to be inversely proportional to curvature.
-    
-    // Just a heuristic for usability:
-    // Radius = R. If curvature is high, R is small (tight curve).
-    // Let's assume curvature 100 approx matches a circle of radius = font size * 2?
-    // Let's implement a standard circular text path.
-    
-    const radius = 10000 / (Math.abs(curvature) + 1); // Avoid 0
-    const anglePerChar = Math.min(fontSize / radius, 0.5); // Radians per char approx
-    const totalAngle = anglePerChar * (text.length - 1);
-    
-    // Center point of the circle
-    // If curvature > 0 (Smile), center is BELOW (y + radius)
-    // If curvature < 0 (Agony), center is ABOVE (y - radius)
-    const direction = curvature > 0 ? 1 : -1;
-    const cy = y + radius * direction;
-    const cx = x;
+  }, [canvasRef, image, text, fontSize, color, fontFamily, arch, position, letterSpacing, drawCurvedText]);
 
-    ctx.save();
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        
-        // Calculate angle for this char. 
-        // Centered around -PI/2 (top) if smile? No, centered around 0 angle relative to arc center?
-        // Let's use simple angle offset from vertical.
-        
-        // Index relative to center
-        const charIndex = i - (text.length - 1) / 2;
-        const angle = charIndex * anglePerChar; // Angle offset from vertical
-        
-        // Position
-        // If direction 1 (Smile, center below):
-        // Angle 0 is Up (neg Y). But canvas angles: 0 is Right, PI/2 Down, -PI/2 Up.
-        // We want char at angle -PI/2 + angle.
-        
-        // Wait, simpler transform:
-        // Translate to Center (cx, cy).
-        // Rotate by angle.
-        // Translate along radius (up or down).
-        
-        ctx.save();
-        ctx.translate(cx, cy);
-        
-        if (direction > 0) {
-            // Smile
-            // Center is below. Text is at top of circle.
-            // Rotation: angle (0 is vertical up from center? No, standard rotate).
-            // We want 0 angle to correspond to 12 o'clock, which is -90deg (-PI/2).
-            ctx.rotate(-Math.PI / 2 + angle);
-            ctx.translate(0, -radius);
-        } else {
-            // Frown
-            // Center is above. Text is at bottom of circle.
-            // We want 0 angle to correspond to 6 o'clock, which is +90deg (PI/2).
-            ctx.rotate(Math.PI / 2 - angle); // Reverse angle ordering for correct left-to-right reading?
-            // Actually for frown, left chars should be left.
-            // i=0 (leftmost) -> charIndex negative.
-            // If we rotate by +90 + angle:
-            // charIndex neg -> angle neg -> less than 90 -> to the right? No.
-            // 90 is Down.
-            // Let's re-verify.
-            // Smile: left char (neg idx) -> angle neg. -90 + neg = -110 (Left-ish Up). Correct.
-            // Frown: left char (neg idx) -> should be Left-ish Down.
-            // 90 is Down. We want < 90? No, Left-ish Down is > 90 (e.g. 110).
-            // So 90 - angle (since angle is neg).
-            ctx.rotate(Math.PI / 2 - angle);
-            ctx.translate(0, -radius); 
-             // Wait, if center is above, we translate DOWN to get to text. 
-             // But rotate handles direction?
-             // If we rotate 90 (Down), translate (0, radius)? No, usually translate (0, -radius) draws at origin?
-             // Standard ctx text draws at 0,0.
-             // Let's stick to: Rotate to correct spoke, Move out to rim.
-            
-             // For Frown, letters need to be upright? Or rotated with curve? Rotated.
-             // But upside down? Usually readable. 
-             // Let's just rotate 180 relative to Smile?
-             ctx.rotate(Math.PI); // Flip text?
-        }
-
-        ctx.fillText(char, 0, 0);
-        ctx.restore();
-    }
-    ctx.restore();
-  };
-
-  // Re-draw when any state changes
+  // Re-draw on changes
   useEffect(() => {
     drawDetails();
-  }, [text, fontSize, color, fontFamily, arch, position, image]);
-
+  }, [drawDetails, text, fontSize, color, fontFamily, arch, position, letterSpacing, image]);
 
   const handleFileSelect = (file: File) => {
     const url = URL.createObjectURL(file);
@@ -179,13 +156,11 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const handleReset = () => {
     setText("");
     setArch(0);
+    setLetterSpacing(0);
+    setPosition({ x: 50, y: 50 });
     if (canvasRef.current && image) {
-        const ctx = canvasRef.current.getContext();
-        const canvas = canvasRef.current.getCanvas();
-        if (ctx && canvas) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(image, 0, 0);
-        }
+        // Redraw Clean
+        drawDetails();
     }
   };
 
@@ -194,6 +169,67 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     const blob = await canvasRef.current.toBlob("image/png");
     if (blob) onApply(blob);
   };
+
+  // Drag Handlers
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (isDragging) e.preventDefault();
+      setIsDragging(true);
+      dragStartRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (!isDragging || !canvasRef.current) return;
+      const canvas = canvasRef.current.getCanvas();
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      // Calculate delta in canvas pixels
+      // Actually simpler: Just calculate new position from mouse position
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+
+      const x = (clientX - rect.left) * scaleX;
+      const y = (clientY - rect.top) * scaleY;
+      
+      // Convert to percentage
+      const newX = Math.max(0, Math.min(100, (x / canvas.width) * 100));
+      const newY = Math.max(0, Math.min(100, (y / canvas.height) * 100));
+
+      setPosition({ x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => {
+      setIsDragging(false);
+  };
+
+  // Touch support for drag
+  const handleTouchStart = () => {
+      setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+      if (!isDragging || !canvasRef.current) return;
+      
+      const touch = e.touches[0];
+      const canvas = canvasRef.current.getCanvas();
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      const x = (touch.clientX - rect.left) * scaleX;
+      const y = (touch.clientY - rect.top) * scaleY;
+
+      const newX = Math.max(0, Math.min(100, (x / canvas.width) * 100));
+      const newY = Math.max(0, Math.min(100, (y / canvas.height) * 100));
+
+      setPosition({ x: newX, y: newY });
+  };
+
 
   return (
     <div className={`flex flex-col lg:flex-row gap-8 items-start h-full ${className}`}>
@@ -208,7 +244,14 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                     image={image}
                     showCheckerboard={true}
                     onImageLoaded={drawDetails}
-                    className="max-h-[500px] shadow-lg"
+                    className={`max-h-[500px] shadow-lg ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleMouseUp}
                 />
             </div>
           )}
@@ -221,6 +264,11 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 <Type size={20} />
                 文字入れ
             </h3>
+            
+             <div className="p-3 bg-blue-50 text-blue-800 text-xs rounded-lg flex gap-2 items-center">
+                <Move size={14} />
+                画像上のドラッグで位置を調整できます
+            </div>
 
             {/* Main Input */}
             <div className="space-y-2">
@@ -241,9 +289,10 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                     value={fontFamily}
                     onChange={e => setFontFamily(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
+                    style={{ fontFamily: fontFamily }}
                 >
                     {FONTS.map(f => (
-                        <option key={f.value} value={f.value}>{f.label}</option>
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
                     ))}
                 </select>
             </div>
@@ -263,14 +312,32 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-text-sub">サイズ (px)</label>
+                    <label className="text-sm font-bold text-text-sub">サイズ</label>
                     <input 
                         type="number"
+                        min="10"
+                        max="200"
                         value={fontSize}
                         onChange={e => setFontSize(Math.max(1, parseInt(e.target.value) || 0))}
                         className="w-full px-3 py-1.5 border border-gray-200 rounded-xl text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
                 </div>
+            </div>
+
+            {/* Spacing */}
+             <div className="space-y-2">
+                <label className="text-sm font-bold text-text-sub flex justify-between">
+                    文字間隔
+                    <span className="text-primary font-bold">{letterSpacing}px</span>
+                </label>
+                <input 
+                    type="range"
+                    min="-20"
+                    max="100"
+                    value={letterSpacing}
+                    onChange={e => setLetterSpacing(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+                />
             </div>
 
             {/* Arch Slider */}
@@ -294,27 +361,25 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 </div>
             </div>
 
-            {/* Position Sliders (Simple alternative to canvas drag for now) */}
-            <div className="space-y-3 pt-2">
-                 <label className="text-sm font-bold text-text-sub flex items-center gap-2">
-                    <AlignCenter size={14} />
-                    位置調整 (%)
+            {/* Position Manual Sliders */}
+            <div className="space-y-3 pt-2 opacity-50 hover:opacity-100 transition-opacity">
+                 <label className="text-xs font-bold text-gray-400 flex items-center gap-2">
+                    <AlignCenter size={12} />
+                    微調整 (%)
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <label className="text-xs text-gray-400">X (横)</label>
                         <input 
                             type="range" min="0" max="100" value={position.x}
                             onChange={e => setPosition(p => ({ ...p, x: parseInt(e.target.value) }))}
-                            className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+                            className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer accent-gray-400"
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-xs text-gray-400">Y (縦)</label>
                         <input 
                             type="range" min="0" max="100" value={position.y}
                             onChange={e => setPosition(p => ({ ...p, y: parseInt(e.target.value) }))}
-                            className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+                            className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer accent-gray-400"
                         />
                     </div>
                 </div>

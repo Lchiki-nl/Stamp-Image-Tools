@@ -16,8 +16,8 @@ const tools = [
   { id: "background" as Tool, icon: Eraser, label: "背景削除", color: "green", description: "背景を透明化して被写体を切り抜きます" },
   { id: "crop" as Tool, icon: Crop, label: "余白カット", color: "orange", description: "不要な余白をカットしてサイズを調整します" },
   { id: "resize" as Tool, icon: Scaling, label: "サイズ変更", color: "pink", description: "画像のサイズを変更します" },
-  { id: "text" as Tool, icon: Type, label: "文字入れ", color: "purple", description: "画像にテキストを追加します (VIP)" },
   { id: "split" as Tool, icon: Grid3X3, label: "画像分割", color: "blue", description: "スタンプ用に画像を分割して保存します" },
+  { id: "text" as Tool, icon: Type, label: "文字入れ", color: "purple", description: "画像にテキストを追加します (VIP)" },
 ];
 
 interface UnifiedEditorProps {
