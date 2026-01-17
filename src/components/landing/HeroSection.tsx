@@ -42,7 +42,7 @@ export function HeroSection() {
               クリエイターのための画像加工
             </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight text-text-main sm:text-5xl lg:text-6xl">
-              <span className="text-primary whitespace-nowrap">LINEスタンプ</span>作りに<br />
+              <span className="whitespace-nowrap"><span className="text-primary">LINEスタンプ</span>作りに</span><br />
               <span className="whitespace-nowrap">最適な画像ツール！</span>
             </h1>
             <p className="max-w-xl text-lg font-medium leading-relaxed text-text-sub">
