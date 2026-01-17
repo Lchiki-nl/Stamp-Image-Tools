@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Smile, ArrowRight, Home, Lock, Crown, Sparkles } from "lucide-react";
+import { Smile, Home, Lock, Crown, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { steps } from "./steps";
 
@@ -82,12 +82,35 @@ export function HowToContent() {
                   </p>
 
                   <ul className="space-y-3">
-                    {step.details.map((detail, i) => (
-                      <li key={i} className="flex items-start gap-3 text-text-sub">
-                        <ArrowRight size={18} className="mt-1 shrink-0 text-primary/50" />
-                        <span className="leading-relaxed font-medium">{detail}</span>
-                      </li>
-                    ))}
+                    {step.details.map((detail, i) => {
+                      // Check if this is a separator
+                      if (detail === "[SEP_VIP]") {
+                        return (
+                          <li key={i} className="py-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-700 text-sm font-bold rounded-full border border-amber-200 shadow-sm">
+                              <Crown size={14} className="fill-amber-500 text-amber-600" />
+                              VIP専用
+                            </span>
+                          </li>
+                        );
+                      }
+                      
+                      const isVipContext = step.details.includes("[SEP_VIP]") && step.details.indexOf(detail) > step.details.indexOf("[SEP_VIP]");
+                      const isVipDetail = isVipContext || detail.includes("VIP") || detail.includes("無制限");
+
+                      return (
+                        <li key={i} className={`flex items-start gap-3 text-text-sub leading-relaxed ${
+                          isVipDetail ? "bg-amber-50/50 p-2 rounded-lg" : ""
+                        }`}>
+                          <div className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${
+                            isVipDetail ? "bg-amber-400" : "bg-text-sub/40"
+                          }`} />
+                          <span className={isVipDetail ? "text-amber-900 font-medium" : ""}>
+                            {detail}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
 
