@@ -6,6 +6,7 @@ import { GalleryView } from "@/components/gallery/GalleryView";
 import { UnifiedEditor } from "@/components/editor/UnifiedEditor";
 import { useGallery, MAX_IMAGES_NORMAL, MAX_IMAGES_VIP } from "@/hooks/useGallery";
 import { useVipStatus } from "@/hooks/useVipStatus";
+import { useDailyUsage } from "@/hooks/useDailyUsage";
 import { ProcessingModal, type ProcessingAction } from "@/components/gallery/ProcessingModal";
 import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
 import { processRemoveBackground, processRemoveBackgroundAI, processCrop, processSplit, processResize } from "@/lib/batch-processing";
@@ -43,6 +44,9 @@ export default function AppPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // Daily Usage Limit (5 images/day)
+  const { remaining, incrementUsage } = useDailyUsage(5);
 
   // 編集対象の画像を取得
   const editingImage = images.find(img => img.id === editingImageId);
@@ -217,6 +221,16 @@ export default function AppPage() {
   const handleBatchExecute = async (config: any, overwrite: boolean) => {
       if (!processingAction) return;
 
+      // Check daily limit for AI removal
+      if (processingAction === 'remove-background-ai' && !isVip) {
+          const currentRemaining = remaining ?? 0;
+          if (selectedImages.length > currentRemaining) {
+              setIsVipModalOpen(true);
+              // alert(`無料版のAI削除は1日5枚までです。\n本日の残りはあと ${currentRemaining} 枚です。`);
+              return;
+          }
+      }
+
       setIsProcessing(true);
       const targets = [...selectedImages];
       setProgress({ current: 0, total: targets.length });
@@ -278,6 +292,10 @@ export default function AppPage() {
 
               // Apply dummy delay for UI update visibility
               await new Promise(r => setTimeout(r, 50));
+              
+              if (processingAction === 'remove-background-ai' && !isVip) {
+                  incrementUsage();
+              }
               setProgress(prev => ({ ...prev, current: i + 1 }));
           }
           
@@ -448,6 +466,8 @@ export default function AppPage() {
             isProcessing={isProcessing}
             progress={progress}
             onExecute={handleBatchExecute}
+            isVip={isVip}
+            remaining={remaining}
         />
 
         <DeleteConfirmModal 

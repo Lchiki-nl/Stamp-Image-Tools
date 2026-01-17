@@ -12,6 +12,8 @@ export interface ProcessingModalProps {
   isProcessing: boolean;
   progress: { current: number; total: number };
   onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig, overwrite: boolean) => void;
+  isVip?: boolean;
+  remaining?: number | null;
 }
 
 export function ProcessingModal({
@@ -22,6 +24,8 @@ export function ProcessingModal({
   isProcessing,
   progress,
   onExecute,
+  isVip,
+  remaining,
 }: ProcessingModalProps) {
   // --- Configuration States ---
   
@@ -213,7 +217,21 @@ export function ProcessingModal({
                         AIが被写体を自動で認識して切り抜きます。<br/>
                         細かい設定は不要です。
                      </p>
-                     <p className="text-xs text-amber-600 font-bold bg-amber-50 py-2 px-4 rounded-full inline-block mt-2">
+                     
+                     {/* Free Limit Badge */}
+                     {!isVip && typeof remaining === 'number' && (
+                        <div className="mt-4 bg-white border border-purple-100 rounded-xl p-3 inline-block shadow-sm">
+                            <p className="text-xs text-purple-800 font-bold mb-1">本日の無料枠</p>
+                            <div className="flex items-end justify-center gap-1">
+                                <span className={`text-2xl font-black ${remaining > 0 ? 'text-purple-600' : 'text-gray-400'}`}>
+                                    {remaining}
+                                </span>
+                                <span className="text-sm text-gray-400 font-bold pb-1">/ 5</span>
+                            </div>
+                        </div>
+                     )}
+
+                     <p className="text-xs text-amber-600 font-bold bg-amber-50 py-2 px-4 rounded-full inline-block mt-4 mx-auto">
                         ※初回のみモデルの読み込みに時間がかかります
                      </p>
                 </div>
