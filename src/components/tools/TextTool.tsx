@@ -15,7 +15,6 @@ interface TextToolProps {
 const FONTS = [
   { label: "ゴシック", value: "sans-serif" },
   { label: "明朝", value: "serif" },
-  { label: "手書き風", value: "'Yomogi'" },
   { label: "丸文字", value: "'Kosugi Maru'" },
   { label: "851ポップ", value: "'851MkPOP'" },
   { label: "コーポレート・ロゴ", value: "'Corporate Logo'" },
@@ -44,6 +43,8 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [isVertical, setIsVertical] = useState(false); // 縦書き
   const [rotation, setRotation] = useState(0); // degrees 0-360
   const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');
+  const [strokeColor, setStrokeColor] = useState("#ffffff"); // 縁取り色
+  const [strokeWidth, setStrokeWidth] = useState(0); // 縁取り太さ (0-20)
   const [, forceUpdate] = useState(0);
 
   // Explicitly load selected font when it changes
@@ -66,6 +67,85 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const dragStartRef = useRef<{ x: number, y: number } | null>(null);
 
   // Draw text logic
+  // Helper for curved text
+  // The text center stays at (x, y), and arch controls how much the text bends
+  const drawCurvedText = (
+      ctx: CanvasRenderingContext2D, 
+      textContent: string, 
+      centerX: number, 
+      centerY: number, 
+      archValue: number
+  ) => {
+      const charWidth = fontSize + letterSpacing;
+      const totalWidth = textContent.length * charWidth;
+      
+      // Convert arch (-100 to 100) to a curve amount
+      const curveAmount = archValue / 100; // -1 to 1
+      
+      if (Math.abs(curveAmount) < 0.01) {
+          // Nearly straight - just draw horizontally
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          
+          if ('letterSpacing' in ctx) {
+              ctx.letterSpacing = `${letterSpacing}px`;
+          }
+
+          if (strokeWidth > 0) {
+              ctx.lineWidth = strokeWidth;
+              ctx.strokeStyle = strokeColor;
+              ctx.lineJoin = "round";
+              ctx.miterLimit = 2;
+              ctx.strokeText(textContent, 0, 0);
+          }
+          ctx.fillText(textContent, 0, 0);
+          
+          if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+          ctx.restore();
+          return;
+      }
+      
+      // Calculate the arc parameters
+      const absAmount = Math.abs(curveAmount);
+      const radius = totalWidth / (2 * Math.sin(absAmount * Math.PI / 2));
+      const direction = curveAmount > 0 ? -1 : 1; // -1: center above, 1: center below
+      
+      const offsetY = Math.sqrt(Math.max(0, radius * radius - (totalWidth / 2) * (totalWidth / 2)));
+      const circleCenterY = centerY + direction * offsetY;
+      const circleCenterX = centerX;
+      
+      const halfAngle = Math.asin((totalWidth / 2) / radius);
+      const startAngle = direction > 0 ? (-Math.PI / 2 - halfAngle) : (Math.PI / 2 + halfAngle);
+      const angleStep = (2 * halfAngle) / (textContent.length - 1 || 1);
+      
+      ctx.save();
+      for (let i = 0; i < textContent.length; i++) {
+          const char = textContent[i];
+          const angle = startAngle + (direction > 0 ? i : -i) * angleStep;
+          
+          const charX = circleCenterX + radius * Math.cos(angle);
+          const charY = circleCenterY + radius * Math.sin(angle);
+          
+          ctx.save();
+          ctx.translate(charX, charY);
+          
+          const tangentAngle = angle + (direction > 0 ? Math.PI / 2 : -Math.PI / 2);
+          ctx.rotate(tangentAngle);
+          
+          if (strokeWidth > 0) {
+              ctx.lineWidth = strokeWidth;
+              ctx.strokeStyle = strokeColor;
+              ctx.lineJoin = "round";
+              ctx.miterLimit = 2;
+              ctx.strokeText(char, 0, 0);
+          }
+          ctx.fillText(char, 0, 0);
+          ctx.restore();
+      }
+      ctx.restore();
+  };
+
+  // Draw text logic
   const drawDetails = () => {
     const canvas = canvasRef.current?.getCanvas();
     const ctx = canvas?.getContext("2d");
@@ -75,77 +155,8 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0);
 
-    if (!text) return;
-
-    // Helper for curved text - NEW APPROACH
-    // The text center stays at (x, y), and arch controls how much the text bends
-    // arch = 0: straight line
-    // arch = ±100: half circle (tight curve)
-    const drawCurvedText = (ctx: CanvasRenderingContext2D, text: string, centerX: number, centerY: number, archValue: number) => {
-        const charWidth = fontSize + letterSpacing;
-        const totalWidth = text.length * charWidth;
-        
-        // Convert arch (-100 to 100) to a curve amount
-        // archValue = 0 means straight, ±100 means half-circle
-        const curveAmount = archValue / 100; // -1 to 1
-        
-        if (Math.abs(curveAmount) < 0.01) {
-            // Nearly straight - just draw horizontally
-            ctx.save();
-            if ('letterSpacing' in ctx) {
-                ctx.letterSpacing = `${letterSpacing}px`;
-            }
-            ctx.fillText(text, centerX, centerY);
-            if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
-            ctx.restore();
-            return;
-        }
-        
-        // Calculate the arc parameters
-        // For a half-circle (curveAmount = ±1), the chord length = totalWidth
-        // For smaller curves, we use a larger radius
-        const absAmount = Math.abs(curveAmount);
-        
-        // Radius calculation: when absAmount = 1, radius = totalWidth / PI (half circle)
-        // when absAmount is small, radius is large (gentle curve)
-        const radius = totalWidth / (2 * Math.sin(absAmount * Math.PI / 2));
-        
-        // The center of the arc circle
-        // When curving down (positive arch), circle center is above the text
-        // When curving up (negative arch), circle center is below
-        const direction = curveAmount > 0 ? -1 : 1; // -1: center above, 1: center below
-        
-        // Distance from text baseline to circle center
-        const offsetY = Math.sqrt(Math.max(0, radius * radius - (totalWidth / 2) * (totalWidth / 2)));
-        const circleCenterY = centerY + direction * offsetY;
-        const circleCenterX = centerX;
-        
-        // Calculate the starting angle
-        const halfAngle = Math.asin((totalWidth / 2) / radius);
-        const startAngle = direction > 0 ? (-Math.PI / 2 - halfAngle) : (Math.PI / 2 + halfAngle);
-        const angleStep = (2 * halfAngle) / (text.length - 1 || 1);
-        
-        ctx.save();
-        for (let i = 0; i < text.length; i++) {
-            const char = text[i];
-            const angle = startAngle + (direction > 0 ? i : -i) * angleStep;
-            
-            // Character position on the arc
-            const charX = circleCenterX + radius * Math.cos(angle);
-            const charY = circleCenterY + radius * Math.sin(angle);
-            
-            ctx.save();
-            ctx.translate(charX, charY);
-            
-            // Rotate to be tangent to the arc
-            const tangentAngle = angle + (direction > 0 ? Math.PI / 2 : -Math.PI / 2);
-            ctx.rotate(tangentAngle);
-            
-            ctx.fillText(char, 0, 0);
-            ctx.restore();
-        }
-        ctx.restore();
-    };
+    const currentText = text;
+    if (!currentText) return;
 
     // Setup Text Style
     ctx.font = `bold ${fontSize}px ${fontFamily}`;
@@ -166,14 +177,22 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
       if (isVertical) {
         // Vertical text drawing
         const lineHeight = fontSize + letterSpacing;
-        for (let i = 0; i < text.length; i++) {
-          const charY = y + (i - (text.length - 1) / 2) * lineHeight;
-          ctx.fillText(text[i], x, charY);
+        for (let i = 0; i < currentText.length; i++) {
+          const charY = y + (i - (currentText.length - 1) / 2) * lineHeight;
+          
+          if (strokeWidth > 0) {
+              ctx.lineWidth = strokeWidth;
+              ctx.strokeStyle = strokeColor;
+              ctx.lineJoin = "round";
+              ctx.miterLimit = 2;
+              ctx.strokeText(currentText[i], x, charY);
+          }
+          ctx.fillText(currentText[i], x, charY);
         }
         
         // Draw bounding box on hover
-        if (isHovering && text) {
-          const textHeight = text.length * lineHeight;
+        if (isHovering && currentText) {
+          const textHeight = currentText.length * lineHeight;
           const textWidth = fontSize * 1.2;
           ctx.strokeStyle = '#3b82f6';
           ctx.lineWidth = 2;
@@ -183,7 +202,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
         }
       } else {
         // Horizontal text with line break support
-        const lines = text.split('\n');
+        const lines = currentText.split('\n');
         const lineHeight = fontSize * 1.4;
         const totalHeight = lines.length * lineHeight;
         const startY = y - (totalHeight - lineHeight) / 2;
@@ -193,13 +212,20 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
         }
         
         lines.forEach((line, index) => {
+          if (strokeWidth > 0) {
+              ctx.lineWidth = strokeWidth;
+              ctx.strokeStyle = strokeColor;
+              ctx.lineJoin = "round";
+              ctx.miterLimit = 2;
+              ctx.strokeText(line, x, startY + index * lineHeight);
+          }
           ctx.fillText(line, x, startY + index * lineHeight);
         });
         
         if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
         
         // Draw bounding box on hover
-        if (isHovering && text) {
+        if (isHovering && currentText) {
           let maxWidth = 0;
           lines.forEach(line => {
             const metrics = ctx.measureText(line);
@@ -217,10 +243,10 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
         }
       }
     } else {
-      drawCurvedText(ctx, text, x, y, arch);
+      drawCurvedText(ctx, currentText, x, y, arch);
       
       // Draw center indicator on hover for curved text
-      if (isHovering && text) {
+      if (isHovering && currentText) {
         ctx.strokeStyle = '#3b82f6';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]);
@@ -445,33 +471,59 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 </select>
             </div>
 
-            {/* Color & Size */}
+            {/* Size & Color */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-text-sub">カラー</label>
-                    <div className="flex items-center gap-2">
-                        <input 
-                            type="color" 
-                            value={color}
-                            onChange={e => setColor(e.target.value)}
-                            className="w-8 h-8 rounded border border-gray-200 cursor-pointer"
-                        />
-                        <span className="text-xs text-gray-400 font-mono">{color.toUpperCase()}</span>
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-text-sub flex justify-between">
-                        サイズ
-                        <span className="text-primary font-bold">{fontSize}px</span>
-                    </label>
+                    <label className="text-sm font-bold text-text-sub">サイズ</label>
                     <input 
                         type="range"
                         min="10"
-                        max="150"
+                        max="200"
                         value={fontSize}
                         onChange={e => setFontSize(parseInt(e.target.value))}
                         className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
                     />
+                    <div className="text-right text-xs text-gray-500">{fontSize}px</div>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-text-sub">文字色</label>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="color"
+                            value={color}
+                            onChange={(e) => setColor(e.target.value)}
+                            className="w-8 h-8 rounded cursor-pointer border-0 p-0"
+                        />
+                        <span className="text-sm text-gray-600 font-mono">{color.toUpperCase()}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Stroke Style */}
+            <div className="space-y-2 pt-2 border-t border-gray-100">
+                <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+                    縁取り
+                    <span className="text-xs font-normal text-gray-400">太さ: {strokeWidth}px</span>
+                </label>
+                <div className="grid grid-cols-2 gap-4 items-center">
+                    <input 
+                        type="range"
+                        min="0"
+                        max="20"
+                        value={strokeWidth}
+                        onChange={e => setStrokeWidth(parseInt(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-orange-500"
+                    />
+                    <div className="flex items-center gap-2 justify-end">
+                        <span className="text-xs text-gray-500">色:</span>
+                        <input
+                            type="color"
+                            value={strokeColor}
+                            onChange={(e) => setStrokeColor(e.target.value)}
+                            className="w-6 h-6 rounded cursor-pointer border-0 p-0 ring-1 ring-gray-200"
+                            disabled={strokeWidth === 0}
+                        />
+                    </div>
                 </div>
             </div>
 
