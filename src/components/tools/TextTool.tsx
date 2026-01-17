@@ -15,8 +15,8 @@ interface TextToolProps {
 const FONTS = [
   { label: "ゴシック", value: "sans-serif" },
   { label: "明朝", value: "serif" },
-  { label: "手書き風", value: "'Yomogi', cursive" },
-  { label: "丸文字", value: "'Kosugi Maru', sans-serif" },
+  { label: "手書き風", value: "'Yomogi'" },
+  { label: "丸文字", value: "'Kosugi Maru'" },
   { label: "851ポップ", value: "'851MkPOP'" },
   { label: "コーポレート・ロゴ", value: "'Corporate Logo'" },
   { label: "ドキドキファンタジア", value: "'DokiDoki Fantasia'" },
@@ -44,6 +44,21 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [isVertical, setIsVertical] = useState(false); // 縦書き
   const [rotation, setRotation] = useState(0); // degrees 0-360
   const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('center');
+  const [, forceUpdate] = useState(0);
+
+  // Explicitly load selected font when it changes
+  useEffect(() => {
+    if (typeof document !== 'undefined' && document.fonts && fontFamily) {
+      // Extract font name without quotes and fallbacks
+      const fontName = fontFamily.replace(/['"]/g, '').split(',')[0].trim();
+      // Use document.fonts.load() to trigger font loading
+      document.fonts.load(`bold 40px "${fontName}"`).then(() => {
+        forceUpdate(n => n + 1); // Force re-render after font loads
+      }).catch(() => {
+        // Font may not exist or failed to load, ignore
+      });
+    }
+  }, [fontFamily]);
 
   // Dragging State
   const [isDragging, setIsDragging] = useState(false);
@@ -225,14 +240,16 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   useEffect(() => {
     // Only reset if this is a NEW image (not initial mount or same image)
     if (embeddedImage && prevImageRef.current !== null && embeddedImage !== prevImageRef.current) {
-      setText("");
-      setArch(0);
-      setRotation(0);
-      setPosition({ x: 50, y: 50 });
-      setLetterSpacing(0);
+      // Use queueMicrotask to defer state updates and avoid cascading render warning
+      queueMicrotask(() => {
+        setText("");
+        setArch(0);
+        setRotation(0);
+        setPosition({ x: 50, y: 50 });
+        setLetterSpacing(0);
+      });
     }
     prevImageRef.current = embeddedImage ?? null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [embeddedImage]);
 
   // Re-draw on changes
