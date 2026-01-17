@@ -124,9 +124,15 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
       if (!canvas || !ctx) return;
       
       const { x, y } = getCanvasCoordinates(e, canvas);
+      
+      // Calculate canvas scale for proper brush size
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaledBrushRadius = (eraserSize / 2) * scaleX;
+      
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
-      ctx.arc(x, y, eraserSize / 2, 0, Math.PI * 2);
+      ctx.arc(x, y, scaledBrushRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
   };

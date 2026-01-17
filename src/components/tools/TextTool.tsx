@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type RefObject } from "react";
-import { Type, RotateCcw, Check, AlignCenter, Move } from "lucide-react";
+import { Type, RotateCcw, Check, AlignCenter } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 
@@ -37,6 +37,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
   // Dragging State
   const [isDragging, setIsDragging] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   const dragStartRef = useRef<{ x: number, y: number } | null>(null);
 
   // Draw text logic
@@ -99,8 +100,31 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
       }
       ctx.fillText(text, x, y);
       if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+      
+      // Draw bounding box on hover
+      if (isHovering && text) {
+        const metrics = ctx.measureText(text);
+        const textWidth = metrics.width;
+        const textHeight = fontSize * 1.2;
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(x - textWidth / 2 - 8, y - textHeight / 2 - 4, textWidth + 16, textHeight + 8);
+        ctx.setLineDash([]);
+      }
     } else {
       drawCurvedText(ctx, text, x, y, arch);
+      
+      // Draw center indicator on hover for curved text
+      if (isHovering && text) {
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(x, y, fontSize * 0.3, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
     }
 
   };
@@ -209,7 +233,11 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
           {!image ? (
             <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
           ) : (
-            <div className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200">
+            <div 
+              className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => { handleMouseUp(); setIsHovering(false); }}
+            >
                 <ImageCanvas
                     ref={canvasRef}
                     image={image}
@@ -219,7 +247,6 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleMouseUp}
@@ -236,10 +263,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 文字入れ
             </h3>
             
-             <div className="p-3 bg-blue-50 text-blue-800 text-xs rounded-lg flex gap-2 items-center">
-                <Move size={14} />
-                画像上のドラッグで位置を調整できます
-            </div>
+
 
             {/* Main Input */}
             <div className="space-y-2">
