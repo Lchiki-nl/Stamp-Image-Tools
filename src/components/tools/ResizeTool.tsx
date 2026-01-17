@@ -156,7 +156,11 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   const applyPreset = (index: number) => {
       const preset = PRESETS[index];
       setSelectedPresetIndex(index);
-      setIsTabPaddingMode(false);
+      
+      // タブ(96x74)の場合は自動的にタブ余白モードを有効化
+      const isTab = preset.label === "タブ";
+      setIsTabPaddingMode(isTab);
+      
       setTargetDimensions({ width: preset.width, height: preset.height });
   };
   
