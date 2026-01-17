@@ -39,65 +39,6 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number, y: number } | null>(null);
 
-  const drawCurvedText = useCallback((ctx: CanvasRenderingContext2D, text: string, x: number, y: number, curvature: number) => {
-    // curvature: -100 (down/frown) to 100 (up/smile)
-    // Radius inverse propertional.
-    // Heuristic: Max curve (100) -> Radius ~ fontSize.
-    const radius = Math.max(fontSize, 10000 / (Math.abs(curvature) + 1)); 
-    
-    // Angle per char + adjustments for spacing
-    // Basic arc length per char is approx fontSize (or measured width).
-    // Adding letterSpacing.
-    const charWidth = fontSize + letterSpacing;
-    const anglePerChar = charWidth / radius; 
-
-    // Direction
-    // Curvature > 0 (Smile): Text curves UP at ends. Center is BELOW.
-    // Curvature < 0 (Frown): Text curves DOWN at ends. Center is ABOVE.
-    const direction = curvature > 0 ? 1 : -1;
-    
-    // Center of the circle
-    const cy = y + radius * direction;
-    const cx = x;
-
-    ctx.save();
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        
-        // Centered index
-        const charIndex = i - (text.length - 1) / 2;
-        const angle = charIndex * anglePerChar; // Offset from vertical center line
-
-        ctx.save();
-        ctx.translate(cx, cy);
-
-        if (direction > 0) {
-            // Smile: Center is below. Text is on top rim.
-            // 0 angle (vertical up) corresponds to -PI/2 in canvas rotation.
-            // We rotate by `angle`.
-            ctx.rotate(-Math.PI / 2 + angle);
-            ctx.translate(0, -radius);
-        } else {
-            // Frown: Center is above. Text is on bottom rim.
-            // 0 angle (vertical down) corresponds to +PI/2 in canvas.
-            // We rotate by `-angle` (to match left-to-right reading).
-            ctx.rotate(Math.PI / 2 + angle);
-            ctx.translate(0, radius); 
-             // Note: if we translate +radius, we go DOWN from center.
-             // Text needs to be upright?
-             // Usually Frown text is upright (readable).
-             // If we just rotate + translate, the text base is at angle.
-             // If we rotate PI/2 (down), text is sideways (pointing right).
-             // We need to rotate text LOCAL to be upright.
-             ctx.rotate(Math.PI); // Flip 180 to be readable
-        }
-
-        ctx.fillText(char, 0, 0);
-        ctx.restore();
-    }
-    ctx.restore();
-  }, [fontSize, letterSpacing]);
-
   // Draw text logic
   const drawDetails = useCallback(() => {
     const canvas = canvasRef.current?.getCanvas();
@@ -110,6 +51,39 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
     if (!text) return;
 
+    // Helper for curved text
+    const drawCurvedText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, curvature: number) => {
+        const radius = Math.max(fontSize, 10000 / (Math.abs(curvature) + 1)); 
+        const charWidth = fontSize + letterSpacing;
+        const anglePerChar = charWidth / radius; 
+        const direction = curvature > 0 ? 1 : -1;
+        const cy = y + radius * direction;
+        const cx = x;
+
+        ctx.save();
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const charIndex = i - (text.length - 1) / 2;
+            const angle = charIndex * anglePerChar;
+
+            ctx.save();
+            ctx.translate(cx, cy);
+
+            if (direction > 0) {
+                ctx.rotate(-Math.PI / 2 + angle);
+                ctx.translate(0, -radius);
+            } else {
+                ctx.rotate(Math.PI / 2 + angle);
+                ctx.translate(0, radius); 
+                ctx.rotate(Math.PI);
+            }
+
+            ctx.fillText(char, 0, 0);
+            ctx.restore();
+        }
+        ctx.restore();
+    };
+
     // Setup Text Style
     ctx.font = `bold ${fontSize}px ${fontFamily}`;
     ctx.fillStyle = color;
@@ -120,19 +94,16 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
     const y = (canvas.height * position.y) / 100;
 
     if (arch === 0) {
-      // Normal Text
-      // letterSpacing is supported in modern browsers
       if ('letterSpacing' in ctx) {
          ctx.letterSpacing = `${letterSpacing}px`;
       }
       ctx.fillText(text, x, y);
       if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
     } else {
-      // Curved Text
       drawCurvedText(ctx, text, x, y, arch);
     }
 
-  }, [canvasRef, image, text, fontSize, color, fontFamily, arch, position, letterSpacing, drawCurvedText]);
+  }, [image, text, fontSize, color, fontFamily, arch, position, letterSpacing]);
 
   // Re-draw on changes
   useEffect(() => {
