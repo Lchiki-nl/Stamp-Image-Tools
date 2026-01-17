@@ -7,7 +7,9 @@ import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCa
 import { removeBackground, rgbToHex, hexToRgb, type RGBColor } from "@/lib/image-utils";
 import { useVipStatus } from "@/hooks/useVipStatus";
 import { VipAuthModal } from "@/components/gallery/VipAuthModal";
-import { EraserCursor } from "./EraserCursor";
+import dynamic from "next/dynamic";
+
+const EraserCursor = dynamic(() => import('./EraserCursor').then(mod => mod.EraserCursor), { ssr: false });
 
 interface BackgroundRemovalToolProps {
   className?: string;

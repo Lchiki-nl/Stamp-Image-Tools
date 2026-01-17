@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export function EraserCursor({ size }: { size: number }) {
     const [position, setPosition] = useState({ x: -100, y: -100 });
@@ -19,16 +20,18 @@ export function EraserCursor({ size }: { size: number }) {
 
     if (!isVisible) return null;
 
-    return (
+    return createPortal(
         <div 
-            className="fixed pointer-events-none rounded-full border-2 border-white bg-black/20 z-50 backdrop-invert mix-blend-difference"
+            className="fixed pointer-events-none rounded-full border-2 border-white bg-black/20 backdrop-invert mix-blend-difference"
             style={{
+                zIndex: 9999,
                 top: position.y,
                 left: position.x,
                 width: size,
                 height: size,
                 transform: 'translate(-50%, -50%)',
             }}
-        />
+        />,
+        document.body
     );
 }
