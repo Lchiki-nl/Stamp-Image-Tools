@@ -1,5 +1,50 @@
-
 @import "tailwindcss";
+
+/* ===========================
+   Custom Fonts (@font-face)
+   =========================== */
+
+@font-face {
+  font-family: "851MkPOP";
+  src: url("/fonts/851MkPOP_101.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Corporate Logo";
+  src: url("/fonts/Corporate-Logo-Rounded-Bold-ver3.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DokiDoki Fantasia";
+  src: url("/fonts/DokiDokiFantasia.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PixelMplus10";
+  src: url("/fonts/PixelMplus10-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PixelMplus12";
+  src: url("/fonts/PixelMplus12-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zenjido FeltPen";
+  src: url("/fonts/ZenjidoJP-FeltPenLMT-TTF.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Azuki";
+  src: url("/fonts/azuki.ttf") format("truetype");
+  font-display: swap;
+}
 
 /* ===========================
    EzStampify Custom Theme
@@ -145,4 +190,3 @@ body {
 .btn-secondary:hover {
   background-color: #e5e7eb;
 }
-

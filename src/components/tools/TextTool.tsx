@@ -17,6 +17,13 @@ const FONTS = [
   { label: "明朝", value: "serif" },
   { label: "手書き風", value: "'Yomogi', cursive" },
   { label: "丸文字", value: "'Kosugi Maru', sans-serif" },
+  { label: "851ポップ", value: "'851MkPOP'" },
+  { label: "コーポレート・ロゴ", value: "'Corporate Logo'" },
+  { label: "ドキドキファンタジア", value: "'DokiDoki Fantasia'" },
+  { label: "ピクセル10", value: "'PixelMplus10'" },
+  { label: "ピクセル12", value: "'PixelMplus12'" },
+  { label: "全児童フェルトペン", value: "'Zenjido FeltPen'" },
+  { label: "あずき", value: "'Azuki'" },
 ];
 
 export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onApply }: TextToolProps) {
