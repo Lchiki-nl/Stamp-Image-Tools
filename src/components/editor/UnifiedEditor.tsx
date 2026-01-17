@@ -280,7 +280,7 @@ export function UnifiedEditor({
                         </div>
                     </div>
                 ) : (
-                    <div className="animate-in fade-in duration-300 h-full flex flex-col items-center">
+                    <div className="animate-in fade-in duration-300 h-full flex flex-col items-center w-full">
                         <ActiveComponent 
                             embeddedImage={image} 
                             embeddedCanvasRef={embeddedCanvasRef}

@@ -214,9 +214,9 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   }, []);
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-8 items-start h-full ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-full w-full ${className}`}>
       {/* Canvas Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col w-full">
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
