@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, type RefObject } from "react";
-import { Grid3X3, Check } from "lucide-react";
+import { Grid3X3, Check, Lock, Crown } from "lucide-react";
 
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { splitImage } from "@/lib/image-utils";
+import { useVipStatus } from "@/hooks/useVipStatus";
+import { VipAuthModal } from "@/components/gallery/VipAuthModal";
 
 interface ImageSplitToolProps {
   className?: string;
@@ -26,6 +28,9 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
   const [cols, setCols] = useState(2);
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState("image");
+
+  const { isVip, unlockVip } = useVipStatus();
+  const [isVipModalOpen, setIsVipModalOpen] = useState(false);
 
   // 画像読み込み
   const handleFileSelect = useCallback((file: File) => {
@@ -64,7 +69,6 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
 
 
   // 適用 (Unified Editor用)
-  // 適用 (Unified Editor用)
   const handleApply = useCallback(async () => {
     const ref = embeddedCanvasRef || internalCanvasRef;
     if (!ref.current || !onApply) return;
@@ -94,6 +98,56 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
         setIsProcessing(false);
     }
   }, [onApply, embeddedCanvasRef, rows, cols]);
+
+  const renderNumberSelector = (label: string, value: number, onChange: (val: number) => void) => (
+    <div className="space-y-3">
+      <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+        {label}
+        <span className="text-primary font-bold text-lg">{value}</span>
+      </label>
+      <div className="grid grid-cols-5 gap-2">
+        {[1, 2, 3, 4, 5].map((num) => {
+          const isLocked = !isVip && num >= 4;
+          const isSelected = value === num;
+          
+          return (
+            <button
+              key={num}
+              onClick={() => {
+                if (isLocked) {
+                  setIsVipModalOpen(true);
+                } else {
+                  onChange(num);
+                }
+              }}
+              className={`
+                relative h-10 rounded-lg font-bold text-sm transition-all flex items-center justify-center
+                ${isSelected 
+                  ? "bg-primary text-white shadow-md scale-105 z-10" 
+                  : isLocked
+                    ? "bg-amber-50 text-amber-600 border border-amber-200"
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                }
+              `}
+            >
+              {isLocked ? (
+                <Lock size={14} className="stroke-[2.5]" />
+              ) : (
+                num
+              )}
+              {isLocked && (
+                <div className="absolute -top-1 -right-1">
+                   <div className="bg-amber-500 rounded-full p-0.5 shadow-sm">
+                      <Crown size={8} className="text-white fill-white" />
+                   </div>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-full w-full ${className}`}>
@@ -163,50 +217,10 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
           </h3>
 
           {/* Rows */}
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-text-sub flex items-center justify-between">
-              行数
-              <span className="text-primary font-bold text-lg">{rows}</span>
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              value={rows}
-              onChange={(e) => setRows(Number(e.target.value))}
-              className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary touch-none"
-            />
-            <div className="flex justify-between text-xs text-gray-400">
-              <span>1</span>
-              <span>2</span>
-              <span>3</span>
-              <span>4</span>
-              <span>5</span>
-            </div>
-          </div>
+          {renderNumberSelector("行数", rows, setRows)}
 
           {/* Cols */}
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-text-sub flex items-center justify-between">
-              列数
-              <span className="text-primary font-bold text-lg">{cols}</span>
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              value={cols}
-              onChange={(e) => setCols(Number(e.target.value))}
-              className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary touch-none"
-            />
-            <div className="flex justify-between text-xs text-gray-400">
-              <span>1</span>
-              <span>2</span>
-              <span>3</span>
-              <span>4</span>
-              <span>5</span>
-            </div>
-          </div>
+          {renderNumberSelector("列数", cols, setCols)}
 
           {/* Preview Info */}
           <div className="bg-primary-light/50 rounded-xl p-4 text-center">
@@ -241,6 +255,12 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
           )}
         </div>
       )}
+      
+      <VipAuthModal
+        isOpen={isVipModalOpen}
+        onClose={() => setIsVipModalOpen(false)}
+        onAuthenticate={unlockVip}
+      />
     </div>
   );
 }
