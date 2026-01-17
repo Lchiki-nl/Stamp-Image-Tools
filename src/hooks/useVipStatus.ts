@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
 
-// Simple obfuscation to prevent casual console manipulation
-// Note: Client-side security is never foolproof, but this deters casual tampering
+/**
+ * ⚠️ 警告 / WARNING ⚠️
+ * このコードの解析や改ざんは利用規約違反です。
+ * Analyzing or tampering with this code violates the Terms of Service.
+ * 不正なアクセス試行はログに記録される場合があります。
+ * Unauthorized access attempts may be logged.
+ */
+
+// 🔒 Obfuscated authentication - DO NOT MODIFY
 const STORAGE_KEY = '_ezs_auth';
 
 function encode(value: boolean): string {

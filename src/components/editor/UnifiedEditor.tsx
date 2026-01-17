@@ -180,8 +180,8 @@ export function UnifiedEditor({
                         <Icon size={18} className={isLocked ? "text-amber-500" : ""} />
                         <span className="hidden md:inline">{tool.label}</span>
                         {isLocked && (
-                          <span className="flex items-center gap-0.5 ml-1 px-1 py-0.5 bg-amber-500 text-white rounded text-[9px] font-bold">
-                            <Lock size={8} />
+                          <span className="flex items-center gap-0 ml-1 px-1 py-0 bg-amber-500 text-white rounded text-[8px] font-bold">
+                            <Lock size={7} />
                             VIP
                           </span>
                         )}

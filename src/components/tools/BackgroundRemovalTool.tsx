@@ -279,11 +279,25 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
               </button>
               <button
                   onClick={() => !isVip ? setIsVipModalOpen(true) : setMode('eraser')}
-                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${mode === 'eraser' ? 'bg-white shadow text-purple-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                    mode === 'eraser' 
+                      ? 'bg-white shadow text-purple-600' 
+                      : !isVip
+                        ? 'text-amber-600 border border-amber-300'
+                        : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                  style={!isVip && mode !== 'eraser' ? {
+                    background: 'linear-gradient(to right, #fef3c7, #fef9c3)',
+                  } : undefined}
               >
-                  <Eraser size={16} />
+                  <Eraser size={16} className={!isVip ? 'text-amber-500' : ''} />
                   消しゴム
-                  {!isVip && <Lock size={12} />}
+                  {!isVip && (
+                    <span className="flex items-center gap-0 px-1 py-0 bg-amber-500 text-white rounded text-[8px] font-bold">
+                      <Lock size={7} />
+                      VIP
+                    </span>
+                  )}
               </button>
           </div>
 
