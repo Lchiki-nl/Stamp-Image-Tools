@@ -72,8 +72,22 @@ export const steps = [
     bg: "bg-green-50"
   },
   {
+    id: "eraser",
+    title: "6. 消しゴムツール",
+    icon: Eraser,
+    description: "ブラシを使って手動で不要な部分を消去します。",
+    details: [
+      "「背景削除」タブの「消しゴム」を選択します。",
+      "ブラシでなぞって細かい部分を修正できます。",
+      "[SEP_VIP]",
+      "ブラシサイズを自由に調整できます。"
+    ],
+    color: "text-red-500",
+    bg: "bg-red-50"
+  },
+  {
     id: "resize",
-    title: "6. サイズ変更",
+    title: "7. サイズ変更",
     icon: Scaling,
     description: "LINEスタンプの規定サイズなどにリサイズします。",
     details: [
@@ -87,7 +101,7 @@ export const steps = [
   },
   {
     id: "save",
-    title: "7. 保存・ダウンロード",
+    title: "8. 保存・ダウンロード",
     icon: Download,
     description: "加工が完了した画像を保存します。",
     details: [
@@ -101,7 +115,7 @@ export const steps = [
   // === VIP Features ===
   {
     id: "vip",
-    title: "8. VIP機能について",
+    title: "9. VIP機能について",
     icon: Crown,
     description: "パスワードを入力して制限を解除します。",
     details: [
@@ -110,20 +124,6 @@ export const steps = [
     ],
     color: "text-amber-500",
     bg: "bg-amber-50"
-  },
-  {
-    id: "eraser",
-    title: "9. 消しゴムツール",
-    icon: Eraser,
-    description: "ブラシを使って手動で不要な部分を消去します。",
-    details: [
-      "「背景削除」タブの「消しゴム」を選択します。",
-      "ブラシサイズを調整して、細かい部分を修正します。",
-      "リセットボタンで元の状態に戻せます。"
-    ],
-    color: "text-red-500",
-    bg: "bg-red-50",
-    isVip: true
   },
   {
     id: "text",

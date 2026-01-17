@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, type RefObject } from "react";
-import { Pipette, RotateCcw, Check, Eraser, Lock } from "lucide-react";
+import { Pipette, RotateCcw, Check, Eraser } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { removeBackground, rgbToHex, hexToRgb, type RGBColor } from "@/lib/image-utils";
@@ -36,7 +36,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   const [clickFeedback, setClickFeedback] = useState<{ x: number; y: number; color: string } | null>(null);
 
   // Eraser / VIP State
-  const { isVip, unlockVip } = useVipStatus();
+  const { isVip } = useVipStatus();
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   const [mode, setMode] = useState<'auto' | 'eraser'>('auto');
   const [eraserSize, setEraserSize] = useState(20);
@@ -280,26 +280,15 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
                   自動削除
               </button>
               <button
-                  onClick={() => !isVip ? setIsVipModalOpen(true) : setMode('eraser')}
+                  onClick={() => setMode('eraser')}
                   className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                     mode === 'eraser' 
                       ? 'bg-white shadow text-purple-600' 
-                      : !isVip
-                        ? 'text-amber-600 border border-amber-300'
-                        : 'text-gray-400 hover:text-gray-600'
+                      : 'text-gray-400 hover:text-gray-600'
                   }`}
-                  style={!isVip && mode !== 'eraser' ? {
-                    background: 'linear-gradient(to right, #fef3c7, #fef9c3)',
-                  } : undefined}
               >
-                  <Eraser size={16} className={!isVip ? 'text-amber-500' : ''} />
+                  <Eraser size={16} />
                   消しゴム
-                  {!isVip && (
-                    <span className="flex items-center gap-0 px-1 py-0 bg-amber-500 text-white rounded text-[8px] font-bold">
-                      <Lock size={7} />
-                      VIP
-                    </span>
-                  )}
               </button>
           </div>
 
@@ -384,9 +373,22 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
                         min="5"
                         max="100"
                         value={eraserSize}
-                        onChange={(e) => setEraserSize(Number(e.target.value))}
+                        onChange={(e) => {
+                            if (!isVip) {
+                                setIsVipModalOpen(true);
+                            } else {
+                                setEraserSize(Number(e.target.value));
+                            }
+                        }}
                         className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-purple-500"
+                        disabled={!isVip}
                     />
+                    {!isVip && (
+                        <p className="text-xs text-amber-600 font-medium flex items-center gap-1 mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            VIP 認証でサイズ調整が可能になります
+                        </p>
+                    )}
                     <div className="flex justify-center h-24 items-center bg-gray-50 rounded-xl border border-dashed border-gray-200 mt-4">
                         <div 
                             className="bg-purple-400/50 rounded-full"
@@ -421,7 +423,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
           </div>
         </div>
       )}
-      {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} onAuthenticate={unlockVip} />}
+      {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} />}
       {mode === 'eraser' && <EraserCursor size={eraserSize} />}
     </div>
   );
