@@ -103,6 +103,7 @@ export function ImageGrid({ images, onSelect, onToggleSelect, onRemove, onAddFil
           onSelect={onSelect}
           onToggleSelect={onToggleSelect}
           onRemove={onRemove}
+          compact={gridSize === "small"}
         />
       ))}
       

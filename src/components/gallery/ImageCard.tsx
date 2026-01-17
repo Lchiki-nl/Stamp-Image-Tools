@@ -7,9 +7,10 @@ interface ImageCardProps {
   onSelect: (id: string) => void;
   onToggleSelect: (id: string, isShift?: boolean) => void;
   onRemove: (id: string) => void;
+  compact?: boolean;
 }
 
-export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCardProps) {
+export function ImageCard({ image, onSelect, onToggleSelect, onRemove, compact = false }: ImageCardProps) {
   return (
     <div 
       className={`
@@ -53,8 +54,8 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
           <Check size={16} strokeWidth={3} />
       </div>
 
-      {/* Status Badge */}
-      {!image.isSelected && (
+      {/* Status Badge - Hidden in compact mode */}
+      {!compact && !image.isSelected && (
           <>
             {/* MAIN Badge (240x240) - Priority 1 */}
             {image.width === 240 && image.height === 240 ? (
@@ -77,17 +78,19 @@ export function ImageCard({ image, onSelect, onToggleSelect, onRemove }: ImageCa
           </>
       )}
 
-      {/* Remove Button (Hover only) */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(image.id);
-        }}
-        className="absolute bottom-3 right-3 z-10 w-9 h-9 bg-white/90 text-red-500 rounded-xl shadow-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-red-50"
-        title="削除"
-      >
-        <Trash2 size={18} />
-      </button>
+      {/* Remove Button (Hover only) - Hidden in compact mode */}
+      {!compact && (
+        <button
+            onClick={(e) => {
+            e.stopPropagation();
+            onRemove(image.id);
+            }}
+            className="absolute bottom-3 right-3 z-10 w-9 h-9 bg-white/90 text-red-500 rounded-xl shadow-sm flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-red-50"
+            title="削除"
+        >
+            <Trash2 size={18} />
+        </button>
+      )}
 
       {/* Overlay for selection */}
       {image.isSelected && (
