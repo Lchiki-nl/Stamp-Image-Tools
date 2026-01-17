@@ -248,7 +248,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-80 h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-auto lg:h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
             <Scaling size={20} />
             サイズ変更
