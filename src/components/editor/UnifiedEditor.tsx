@@ -138,31 +138,34 @@ export function UnifiedEditor({
         <div className="max-w-6xl mx-auto h-full flex flex-col">
             
           {/* Tool Tabs */}
-          <div className="relative flex justify-center mb-4 items-center">
-            <nav className="items-center bg-white p-1 rounded-xl border border-gray-100 shadow-sm inline-flex">
-                {tools.map((tool) => {
-                const Icon = tool.icon;
-                const isActive = activeTool === tool.id;
-                return (
-                    <button
-                    key={tool.id}
-                    onClick={() => setActiveTool(tool.id)}
-                    className={`
-                        flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap
-                        ${isActive 
-                        ? "bg-primary/10 text-primary" 
-                        : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}
-                    `}
-                    >
-                    <Icon size={18} />
-                    <span className="hidden md:inline">{tool.label}</span>
-                    </button>
-                );
-                })}
-            </nav>
+          {/* Tool Tabs */}
+          <div className="relative flex flex-wrap justify-center items-center gap-3 mb-4 sm:block">
+            <div className="flex justify-center w-full sm:w-auto sm:inline-block">
+                <nav className="items-center bg-white p-1 rounded-xl border border-gray-100 shadow-sm inline-flex">
+                    {tools.map((tool) => {
+                    const Icon = tool.icon;
+                    const isActive = activeTool === tool.id;
+                    return (
+                        <button
+                        key={tool.id}
+                        onClick={() => setActiveTool(tool.id)}
+                        className={`
+                            flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap
+                            ${isActive 
+                            ? "bg-primary/10 text-primary" 
+                            : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"}
+                        `}
+                        >
+                        <Icon size={18} />
+                        <span className="hidden md:inline">{tool.label}</span>
+                        </button>
+                    );
+                    })}
+                </nav>
+            </div>
 
             {/* Action Buttons - Right of Tabs */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 z-20">
+            <div className="flex items-center gap-2 z-20 sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
               {/* Overwrite Toggle - Hidden for Split tool, Hidden on mobile */}
               {activeTool !== 'split' && (
                 <div className="hidden sm:flex bg-gray-100 rounded-xl p-0.5 border border-gray-200">
