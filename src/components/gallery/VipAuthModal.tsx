@@ -95,6 +95,14 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                         </p>
                         <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
                              <CheckCircle2 size={14} className="shrink-0" />
+                            文字入れツールが使い放題
+                        </p>
+                        <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
+                             <CheckCircle2 size={14} className="shrink-0" />
+                            消しゴムツール
+                        </p>
+                        <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
+                             <CheckCircle2 size={14} className="shrink-0" />
                             将来追加される全機能の制限解除
                         </p>
                     </div>
