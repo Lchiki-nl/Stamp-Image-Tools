@@ -13,6 +13,7 @@ import { processRemoveBackground, processRemoveBackgroundAI, processCrop, proces
 import { getImageDimensions } from "@/lib/image-utils";
 import { type GalleryAction } from "@/types/gallery";
 import { VipAuthModal } from "@/components/gallery/VipAuthModal";
+import { trackImageSave, trackBulkDownload } from "@/lib/analytics";
 
 
 // type ViewMode = "gallery" | "editor"; // Removed
@@ -193,6 +194,8 @@ export default function AppPage() {
                   alert("ZIP作成に失敗しました");
               }
           }
+          
+          trackBulkDownload(processedFiles.length);
           return;
       }
       
@@ -378,14 +381,17 @@ export default function AppPage() {
               new File([b], `processed_${currDate}_${i + 1}.png`, { type: "image/png" })
           );
           addImages(newFiles, maxImages);
+          trackImageSave('new', blob.length);
       } else if (overwrite && editingImageId) {
           // 上書きモード
           const newFile = new File([blob], "edited_image.png", { type: "image/png" });
           overwriteImage(editingImageId, newFile);
+          trackImageSave('overwrite', 1);
       } else {
           // 新規保存モード
           const newFile = new File([blob], "edited_image.png", { type: "image/png" });
           addImages([newFile], maxImages);
+          trackImageSave('new', 1);
       }
   };
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { trackVipAuth } from '@/lib/analytics';
 
 /**
  * ⚠️ 警告 / WARNING ⚠️
@@ -46,6 +47,7 @@ export function useVipStatus() {
     if (password === correctPassword) {
       sessionStorage.setItem(STORAGE_KEY, encode(true));
       setIsVip(true);
+      trackVipAuth();
       return true;
     }
     return false;

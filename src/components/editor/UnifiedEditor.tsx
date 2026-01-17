@@ -9,6 +9,7 @@ import { FileDropzone } from "@/components/shared/FileDropzone";
 import type { ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { useVipStatus } from "@/hooks/useVipStatus";
 import { VipAuthModal } from "@/components/gallery/VipAuthModal";
+import { trackToolUsed } from "@/lib/analytics";
 
 type Tool = "background" | "split" | "crop" | "resize" | "text";
 
@@ -163,6 +164,7 @@ export function UnifiedEditor({
                                 setIsVipModalOpen(true);
                             } else {
                                 setActiveTool(tool.id);
+                                trackToolUsed(tool.id);
                             }
                         }}
                         className={`
