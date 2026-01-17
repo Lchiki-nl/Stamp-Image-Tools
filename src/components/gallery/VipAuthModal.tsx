@@ -114,6 +114,8 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                         <input
                             ref={inputRef}
                             type="password"
+                            autoComplete="off"
+                            name="vip-password"
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value);
