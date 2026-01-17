@@ -7,6 +7,7 @@ import { type GalleryAction, type GalleryImage } from "@/types/gallery";
 import { LayoutGrid, Grid3X3, Crown } from "lucide-react";
 import { VipAuthModal } from "./VipAuthModal";
 import { useVipStatus } from "@/hooks/useVipStatus";
+import { MAX_IMAGES_NORMAL, MAX_IMAGES_VIP } from "@/hooks/useGallery";
 
 interface GalleryViewProps {
   images: GalleryImage[];
@@ -43,7 +44,7 @@ export function GalleryView({
             <div>
               <h1 className="text-2xl font-black text-text-main">ギャラリー</h1>
               <p className="text-sm text-text-sub mt-1 whitespace-nowrap">
-                {images.length} 枚の画像 (最大100枚)
+                {images.length} 枚の画像 (最大{isVip ? MAX_IMAGES_VIP : MAX_IMAGES_NORMAL}枚)
               </p>
             </div>
             <div className="flex items-center gap-2 md:ml-2">
