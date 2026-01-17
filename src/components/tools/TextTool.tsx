@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type RefObject } from "react";
-import { Type, RotateCcw, Check, AlignCenter } from "lucide-react";
+import { Type, RotateCcw, Check, AlignCenter, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 
@@ -307,14 +307,17 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-text-sub">サイズ</label>
+                    <label className="text-sm font-bold text-text-sub flex justify-between">
+                        サイズ
+                        <span className="text-primary font-bold">{fontSize}px</span>
+                    </label>
                     <input 
-                        type="number"
+                        type="range"
                         min="10"
-                        max="200"
+                        max="150"
                         value={fontSize}
-                        onChange={e => setFontSize(Math.max(1, parseInt(e.target.value) || 0))}
-                        className="w-full px-3 py-1.5 border border-gray-200 rounded-xl text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        onChange={e => setFontSize(parseInt(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
                     />
                 </div>
             </div>
@@ -356,27 +359,42 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 </div>
             </div>
 
-            {/* Position Manual Sliders */}
-            <div className="space-y-3 pt-2 opacity-50 hover:opacity-100 transition-opacity">
+            {/* Position Arrow Controls */}
+            <div className="space-y-3 pt-2">
                  <label className="text-xs font-bold text-gray-400 flex items-center gap-2">
                     <AlignCenter size={12} />
-                    微調整 (%)
+                    位置微調整
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                        <input 
-                            type="range" min="0" max="100" value={position.x}
-                            onChange={e => setPosition(p => ({ ...p, x: parseInt(e.target.value) }))}
-                            className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer accent-gray-400"
-                        />
+                <div className="flex flex-col items-center gap-1">
+                    <button
+                        onClick={() => setPosition(p => ({ ...p, y: Math.max(0, p.y - 2) }))}
+                        className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+                    >
+                        <ChevronUp size={16} className="text-gray-600" />
+                    </button>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => setPosition(p => ({ ...p, x: Math.max(0, p.x - 2) }))}
+                            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+                        >
+                            <ChevronLeft size={16} className="text-gray-600" />
+                        </button>
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-xs text-gray-400 font-mono">
+                            {Math.round(position.x)},{Math.round(position.y)}
+                        </div>
+                        <button
+                            onClick={() => setPosition(p => ({ ...p, x: Math.min(100, p.x + 2) }))}
+                            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+                        >
+                            <ChevronRight size={16} className="text-gray-600" />
+                        </button>
                     </div>
-                    <div className="space-y-1">
-                        <input 
-                            type="range" min="0" max="100" value={position.y}
-                            onChange={e => setPosition(p => ({ ...p, y: parseInt(e.target.value) }))}
-                            className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer accent-gray-400"
-                        />
-                    </div>
+                    <button
+                        onClick={() => setPosition(p => ({ ...p, y: Math.min(100, p.y + 2) }))}
+                        className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+                    >
+                        <ChevronDown size={16} className="text-gray-600" />
+                    </button>
                 </div>
             </div>
 
