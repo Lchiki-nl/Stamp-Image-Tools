@@ -264,7 +264,7 @@ export default function AppPage() {
           setTimeout(() => {
               setIsProcessing(false);
               setProcessingAction(null);
-              selectAll(false);
+              // selectAll(false); // 処理後に選択を解除しない
           }, 500);
 
       } catch (e) {
