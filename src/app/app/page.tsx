@@ -109,7 +109,10 @@ export default function AppPage() {
                   // Other
                   if (selectedImages.length > 1) {
                       // Batch mode: sequential numbers
-                      baseName = otherCounter.toString().padStart(2, '0');
+                      // 絵文字(180x180)は3桁(001), スタンプ(370x320等)は2桁(01)
+                      const isEmoji = width === 180 && height === 180;
+                      const padding = isEmoji ? 3 : 2;
+                      baseName = otherCounter.toString().padStart(padding, '0');
                       otherCounter++;
                   } else {
                       // Single mode: original name
