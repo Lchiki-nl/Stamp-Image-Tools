@@ -234,6 +234,9 @@ export default function AppPage() {
               if (processingAction === 'remove-background') {
                   const blob = await processRemoveBackground(file, config);
                   resultBlobs = [blob];
+              } else if (processingAction === 'remove-background-ai') {
+                  const blob = await processRemoveBackgroundAI(file);
+                  resultBlobs = [blob];
               } else if (processingAction === 'crop') {
                   const blob = await processCrop(file, config);
                   resultBlobs = [blob];
