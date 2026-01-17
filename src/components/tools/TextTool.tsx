@@ -62,7 +62,13 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
     // Helper for curved text
     const drawCurvedText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, curvature: number) => {
-        const radius = Math.max(fontSize, 10000 / (Math.abs(curvature) + 1)); 
+        // More gradual curve: smaller values = larger radius = gentler curve
+        // Scale curvature so that arch=100 gives a tight curve, arch=1 gives almost straight
+        const adjustedCurvature = Math.pow(Math.abs(curvature) / 100, 1.5) * 100;
+        const minRadius = text.length * (fontSize + letterSpacing) / Math.PI; // Minimum to fit all chars in half circle
+        const maxRadius = 2000;
+        const radius = Math.max(minRadius, maxRadius - (maxRadius - minRadius) * (adjustedCurvature / 100));
+        
         const charWidth = fontSize + letterSpacing;
         const anglePerChar = charWidth / radius; 
         const direction = curvature > 0 ? 1 : -1;
@@ -412,14 +418,14 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                 </label>
                 <div className="flex flex-col items-center gap-1">
                     <button
-                        onClick={() => setPosition(p => ({ ...p, y: Math.max(0, p.y - 2) }))}
+                        onClick={() => setPosition(p => ({ ...p, y: Math.max(0, p.y - 1) }))}
                         className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
                     >
                         <ChevronUp size={16} className="text-gray-600" />
                     </button>
                     <div className="flex items-center gap-1">
                         <button
-                            onClick={() => setPosition(p => ({ ...p, x: Math.max(0, p.x - 2) }))}
+                            onClick={() => setPosition(p => ({ ...p, x: Math.max(0, p.x - 1) }))}
                             className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
                         >
                             <ChevronLeft size={16} className="text-gray-600" />
@@ -428,14 +434,14 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                             {Math.round(position.x)},{Math.round(position.y)}
                         </div>
                         <button
-                            onClick={() => setPosition(p => ({ ...p, x: Math.min(100, p.x + 2) }))}
+                            onClick={() => setPosition(p => ({ ...p, x: Math.min(100, p.x + 1) }))}
                             className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
                         >
                             <ChevronRight size={16} className="text-gray-600" />
                         </button>
                     </div>
                     <button
-                        onClick={() => setPosition(p => ({ ...p, y: Math.min(100, p.y + 2) }))}
+                        onClick={() => setPosition(p => ({ ...p, y: Math.min(100, p.y + 1) }))}
                         className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
                     >
                         <ChevronDown size={16} className="text-gray-600" />
