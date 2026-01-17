@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, type RefObject } from 'react';
-import { Scaling, RotateCcw, Check, Lock, Unlock } from "lucide-react";
+import { Scaling, RotateCcw, Check, Lock, Unlock, MoveHorizontal } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { resizeImage } from "@/lib/image-utils";
@@ -34,6 +34,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   const [targetDimensions, setTargetDimensions] = useState({ width: 0, height: 0 });
   const [keepAspectRatio, setKeepAspectRatio] = useState(true);
   const [selectedPresetIndex, setSelectedPresetIndex] = useState<number | null>(null);
+  const [isTabPaddingMode, setIsTabPaddingMode] = useState(false);
 
   // 画像読み込みハンドラ
   const handleFileSelect = (file: File) => {
@@ -66,6 +67,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
     setOriginalImageData(null);
     setTargetDimensions({ width: 0, height: 0 });
     setSelectedPresetIndex(null);
+    setIsTabPaddingMode(false);
     // 内部画像のリセットはここで行わない（無限ループ防止のため、必要な場合のみ管理）
   }
 
@@ -116,6 +118,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   // サイズ入力ハンドラ
   const handleDimensionChange = (key: 'width' | 'height', value: number) => {
       setSelectedPresetIndex(null);
+      setIsTabPaddingMode(false);
       
       // 入力中は最小1、最大のみ制限して、タイピングを邪魔しない
       const safeValue = Math.min(Math.max(value, 1), LIMITS.max);
@@ -153,6 +156,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
   const applyPreset = (index: number) => {
       const preset = PRESETS[index];
       setSelectedPresetIndex(index);
+      setIsTabPaddingMode(false);
       setTargetDimensions({ width: preset.width, height: preset.height });
   };
   
@@ -164,11 +168,28 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
       if (targetDimensions.width === 0 || targetDimensions.height === 0) return;
 
       const timer = setTimeout(() => {
-          // リサイズ実行
-          const resized = resizeImage(originalImageData, targetDimensions.width, targetDimensions.height);
-          
           const canvas = canvasRef.current!.getCanvas();
-          if (canvas) {
+          if (!canvas) return;
+
+          if (isTabPaddingMode) {
+              // 特殊モード: 74x74にリサイズして96x74の中央に配置
+              const innerSize = 74;
+              const resized = resizeImage(originalImageData, innerSize, innerSize);
+              
+              canvas.width = 96;
+              canvas.height = 74;
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                  // Canvasはリサイズ時にクリアされるが、念のため
+                  ctx.clearRect(0, 0, 96, 74);
+                  // 中央配置 (左右余白 11px)
+                  const x = Math.floor((96 - innerSize) / 2);
+                  const y = Math.floor((74 - innerSize) / 2);
+                  ctx.putImageData(resized, x, y);
+              }
+          } else {
+              // 通常リサイズ実行
+              const resized = resizeImage(originalImageData, targetDimensions.width, targetDimensions.height);
               canvas.width = resized.width;
               canvas.height = resized.height;
               canvasRef.current!.putImageData(resized);
@@ -176,7 +197,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
       }, 100);
 
       return () => clearTimeout(timer);
-  }, [targetDimensions, originalImageData, canvasRef]);
+  }, [targetDimensions, originalImageData, canvasRef, isTabPaddingMode]);
 
 
   // リセット
@@ -184,6 +205,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
     if (originalImageData && canvasRef.current) {
         setTargetDimensions({ width: originalImageData.width, height: originalImageData.height });
         setSelectedPresetIndex(null);
+        setIsTabPaddingMode(false);
         
         const canvas = canvasRef.current.getCanvas();
         if (canvas) {
@@ -257,16 +279,35 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
           <div className="space-y-4">
              <div className="flex items-center justify-between">
                  <label className="text-sm font-bold text-text-sub">カスタムサイズ</label>
-                 <button
-                     onClick={() => setKeepAspectRatio(!keepAspectRatio)}
-                     className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold
-                         ${keepAspectRatio ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400"}
-                     `}
-                     title="アスペクト比を維持"
-                 >
-                     {keepAspectRatio ? <Lock size={14} /> : <Unlock size={14} />}
-                     {keepAspectRatio ? "比率固定" : "解除"}
-                 </button>
+                 <div className="flex items-center gap-2">
+                     <button
+                         onClick={() => {
+                             setIsTabPaddingMode(!isTabPaddingMode);
+                             if (!isTabPaddingMode) {
+                                 // Enable mode
+                                 setTargetDimensions({ width: 96, height: 74 });
+                                 setSelectedPresetIndex(null);
+                             }
+                         }}
+                         className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold
+                             ${isTabPaddingMode ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-400"}
+                         `}
+                         title="74x74にリサイズして左右に余白を追加します"
+                     >
+                         <MoveHorizontal size={14} />
+                         タブ余白
+                     </button>
+                     <button
+                         onClick={() => setKeepAspectRatio(!keepAspectRatio)}
+                         className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold
+                             ${keepAspectRatio ? "bg-blue-50 text-blue-600" : "bg-gray-100 text-gray-400"}
+                         `}
+                         title="アスペクト比を維持"
+                     >
+                         {keepAspectRatio ? <Lock size={14} /> : <Unlock size={14} />}
+                         {keepAspectRatio ? "比率固定" : "解除"}
+                     </button>
+                 </div>
              </div>
              
              <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-center">
