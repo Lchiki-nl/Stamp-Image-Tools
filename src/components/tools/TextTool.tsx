@@ -128,22 +128,33 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
           ctx.setLineDash([]);
         }
       } else {
-        // Horizontal text
+        // Horizontal text with line break support
+        const lines = text.split('\n');
+        const lineHeight = fontSize * 1.4;
+        const totalHeight = lines.length * lineHeight;
+        const startY = y - (totalHeight - lineHeight) / 2;
+        
         if ('letterSpacing' in ctx) {
            ctx.letterSpacing = `${letterSpacing}px`;
         }
-        ctx.fillText(text, x, y);
+        
+        lines.forEach((line, index) => {
+          ctx.fillText(line, x, startY + index * lineHeight);
+        });
+        
         if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
         
         // Draw bounding box on hover
         if (isHovering && text) {
-          const metrics = ctx.measureText(text);
-          const textWidth = metrics.width;
-          const textHeight = fontSize * 1.2;
+          let maxWidth = 0;
+          lines.forEach(line => {
+            const metrics = ctx.measureText(line);
+            if (metrics.width > maxWidth) maxWidth = metrics.width;
+          });
           ctx.strokeStyle = '#3b82f6';
           ctx.lineWidth = 2;
           ctx.setLineDash([5, 5]);
-          ctx.strokeRect(x - textWidth / 2 - 8, y - textHeight / 2 - 4, textWidth + 16, textHeight + 8);
+          ctx.strokeRect(x - maxWidth / 2 - 8, startY - fontSize / 2 - 4, maxWidth + 16, totalHeight + 8);
           ctx.setLineDash([]);
         }
       }
@@ -303,12 +314,12 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
             {/* Main Input */}
             <div className="space-y-2">
                 <label className="text-sm font-bold text-text-sub">テキスト</label>
-                <input 
-                    type="text" 
+                <textarea
                     value={text} 
                     onChange={e => setText(e.target.value)}
-                    placeholder="ここに文字を入力"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    placeholder="ここに文字を入力（改行可）"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
                 />
             </div>
 
