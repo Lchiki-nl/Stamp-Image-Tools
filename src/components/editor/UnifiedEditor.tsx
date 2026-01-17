@@ -139,8 +139,8 @@ export function UnifiedEditor({
             
           {/* Tool Tabs */}
           {/* Tool Tabs */}
-          <div className="relative flex flex-wrap justify-center items-center gap-3 mb-4 sm:block">
-            <div className="flex justify-center w-full sm:w-auto sm:inline-block">
+          <div className="relative flex flex-nowrap justify-center items-center gap-2 mb-4">
+            <div className="shrink-0">
                 <nav className="items-center bg-white p-1 rounded-xl border border-gray-100 shadow-sm inline-flex">
                     {tools.map((tool) => {
                     const Icon = tool.icon;
@@ -165,7 +165,7 @@ export function UnifiedEditor({
             </div>
 
             {/* Action Buttons - Right of Tabs */}
-            <div className="flex items-center gap-2 z-20 sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
+            <div className="flex items-center gap-2 z-20 shrink-0 sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
               {/* Overwrite Toggle - Hidden for Split tool, Hidden on mobile */}
               {activeTool !== 'split' && (
                 <div className="hidden sm:flex bg-gray-100 rounded-xl p-0.5 border border-gray-200">
