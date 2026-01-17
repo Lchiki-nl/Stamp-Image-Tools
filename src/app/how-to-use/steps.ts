@@ -31,7 +31,7 @@ export const steps = [
   },
   {
     id: "ai-removal",
-    title: "AI背景削除",
+    title: "3. AI背景削除",
     icon: Sparkles,
     description: "AIが被写体を自動認識して切り抜きます。",
     details: [
@@ -45,7 +45,7 @@ export const steps = [
   },
   {
     id: "crop",
-    title: "3. 余白カット（トリミング）",
+    title: "4. 余白カット（トリミング）",
     icon: Crop,
     description: "画像の周囲の余白を一括でカットします。",
     details: [
@@ -58,7 +58,7 @@ export const steps = [
   },
   {
     id: "split",
-    title: "4. グリッド分割",
+    title: "5. グリッド分割",
     icon: Grid3X3,
     description: "画像を均等なサイズに分割して切り出します。",
     details: [
@@ -73,7 +73,7 @@ export const steps = [
   },
   {
     id: "resize",
-    title: "5. サイズ変更",
+    title: "6. サイズ変更",
     icon: Scaling,
     description: "LINEスタンプの規定サイズなどにリサイズします。",
     details: [
@@ -87,7 +87,7 @@ export const steps = [
   },
   {
     id: "save",
-    title: "6. 保存・ダウンロード",
+    title: "7. 保存・ダウンロード",
     icon: Download,
     description: "加工が完了した画像を保存します。",
     details: [
@@ -101,7 +101,7 @@ export const steps = [
   // === VIP Features ===
   {
     id: "vip",
-    title: "VIP機能について",
+    title: "8. VIP機能について",
     icon: Crown,
     description: "パスワードを入力して制限を解除します。",
     details: [
@@ -113,7 +113,7 @@ export const steps = [
   },
   {
     id: "eraser",
-    title: "消しゴムツール",
+    title: "9. 消しゴムツール",
     icon: Eraser,
     description: "ブラシを使って手動で不要な部分を消去します。",
     details: [
@@ -127,7 +127,7 @@ export const steps = [
   },
   {
     id: "text",
-    title: "文字入れツール",
+    title: "10. 文字入れツール",
     icon: Type,
     description: "画像に好きなテキストを追加できます。",
     details: [
