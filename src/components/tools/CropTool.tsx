@@ -144,9 +144,9 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
   };
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-8 items-start h-full ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-full w-full ${className}`}>
       {/* Canvas Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col w-full">
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
@@ -189,7 +189,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
                    setUniformCrop(val);
                    setManualCrop({ top: val, right: val, bottom: val, left: val });
                }}
-               className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+               className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary touch-none"
              />
           </div>
 

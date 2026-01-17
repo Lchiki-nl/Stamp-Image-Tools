@@ -96,9 +96,9 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
   }, [onApply, embeddedCanvasRef, rows, cols]);
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-8 items-start h-full ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-full w-full ${className}`}>
       {/* Canvas Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col w-full">
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
@@ -174,7 +174,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
               max="5"
               value={rows}
               onChange={(e) => setRows(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+              className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary touch-none"
             />
             <div className="flex justify-between text-xs text-gray-400">
               <span>1</span>
@@ -197,7 +197,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
               max="5"
               value={cols}
               onChange={(e) => setCols(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+              className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary touch-none"
             />
             <div className="flex justify-between text-xs text-gray-400">
               <span>1</span>
