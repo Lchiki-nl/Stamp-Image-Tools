@@ -17,11 +17,18 @@ interface ImageCanvasProps {
   showCheckerboard?: boolean;
   onCanvasClick?: (x: number, y: number, color: { r: number; g: number; b: number; a: number }) => void;
   onImageLoaded?: () => void;
+  onMouseDown?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  onMouseMove?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  onMouseUp?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  onMouseLeave?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+  onTouchStart?: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+  onTouchMove?: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+  onTouchEnd?: (e: React.TouchEvent<HTMLCanvasElement>) => void;
 }
 
 export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
   function ImageCanvas(
-    { image, className = "", showCheckerboard = true, onCanvasClick, onImageLoaded },
+    { image, className = "", showCheckerboard = true, onCanvasClick, onImageLoaded, onMouseDown, onMouseMove, onMouseUp, onMouseLeave, onTouchStart, onTouchMove, onTouchEnd },
     ref
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -33,12 +40,13 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       const ctx = canvas?.getContext("2d");
 
       if (canvas && ctx) {
+        // High DPI Display support? 
+        // For now keep simple as per original
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
         
-        // requestAnimationFrame で状態更新を非同期化し、レンダリング中の更新警告を回避
         requestAnimationFrame(() => {
           setHasImage(true);
           setUpdateCount(c => c + 1);
@@ -58,7 +66,6 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       }
     };
 
-    // 画像が変更されたら描画
     useEffect(() => {
       if (image) {
         drawImage(image);
@@ -111,7 +118,6 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       const scaleX = canvasRef.current.width / rect.width;
       const scaleY = canvasRef.current.height / rect.height;
 
-      // 範囲外クリックの防止
       if (
         clientX < rect.left ||
         clientX > rect.right ||
@@ -124,7 +130,6 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       const x = Math.floor((clientX - rect.left) * scaleX);
       const y = Math.floor((clientY - rect.top) * scaleY);
 
-      // 座標がCanvas範囲内か念の為チェック
       if (x < 0 || x >= canvasRef.current.width || y < 0 || y >= canvasRef.current.height) {
         return;
       }
@@ -141,15 +146,15 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
       });
     }, [onCanvasClick]);
 
-    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseDownWrapper = (e: React.MouseEvent<HTMLCanvasElement>) => {
       handleInteraction(e.clientX, e.clientY);
+      if (onMouseDown) onMouseDown(e);
     };
 
-    const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-      // スクロール防止（必要に応じて）
-      // e.preventDefault(); 
+    const handleTouchStartWrapper = (e: React.TouchEvent<HTMLCanvasElement>) => {
       const touch = e.touches[0];
       handleInteraction(touch.clientX, touch.clientY);
+      if (onTouchStart) onTouchStart(e);
     };
 
     return (
@@ -159,8 +164,13 @@ export const ImageCanvas = forwardRef<ImageCanvasHandle, ImageCanvasProps>(
         )}
         <canvas
           ref={canvasRef}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
+          onMouseDown={handleMouseDownWrapper}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseLeave}
+          onTouchStart={handleTouchStartWrapper}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
           className={`relative z-10 block max-w-full rounded-lg cursor-crosshair touch-none ${hasImage ? "" : "hidden"}`}
           style={{ maxHeight: "500px" }}
         />

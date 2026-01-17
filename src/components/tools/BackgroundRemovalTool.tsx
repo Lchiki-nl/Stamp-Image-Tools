@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, type RefObject } from "react";
-import { Pipette, RotateCcw, Check } from "lucide-react";
+import { Pipette, RotateCcw, Check, Eraser, Lock, Crown } from "lucide-react";
 import { FileDropzone } from "@/components/shared/FileDropzone";
 import { ImageCanvas, type ImageCanvasHandle } from "@/components/shared/ImageCanvas";
 import { removeBackground, rgbToHex, hexToRgb, type RGBColor } from "@/lib/image-utils";
+import { useVipStatus } from "@/hooks/useVipStatus";
+import { VipAuthModal } from "@/components/gallery/VipAuthModal";
 
 interface BackgroundRemovalToolProps {
   className?: string;
@@ -26,9 +28,16 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
   const [hexInput, setHexInput] = useState("#ffffff");
   const [tolerance, setTolerance] = useState(0);
   const [feather, setFeather] = useState(0);
-  const [isEyedropperActive] = useState(true); // 将来的に切り替え機能をつけるなら setIsEyedropperActive も必要だが現状はtrue固定
+  const [isEyedropperActive] = useState(true); 
   const [isProcessing, setIsProcessing] = useState(false);
   const [clickFeedback, setClickFeedback] = useState<{ x: number; y: number; color: string } | null>(null);
+
+  // Eraser / VIP State
+  const { isVip, unlockVip } = useVipStatus();
+  const [isVipModalOpen, setIsVipModalOpen] = useState(false);
+  const [mode, setMode] = useState<'auto' | 'eraser'>('auto');
+  const [eraserSize, setEraserSize] = useState(20);
+  const isDrawingRef = useRef(false);
 
   // 画像読み込み
   const handleFileSelect = useCallback((file: File) => {
@@ -37,22 +46,16 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
     img.onload = () => {
       if (!isEmbedded) {
         setInternalImage((prev) => {
-          // 前の画像のURLを解放
           if (prev && prev.src.startsWith("blob:")) {
             URL.revokeObjectURL(prev.src);
           }
           return img;
         });
-      } else {
-          // Embedded modeでもロード用に使ったURLは解放してよいか？
-          // ImageCanvasで使われるので、internalImageとして保持しないなら解放タイミングが難しい
-          // ここではinternalImageを使うケース（スタンドアロン）のみ考える
       }
     };
     img.src = url;
   }, [isEmbedded]);
 
-  // コンポーネントのアンマウント時にクリーンアップ
   useEffect(() => {
       return () => {
           if (internalImage && internalImage.src.startsWith("blob:")) {
@@ -69,12 +72,10 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
       }
   }, [canvasRef]);
 
-  // 画像がロードされたら右上のピクセルをデフォルト色として取得
+  // Default color from top-right pixel
   useEffect(() => {
     if (originalImageData) {
         const { width, data } = originalImageData;
-        // Top Right Pixel: (width - 1, 0)
-        // ensure width > 0
         if (width > 0) {
             const x = width - 1;
             const y = 0;
@@ -83,25 +84,67 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
                 const r = data[idx];
                 const g = data[idx + 1];
                 const b = data[idx + 2];
-                // Prevent synchronous setState warning
                 setTimeout(() => setTargetColor({ r, g, b }), 0);
             }
         }
     }
   }, [originalImageData]);
 
-  // targetColor が外部(クリック等)から変更されたら Input も同期
+  // Sync Input with Color
   useEffect(() => {
     setHexInput(rgbToHex(targetColor.r, targetColor.g, targetColor.b));
   }, [targetColor]);
 
+  // Eraser Logic
+  const getCanvasCoordinates = (e: React.MouseEvent | React.TouchEvent, canvas: HTMLCanvasElement) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    let clientX, clientY;
+    if ('touches' in e) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = (e as React.MouseEvent).clientX;
+        clientY = (e as React.MouseEvent).clientY;
+    }
+    
+    return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+    };
+  };
 
-  // スポイトで色を取得
+  const handleEraserMove = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+      if (!isDrawingRef.current || mode !== 'eraser' || !canvasRef.current) return;
+      const canvas = canvasRef.current.getCanvas();
+      const ctx = canvasRef.current.getContext();
+      if (!canvas || !ctx) return;
+      
+      const { x, y } = getCanvasCoordinates(e, canvas);
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, eraserSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+  };
+
+  const handleEraserDown = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+      if (mode !== 'eraser') return;
+      isDrawingRef.current = true;
+      handleEraserMove(e);
+  };
+  
+  const handleEraserUp = () => {
+      isDrawingRef.current = false;
+  };
+
+  // Eyedropper
   const handleCanvasClick = useCallback(
     (x: number, y: number) => {
-      if (!isEyedropperActive) return;
+      if (!isEyedropperActive || mode === 'eraser') return;
 
-      // オリジナル画像データから色を取得 (透明化後の黒などを拾わないように)
       if (originalImageData) {
         const index = (y * originalImageData.width + x) * 4;
         if (index >= 0 && index < originalImageData.data.length) {
@@ -110,30 +153,24 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
             const b = originalImageData.data[index + 2];
             setTargetColor({ r, g, b });
             
-            // 視覚フィードバック: クリック位置に色インジケータを表示
             const pickedHex = rgbToHex(r, g, b);
             setClickFeedback({ x, y, color: pickedHex });
-            // 1秒後に自動で消える
             setTimeout(() => setClickFeedback(null), 1000);
             return;
         }
       }
     },
-    [isEyedropperActive, originalImageData]
+    [isEyedropperActive, originalImageData, mode]
   );
 
-  // 背景削除処理
-
-
-  // パラメータ変更時に自動で処理を実行
+  // Auto Processing
   useEffect(() => {
-    if (originalImageData && image) {
+    if (originalImageData && image && mode === 'auto') {
       const processRemoval = () => {
         if (!originalImageData || !canvasRef.current) return;
   
         setIsProcessing(true);
   
-        // 非同期で処理してUIをブロックしない
         requestAnimationFrame(() => {
           const result = removeBackground(originalImageData, targetColor, tolerance, feather);
           canvasRef.current?.putImageData(result);
@@ -144,9 +181,8 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
       const timeoutId = setTimeout(processRemoval, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [targetColor, tolerance, feather, originalImageData, image, canvasRef]);
+  }, [targetColor, tolerance, feather, originalImageData, image, canvasRef, mode]);
 
-  // リセット
   const handleReset = () => {
     if (originalImageData && canvasRef.current) {
       canvasRef.current.putImageData(originalImageData);
@@ -156,21 +192,14 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
     setTargetColor({ r: 255, g: 255, b: 255 });
   };
 
-
-
-  // ダウンロード
-
-
-  // 適用 (Unified Editor用)
   const handleApply = async () => {
     if (!canvasRef.current || !onApply) return;
     const blob = await canvasRef.current.toBlob("image/png");
     if (blob) onApply(blob);
   };
 
-  // Hex 入力からの色更新
   const handleHexChange = useCallback((hex: string) => {
-    setHexInput(hex); // 入力値は即座に反映
+    setHexInput(hex);
     const rgb = hexToRgb(hex);
     if (rgb) {
       setTargetColor(rgb);
@@ -187,13 +216,19 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
             <div className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200">
               <ImageCanvas
                 ref={canvasRef}
-                image={image} // 画像をPropsとして渡す
+                image={image}
                 showCheckerboard={true}
                 onCanvasClick={handleCanvasClick}
                 onImageLoaded={handleImageLoaded}
-                className="max-h-[500px] shadow-lg"
+                className={`max-h-[500px] shadow-lg ${mode === 'eraser' ? 'cursor-cell' : 'cursor-crosshair'}`}
+                onMouseDown={handleEraserDown}
+                onMouseMove={handleEraserMove}
+                onMouseUp={handleEraserUp}
+                onMouseLeave={handleEraserUp}
+                onTouchStart={handleEraserDown}
+                onTouchMove={handleEraserMove}
+                onTouchEnd={handleEraserUp}
               />
-              {/* Eyedropper Feedback Toast */}
               {clickFeedback && (
                 <div 
                   className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg px-4 py-2 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200"
@@ -222,67 +257,118 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
         <div className="w-full lg:w-80 h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main">設定</h3>
 
-          {/* Color Picker */}
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-text-sub flex items-center gap-2">
-              <Pipette size={16} />
-              削除する色
-            </label>
-            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-              <div
-                className="w-full sm:w-12 h-12 rounded-xl border-2 border-gray-200 shadow-inner shrink-0"
-                style={{ backgroundColor: rgbToHex(targetColor.r, targetColor.g, targetColor.b) }}
-              />
-              <input
-                type="text"
-                value={hexInput}
-                onChange={(e) => handleHexChange(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-base font-mono focus:outline-none focus:ring-2 focus:ring-primary/50"
-                placeholder="#FFFFFF"
-              />
+          {/* Mode Switch */}
+          <div className="flex p-1 bg-gray-100 rounded-xl mb-6">
+              <button
+                  onClick={() => setMode('auto')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${mode === 'auto' ? 'bg-white shadow text-primary' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                  <Pipette size={16} />
+                  自動削除
+              </button>
+              <button
+                  onClick={() => !isVip ? setIsVipModalOpen(true) : setMode('eraser')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${mode === 'eraser' ? 'bg-white shadow text-purple-600' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                  <Eraser size={16} />
+                  消しゴム
+                  {!isVip && <Lock size={12} />}
+              </button>
+          </div>
+
+          {mode === 'auto' ? (
+            <>
+              {/* Color Picker */}
+              <div className="space-y-3 animate-in fade-in duration-300">
+                <label className="text-sm font-bold text-text-sub flex items-center gap-2">
+                  <Pipette size={16} />
+                  削除する色
+                </label>
+                <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+                  <div
+                    className="w-full sm:w-12 h-12 rounded-xl border-2 border-gray-200 shadow-inner shrink-0"
+                    style={{ backgroundColor: rgbToHex(targetColor.r, targetColor.g, targetColor.b) }}
+                  />
+                  <input
+                    type="text"
+                    value={hexInput}
+                    onChange={(e) => handleHexChange(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-base font-mono focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+                <p className="text-xs text-gray-400">
+                  {isEyedropperActive ? "画像をクリックして色を選択" : ""}
+                </p>
+              </div>
+
+              {/* Tolerance Slider */}
+              <div className="space-y-3 animate-in fade-in duration-300 delay-100">
+                <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+                  許容値
+                  <span className="text-primary font-bold">{tolerance}%</span>
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={tolerance}
+                  onChange={(e) => setTolerance(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+                />
+                <p className="text-xs text-gray-400">
+                  値が大きいほど似た色も削除されます
+                </p>
+              </div>
+
+              {/* Feather Slider */}
+              <div className="space-y-3 animate-in fade-in duration-300 delay-200">
+                <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+                  境界ぼかし
+                  <span className="text-primary font-bold">{feather}%</span>
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  value={feather}
+                  onChange={(e) => setFeather(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
+                />
+                <p className="text-xs text-gray-400">
+                  エッジを滑らかにします
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-6 animate-in fade-in duration-300">
+                 <div className="p-4 bg-purple-50 rounded-xl border border-purple-100 text-sm text-purple-800">
+                    <span className="font-bold block mb-1">手動消去モード</span>
+                    なぞった部分を透明にします。
+                 </div>
+
+                 <div className="space-y-3">
+                    <label className="text-sm font-bold text-text-sub flex items-center justify-between">
+                        ブラシサイズ
+                        <span className="text-purple-600 font-bold">{eraserSize}px</span>
+                    </label>
+                    <input
+                        type="range"
+                        min="5"
+                        max="100"
+                        value={eraserSize}
+                        onChange={(e) => setEraserSize(Number(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-purple-500"
+                    />
+                    <div className="flex justify-center h-24 items-center bg-gray-50 rounded-xl border border-dashed border-gray-200 mt-4">
+                        <div 
+                            className="bg-purple-400/50 rounded-full"
+                            style={{ width: eraserSize, height: eraserSize }}
+                        />
+                    </div>
+                 </div>
             </div>
-            <p className="text-xs text-gray-400">
-              {isEyedropperActive ? "画像をクリックして色を選択" : ""}
-            </p>
-          </div>
-
-          {/* Tolerance Slider */}
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-text-sub flex items-center justify-between">
-              許容値
-              <span className="text-primary font-bold">{tolerance}%</span>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={tolerance}
-              onChange={(e) => setTolerance(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
-            />
-            <p className="text-xs text-gray-400">
-              値が大きいほど似た色も削除されます
-            </p>
-          </div>
-
-          {/* Feather Slider */}
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-text-sub flex items-center justify-between">
-              境界ぼかし
-              <span className="text-primary font-bold">{feather}%</span>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="50"
-              value={feather}
-              onChange={(e) => setFeather(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary"
-            />
-            <p className="text-xs text-gray-400">
-              エッジを滑らかにします
-            </p>
-          </div>
+          )}
 
           {/* Action Buttons */}
           <div className="space-y-3 pt-4 border-t border-gray-100">
@@ -308,6 +394,7 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
           </div>
         </div>
       )}
+      {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} onAuthenticate={unlockVip} />}
     </div>
   );
 }

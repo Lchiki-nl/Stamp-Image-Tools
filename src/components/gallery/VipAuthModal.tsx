@@ -4,9 +4,10 @@ import { X, Lock, CheckCircle2, ArrowRight } from 'lucide-react';
 interface VipAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAuthenticate?: (password: string) => boolean;
 }
 
-export function VipAuthModal({ isOpen, onClose }: VipAuthModalProps) {
+export function VipAuthModal({ isOpen, onClose, onAuthenticate }: VipAuthModalProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -20,7 +21,9 @@ export function VipAuthModal({ isOpen, onClose }: VipAuthModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'vip') { // Dummy password for now
+    const isValid = onAuthenticate ? onAuthenticate(password) : (password === 'vip');
+    
+    if (isValid) {
         setSuccess(true);
         setTimeout(() => {
             onClose();

@@ -6,6 +6,7 @@ import { FloatingActionBar } from "./FloatingActionBar";
 import { type GalleryAction, type GalleryImage } from "@/types/gallery";
 import { LayoutGrid, Grid3X3, Crown } from "lucide-react";
 import { VipAuthModal } from "./VipAuthModal";
+import { useVipStatus } from "@/hooks/useVipStatus";
 
 interface GalleryViewProps {
   images: GalleryImage[];
@@ -31,6 +32,7 @@ export function GalleryView({
   selectedCount 
 }: GalleryViewProps) {
   const [gridSize, setGridSize] = useState<"small" | "large">("large");
+  const { isVip, unlockVip } = useVipStatus();
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
 
   return (
@@ -54,11 +56,14 @@ export function GalleryView({
                 使い方ガイド
                 </a>
                 <button
-                onClick={() => setIsVipModalOpen(true)}
-                className="flex items-center gap-1 text-amber-600 font-bold text-sm bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors whitespace-nowrap border border-amber-200"
+                onClick={() => !isVip && setIsVipModalOpen(true)}
+                className={`flex items-center gap-1 font-bold text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap border 
+                    ${isVip 
+                        ? "bg-amber-100 text-amber-700 border-amber-300 cursor-default" 
+                        : "text-amber-600 bg-amber-50 hover:bg-amber-100 border-amber-200"}`}
                 >
-                <Crown size={14} className="fill-amber-600" />
-                VIP機能
+                <Crown size={14} className={isVip ? "fill-amber-700" : "fill-amber-600"} />
+                {isVip ? "VIP有効" : "VIP機能"}
                 </button>
             </div>
           </div>
@@ -148,7 +153,7 @@ export function GalleryView({
           © 2026 EzStampify
         </p>
       </footer>
-      {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} />}
+      {isVipModalOpen && <VipAuthModal isOpen={isVipModalOpen} onClose={() => setIsVipModalOpen(false)} onAuthenticate={unlockVip} />}
     </div>
   );
 }
