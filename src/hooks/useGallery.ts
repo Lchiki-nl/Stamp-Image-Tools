@@ -49,49 +49,47 @@ export function useGallery() {
   // Note: URL cleanup is handled in removeImages to avoid premature revocation
 
   const addImages = useCallback((files: File[]) => {
-    setImages(prev => {
-      const remainingSlots = MAX_IMAGES - prev.length;
-      if (remainingSlots <= 0) {
-        // TODO: 通知などで知らせる
-        return prev;
-      }
+    const remainingSlots = MAX_IMAGES - images.length;
+    if (remainingSlots <= 0) {
+      // TODO: 通知などで知らせる
+      return;
+    }
 
-      const filesToAdd = files.slice(0, remainingSlots);
-      const newImages: GalleryImage[] = filesToAdd.map(file => ({
-        id: crypto.randomUUID(),
-        file,
-        previewUrl: URL.createObjectURL(file),
-        name: file.name,
-        type: file.type,
-        width: 0, 
-        height: 0,
-        status: 'pending',
-        isSelected: false,
-        createdAt: Date.now(),
-      }));
-      
-      // Trigger async dimension update
-      // We use the IDs to identify which images to update
-      Promise.all(newImages.map(async (img) => {
-          try {
-              const dims = await getImageDimensions(img.file);
-              return { id: img.id, width: dims.width, height: dims.height };
-          } catch {
-              return { id: img.id, width: 0, height: 0 };
-          }
-      })).then(updates => {
-          setImages(current => current.map(img => {
-              const update = updates.find(u => u.id === img.id);
-              if (update) {
-                  return { ...img, width: update.width, height: update.height };
-              }
-              return img;
-          }));
-      });
+    const filesToAdd = files.slice(0, remainingSlots);
+    const newImages: GalleryImage[] = filesToAdd.map(file => ({
+      id: crypto.randomUUID(),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      name: file.name,
+      type: file.type,
+      width: 0, 
+      height: 0,
+      status: 'pending',
+      isSelected: false,
+      createdAt: Date.now(),
+    }));
+    
+    // 1. Add placeholders immediately
+    setImages(prev => [...prev, ...newImages]);
 
-      return [...prev, ...newImages];
+    // 2. Async fetch dimensions
+    Promise.all(newImages.map(async (img) => {
+        try {
+            const dims = await getImageDimensions(img.file);
+            return { id: img.id, width: dims.width, height: dims.height };
+        } catch {
+            return { id: img.id, width: 0, height: 0 };
+        }
+    })).then(updates => {
+        setImages(current => current.map(img => {
+            const update = updates.find(u => u.id === img.id);
+            if (update) {
+                return { ...img, width: update.width, height: update.height };
+            }
+            return img;
+        }));
     });
-  }, []);
+  }, [images]);
 
   const removeImages = useCallback((ids: string[]) => {
     setImages(prev => {
