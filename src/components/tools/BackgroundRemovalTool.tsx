@@ -228,9 +228,9 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
               <Pipette size={16} />
               削除する色
             </label>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <div
-                className="w-12 h-12 rounded-xl border-2 border-gray-200 shadow-inner shrink-0"
+                className="w-full sm:w-12 h-12 rounded-xl border-2 border-gray-200 shadow-inner shrink-0"
                 style={{ backgroundColor: rgbToHex(targetColor.r, targetColor.g, targetColor.b) }}
               />
               <input

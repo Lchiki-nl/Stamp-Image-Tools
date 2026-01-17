@@ -314,7 +314,7 @@ export function ResizeTool({ className = "", embeddedImage, embeddedCanvasRef, o
                  </div>
              </div>
              
-             <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-center">
+             <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[1fr,auto,1fr] sm:gap-2 items-center">
                  <div className="space-y-1">
                      <label className="text-xs text-gray-400">幅 (W)</label>
                      <input

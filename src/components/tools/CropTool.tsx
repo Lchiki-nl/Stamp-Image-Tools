@@ -196,7 +196,7 @@ export function CropTool({ className = "", embeddedImage, embeddedCanvasRef, onA
           {/* Manual Input */}
           <div className="space-y-4">
             <p className="text-sm font-bold text-text-sub">カット量 (px)</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
               {(["top", "right", "bottom", "left"] as const).map((side) => (
                 <div key={side} className="space-y-1">
                   <label className="text-xs text-gray-400 capitalize">
