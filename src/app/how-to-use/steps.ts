@@ -1,5 +1,5 @@
 
-import { Upload, ImageMinus, Crop, Grid3X3, Scaling, Download, Sparkles, Crown } from "lucide-react";
+import { Upload, ImageMinus, Crop, Grid3X3, Scaling, Download, Sparkles, Crown, Eraser, Type } from "lucide-react";
 
 export const steps = [
   {
@@ -25,12 +25,37 @@ export const steps = [
       "透過したい色（デフォルトは白）をクリックまたは指定します。",
       "「許容値」スライダーで、近似色の範囲を調整できます。"
     ],
-    color: "text-purple-500",
     bg: "bg-purple-50"
   },
   {
+    id: "eraser",
+    title: "3. 消しゴムツール",
+    icon: Eraser,
+    description: "ブラシを使って手動で不要な部分を消去します。",
+    details: [
+      "「背景削除」タブの「消しゴム」モードを選択します。",
+      "ブラシサイズを調整して、細かい部分を修正できます。",
+      "取り消し機能はないため、慎重に操作してください。"
+    ],
+    color: "text-red-500",
+    bg: "bg-red-50"
+  },
+  {
+    id: "text",
+    title: "4. 文字入れツール",
+    icon: Type,
+    description: "画像に好きなテキストを追加できます。",
+    details: [
+      "「文字入れ」タブを選択し、テキストを入力します。",
+      "フォント、色、縁取り、アーチ変形などを自由に設定できます。",
+      "ドラッグ＆ドロップで配置位置を調整できます。"
+    ],
+    color: "text-teal-500",
+    bg: "bg-teal-50"
+  },
+  {
     id: "crop",
-    title: "3. 余白カット（トリミング）",
+    title: "5. 余白カット（トリミング）",
     icon: Crop,
     description: "画像の周囲の余白を一括でカットします。",
     details: [
@@ -43,7 +68,7 @@ export const steps = [
   },
   {
     id: "split",
-    title: "4. グリッド分割",
+    title: "6. グリッド分割",
     icon: Grid3X3,
     description: "1枚の画像を均等なサイズに分割して切り出します。",
     details: [
@@ -56,7 +81,7 @@ export const steps = [
   },
   {
     id: "resize",
-    title: "5. サイズ変更",
+    title: "7. サイズ変更",
     icon: Scaling,
     description: "LINEスタンプの規定サイズなどにリサイズします。",
     details: [
@@ -70,7 +95,7 @@ export const steps = [
   },
   {
     id: "save",
-    title: "6. 保存・ダウンロード",
+    title: "8. 保存・ダウンロード",
     icon: Download,
     description: "加工が完了した画像を保存します。",
     details: [
@@ -101,8 +126,8 @@ export const steps = [
     details: [
       "画面上の「VIP」ボタンから認証できます。",
       "AI背景削除が無制限使い放題になります。",
-      "画像の最大読み込み枚数が40枚から100枚に増えます。",
-      "その他、VIP専用の高度な機能が利用可能になります。"
+      "画像の最大読み込み枚数が50枚から100枚に増えます。",
+      "「文字入れツール」「消しゴムツール」など高度な機能が利用可能になります。"
     ],
     color: "text-amber-500",
     bg: "bg-amber-50"

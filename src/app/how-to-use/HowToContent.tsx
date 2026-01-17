@@ -90,7 +90,7 @@ export function HowToContent() {
                 <div className="flex-1 w-full order-1 md:order-2">
                    <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white aspect-video relative group">
                       {/* Show real images for steps that have them */}
-                      {['upload', 'background', 'crop', 'split', 'resize', 'save'].includes(step.id) ? (
+                      {['upload', 'background', 'eraser', 'text', 'crop', 'split', 'resize', 'save'].includes(step.id) ? (
                         <Image 
                           src={`/images/guide/${step.id}.png`} 
                           alt={step.title} 
