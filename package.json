@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && echo \"--- DEBUG: _routes.json ---\" && cat out/_routes.json && echo \"--- DEBUG: functions dir ---\" && ls -R functions",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
