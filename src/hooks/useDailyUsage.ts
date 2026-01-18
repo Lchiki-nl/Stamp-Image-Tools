@@ -21,10 +21,10 @@ export function useDailyUsage(limit: number) {
     return () => clearTimeout(timer);
   }, [limit]);
 
-  const incrementUsage = () => {
+  const incrementUsage = (count: number = 1) => {
     const key = getTodayKey();
     const currentUsage = parseInt(localStorage.getItem(key) || '0', 10);
-    const newUsage = currentUsage + 1;
+    const newUsage = currentUsage + count;
     localStorage.setItem(key, newUsage.toString());
     setRemaining(Math.max(0, limit - newUsage));
   };

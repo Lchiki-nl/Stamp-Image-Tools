@@ -37,7 +37,7 @@ export default function AppPage() {
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   
   // Daily usage limit for free users (AI Background Removal)
-  const { remaining, incrementUsage } = useDailyUsage(3);
+  const { remaining, incrementUsage } = useDailyUsage(3); // 3 images / day
   
   // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
@@ -227,30 +227,27 @@ export default function AppPage() {
       if (!processingAction) return;
 
       // Safety limit for AI processing to prevent browser crash
+      // Safety limit currently set to 10 to prevent browser overload, 
+      // but if user is free, they are limited to 3 anyway.
       if (processingAction === 'remove-background-ai' && selectedImages.length > 10) {
           alert("一度にAI処理できるのは10枚までです。\nブラウザ負荷軽減のため、小分けにして実行してください。");
           return;
       }
 
       // Check daily limit for AI removal (Server Mode)
+          // Check daily limit for AI removal (Server Mode)
       if (processingAction === 'remove-background-ai' && aiMode === 'server' && !isVip) {
-          // Check if user has enough remaining quota for selected images
-          // Note: Currently we count "batches" or "images"? 
-          // Requirement: "1日3回" usually means 3 actions or 3 images. 
-          // Let's assume 3 images for now as safe default, or 3 batch executions?
-          // Given the context of "remaining" from useDailyUsage(3), it implies 3 executions/items.
-          // If user selects 5 images, they need 5 quota? Or 1 batch = 1 usage?
-          // Usually "images". Let's restrict based on count.
-          
           const currentRemaining = remaining ?? 0;
+          
+          // 0回の場合はアラートなしでVIP誘導
           if (currentRemaining <= 0) {
-              alert(`無料版の高精度AI削除は1日3回までです。\nVIP会員になると無制限で利用できます。`);
               setIsVipModalOpen(true);
               return;
           }
           
+          // 枚数が足りない場合
           if (selectedImages.length > currentRemaining) {
-              alert(`本日の残りはあと ${currentRemaining} 回です。\n${selectedImages.length} 枚の画像を選択しています。\nVIP会員になると無制限で利用できます。`);
+              alert(`本日の残りはあと ${currentRemaining} 枚です。\n${selectedImages.length} 枚の画像を選択しています。\nVIP会員になると無制限で利用できます。`);
               setIsVipModalOpen(true);
               return;
           }
@@ -351,9 +348,8 @@ export default function AppPage() {
 
               // Apply dummy delay for UI update visibility
               await new Promise(r => setTimeout(r, 50));
-              
-              if (processingAction === 'remove-background-ai' && !isVip) {
-                  incrementUsage();
+              if (aiMode === 'server' && !isVip) {
+                  incrementUsage(1); // Increment by 1 for each successful image
               }
               setProgress(prev => ({ ...prev, current: i + 1 }));
           }
