@@ -14,7 +14,8 @@ export interface ProcessingModalProps {
   progress: { current: number; total: number };
   onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig, overwrite: boolean, aiMode?: AIProcessingMode, aiConfig?: AIConfig) => void;
   isVip?: boolean;
-  remaining?: number | null;
+  remainingServer?: number | null;
+  remainingBrowser?: number | null;
 }
 
 export function ProcessingModal({
@@ -26,7 +27,8 @@ export function ProcessingModal({
   progress,
   onExecute,
   isVip,
-  remaining,
+  remainingServer,
+  remainingBrowser,
 }: ProcessingModalProps) {
   // --- Configuration States ---
   
@@ -248,7 +250,7 @@ export function ProcessingModal({
                               `}
                            >
                               <Cpu size={14} />
-                              標準（高速）
+                              標準
                            </button>
                            <button
                               onClick={() => setAiMode('server')}
@@ -259,16 +261,9 @@ export function ProcessingModal({
                               `}
                            >
                               <Server size={14} />
-                              高精度（サーバー）
+                              高精度
                            </button>
                         </div>
-                        <p className="text-[10px] text-gray-400 mt-2">
-                            {aiMode === 'browser'
-                               ? '端末内で処理します（初回はモデル読み込みに時間がかかります）'
-                               : isVip 
-                                   ? '高精度サーバーで処理します（VIP会員は無制限）'
-                                   : `高精度サーバーで処理します（無料会員は1日3枚まで / 残り${remaining ?? '-'}枚）`}
-                        </p>
                      </div>
                      
                      {/* Advanced Settings (Server Mode Only) */}
@@ -350,14 +345,15 @@ export function ProcessingModal({
                      )}
                      
                      {/* Free Limit Badge - only show for browser mode */}
-                     {aiMode === 'browser' && !isVip && typeof remaining === 'number' && (
+                     {/* Free Limit Badge */}
+                     {!isVip && (
                         <div className="mt-4 bg-white border border-purple-100 rounded-xl p-3 inline-block shadow-sm">
                             <p className="text-xs text-purple-800 font-bold mb-1">本日の無料枠</p>
                             <div className="flex items-end justify-center gap-1">
-                                <span className={`text-2xl font-black ${remaining > 0 ? 'text-purple-600' : 'text-gray-400'}`}>
-                                    {remaining}
+                                <span className={`text-2xl font-black ${(aiMode === 'server' ? (remainingServer ?? 0) : (remainingBrowser ?? 0)) > 0 ? 'text-purple-600' : 'text-gray-400'}`}>
+                                    {aiMode === 'server' ? remainingServer : remainingBrowser}
                                 </span>
-                                <span className="text-sm text-gray-400 font-bold pb-1">/ 5</span>
+                                <span className="text-sm text-gray-400 font-bold pb-1">/ {aiMode === 'server' ? 3 : 5}</span>
                             </div>
                         </div>
                      )}

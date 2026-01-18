@@ -36,8 +36,9 @@ export default function AppPage() {
   const maxImages = isVip ? MAX_IMAGES_VIP : MAX_IMAGES_NORMAL;
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   
-  // Daily usage limit for free users (AI Background Removal)
-  const { remaining, incrementUsage } = useDailyUsage(3); // 3 images / day
+  // Daily usage limits for free users
+  const serverUsage = useDailyUsage(3, 'server');   // Server: 3 images/day
+  const browserUsage = useDailyUsage(5, 'browser'); // Browser: 5 images/day
   
   // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
@@ -235,11 +236,13 @@ export default function AppPage() {
       }
 
       // Check daily limit for AI removal (Server Mode)
-          // Check daily limit for AI removal (Server Mode)
-      if (processingAction === 'remove-background-ai' && aiMode === 'server' && !isVip) {
-          const currentRemaining = remaining ?? 0;
-          
-          // 0回の場合はアラートなしでVIP誘導
+          // Check daily limit for AI removal
+      if (processingAction === 'remove-background-ai' && !isVip) {
+          const usage = aiMode === 'server' ? serverUsage : browserUsage;
+          const currentRemaining = usage.remaining ?? 0;
+          const limitName = aiMode === 'server' ? '高精度（サーバー）' : '標準';
+
+          // 0回の場合
           if (currentRemaining <= 0) {
               setIsVipModalOpen(true);
               return;
@@ -247,7 +250,7 @@ export default function AppPage() {
           
           // 枚数が足りない場合
           if (selectedImages.length > currentRemaining) {
-              alert(`本日の残りはあと ${currentRemaining} 枚です。\n${selectedImages.length} 枚の画像を選択しています。\nVIP会員になると無制限で利用できます。`);
+              alert(`「${limitName}」処理の残りはあと ${currentRemaining} 枚です。\n${selectedImages.length} 枚の画像を選択しています。\nVIP会員になると無制限で利用できます。`);
               setIsVipModalOpen(true);
               return;
           }
@@ -346,10 +349,13 @@ export default function AppPage() {
                   }
               }
 
-              // Apply dummy delay for UI update visibility
-              await new Promise(r => setTimeout(r, 50));
-              if (aiMode === 'server' && !isVip) {
-                  incrementUsage(1); // Increment by 1 for each successful image
+              // Update usage count on success
+              if (processingAction === 'remove-background-ai' && !isVip) {
+                  if (aiMode === 'server') {
+                      serverUsage.incrementUsage(1);
+                  } else {
+                      browserUsage.incrementUsage(1);
+                  }
               }
               setProgress(prev => ({ ...prev, current: i + 1 }));
           }
@@ -525,7 +531,8 @@ export default function AppPage() {
             progress={progress}
             onExecute={handleBatchExecute}
             isVip={isVip}
-            remaining={remaining}
+            remainingServer={serverUsage.remaining}
+            remainingBrowser={browserUsage.remaining}
         />
 
         <DeleteConfirmModal 

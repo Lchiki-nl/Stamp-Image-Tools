@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_PREFIX = 'stamp-tool-ai-usage-';
 
-export function useDailyUsage(limit: number) {
+export function useDailyUsage(limit: number, featureKey: string = 'default') {
   const [remaining, setRemaining] = useState<number | null>(null);
 
   // Get today's date string YYYY-MM-DD
-  const getTodayKey = () => {
+  const getTodayKey = useCallback(() => {
     const d = new Date();
-    return `${STORAGE_PREFIX}${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  };
+    return `${STORAGE_PREFIX}${featureKey}-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }, [featureKey]);
 
   useEffect(() => {
     const key = getTodayKey();
@@ -19,7 +19,7 @@ export function useDailyUsage(limit: number) {
         setRemaining(Math.max(0, limit - usage));
     }, 0);
     return () => clearTimeout(timer);
-  }, [limit]);
+  }, [limit, getTodayKey]);
 
   const incrementUsage = (count: number = 1) => {
     const key = getTodayKey();
