@@ -265,7 +265,7 @@ export default function AppPage() {
                       if (aiConfig?.aiModel) formData.append('model', aiConfig.aiModel);
                       if (aiConfig?.alphaMatting !== undefined) formData.append('a', String(aiConfig.alphaMatting));
                       
-                      const response = await fetch('/_api/remove-bg', {
+                      const response = await fetch('/server/remove-bg', {
                           method: 'POST',
                           body: formData,
                       });
