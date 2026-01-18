@@ -20,7 +20,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     // フロントエンドから送られてきた FormData（画像）を取得
-    // フロントエンドから送られてきた FormData（画像）を取得
     const formData = await request.formData();
     
     // パラメータの取得
