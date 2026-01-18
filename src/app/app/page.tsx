@@ -224,6 +224,12 @@ export default function AppPage() {
   const handleBatchExecute = async (config: any, overwrite: boolean) => {
       if (!processingAction) return;
 
+      // Safety limit for AI processing to prevent browser crash
+      if (processingAction === 'remove-background-ai' && selectedImages.length > 10) {
+          alert("一度にAI処理できるのは10枚までです。\nブラウザ負荷軽減のため、小分けにして実行してください。");
+          return;
+      }
+
       // Check daily limit for AI removal
       if (processingAction === 'remove-background-ai' && !isVip) {
           const currentRemaining = remaining ?? 0;
