@@ -5,10 +5,10 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://stamp-image-tools.pages.dev/)
+[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://ezstampify.lchiki-lab.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**デモサイト**: [https://stamp-image-tools.pages.dev/](https://stamp-image-tools.pages.dev/)
+**デモサイト**: [https://ezstampify.lchiki-lab.com/](https://ezstampify.lchiki-lab.com/)
 
 ## ✨ 特徴
 
@@ -213,7 +213,7 @@ npm run build
 
 ## 📖 使い方
 
-詳しい使い方は[使い方ガイド](https://stamp-image-tools.pages.dev/how-to-use)をご覧ください。
+詳しい使い方は[使い方ガイド](https://ezstampify.lchiki-lab.com/how-to-use)をご覧ください。
 
 基本的な流れ：
 

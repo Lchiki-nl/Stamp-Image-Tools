@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default function HowToUsePage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://ezstampify.lchiki-lab.com";
 
   const jsonLd = {
     "@context": "https://schema.org",

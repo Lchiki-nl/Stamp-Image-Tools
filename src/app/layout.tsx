@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   description:
     "登録不要、ずっと無料。LINEスタンプ制作に必須の背景透過、イラスト分割、リサイズ、タブ画像・メイン画像生成を一括で行えるブラウザ完結型ツールです。iPhone・Android・Mac・PCすべてに対応。",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || "https://stamp-image-tools.pages.dev"
+    process.env.NEXT_PUBLIC_BASE_URL || "https://ezstampify.lchiki-lab.com"
   ),
   openGraph: {
     title: "EzStampify | LINEスタンプ作りに最適な無料画像加工ツール",
@@ -86,7 +86,7 @@ export default function RootLayout({
                 name: "EzStampify",
                 url:
                   process.env.NEXT_PUBLIC_BASE_URL ||
-                  "https://stamp-image-tools.pages.dev",
+                  "https://ezstampify.lchiki-lab.com",
                 description:
                   "登録不要、ずっと無料。LINEスタンプ制作に必須の背景透過、イラスト分割、リサイズ、タブ画像・メイン画像生成を一括で行えるブラウザ完結型ツールです。iPhone・Android・Mac・PCすべてに対応。",
                 inLanguage: "ja",
@@ -111,7 +111,7 @@ export default function RootLayout({
                 ],
                 screenshot: `${
                   process.env.NEXT_PUBLIC_BASE_URL ||
-                  "https://stamp-image-tools.pages.dev"
+                  "https://ezstampify.lchiki-lab.com"
                 }/opengraph-image`,
                 inLanguage: "ja",
               },
