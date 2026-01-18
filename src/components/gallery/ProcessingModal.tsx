@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock, Sparkles, Wifi } from "lucide-react";
+import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock, Sparkles, Wifi, Server, Cpu } from "lucide-react";
 import type { RemoveBackgroundConfig, CropConfig, SplitConfig, ResizeConfig } from "@/lib/batch-processing";
 
 export type ProcessingAction = 'remove-background' | 'remove-background-ai' | 'split' | 'crop' | 'resize';
+export type AIProcessingMode = 'browser' | 'server';
 
 export interface ProcessingModalProps {
   isOpen: boolean;
@@ -11,7 +12,7 @@ export interface ProcessingModalProps {
   selectedCount: number;
   isProcessing: boolean;
   progress: { current: number; total: number };
-  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig, overwrite: boolean) => void;
+  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig, overwrite: boolean, aiMode?: AIProcessingMode) => void;
   isVip?: boolean;
   remaining?: number | null;
 }
@@ -59,6 +60,9 @@ export function ProcessingModal({
   // Overwrite mode state (hidden for split)
   const [overwriteMode, setOverwriteMode] = useState(false); // false = 新規保存 by default for batch
 
+  // AI Processing Mode (browser = local WASM, server = Hugging Face API)
+  const [aiMode, setAiMode] = useState<AIProcessingMode>('browser');
+
   if (!isOpen || !action) return null;
 
   const handleExecute = () => {
@@ -71,7 +75,9 @@ export function ProcessingModal({
     else return;
     // Split always creates new images
     const shouldOverwrite = action === 'split' ? false : overwriteMode;
-    onExecute(config, shouldOverwrite);
+    // Pass AI mode for AI actions
+    const mode = action === 'remove-background-ai' ? aiMode : undefined;
+    onExecute(config, shouldOverwrite, mode);
   };
 
   const getTitle = () => {
@@ -217,9 +223,43 @@ export function ProcessingModal({
                         AIが被写体を自動で認識して切り抜きます。<br/>
                         細かい設定は不要です。
                      </p>
+
+                     {/* Processing Mode Toggle */}
+                     <div className="mt-4 bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+                        <p className="text-xs text-gray-500 font-bold mb-2">処理モード</p>
+                        <div className="flex gap-2">
+                           <button
+                              onClick={() => setAiMode('browser')}
+                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5
+                                 ${aiMode === 'browser'
+                                    ? 'bg-purple-100 text-purple-700 border-2 border-purple-300'
+                                    : 'bg-gray-50 text-gray-500 border border-gray-200'}
+                              `}
+                           >
+                              <Cpu size={14} />
+                              標準（高速）
+                           </button>
+                           <button
+                              onClick={() => setAiMode('server')}
+                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1.5
+                                 ${aiMode === 'server'
+                                    ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-300'
+                                    : 'bg-gray-50 text-gray-500 border border-gray-200'}
+                              `}
+                           >
+                              <Server size={14} />
+                              高精度（サーバー）
+                           </button>
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-2">
+                           {aiMode === 'browser'
+                              ? '端末内で処理します（初回はモデル読み込みに時間がかかります）'
+                              : '高精度サーバーで処理します（初回はサーバー起動に最大1分程度かかる場合があります）'}
+                        </p>
+                     </div>
                      
-                     {/* Free Limit Badge */}
-                     {!isVip && typeof remaining === 'number' && (
+                     {/* Free Limit Badge - only show for browser mode */}
+                     {aiMode === 'browser' && !isVip && typeof remaining === 'number' && (
                         <div className="mt-4 bg-white border border-purple-100 rounded-xl p-3 inline-block shadow-sm">
                             <p className="text-xs text-purple-800 font-bold mb-1">本日の無料枠</p>
                             <div className="flex items-end justify-center gap-1">
@@ -231,9 +271,6 @@ export function ProcessingModal({
                         </div>
                      )}
 
-                     <p className="text-xs text-amber-600 font-bold bg-amber-50 py-2 px-4 rounded-full inline-block mt-4 mx-auto">
-                        ※初回のみモデルの読み込みに時間がかかります
-                     </p>
                      <p className="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1">
                         <Wifi size={12} />
                         通信状況の良い場所でご利用ください

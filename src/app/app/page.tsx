@@ -7,7 +7,7 @@ import { UnifiedEditor } from "@/components/editor/UnifiedEditor";
 import { useGallery, MAX_IMAGES_NORMAL, MAX_IMAGES_VIP } from "@/hooks/useGallery";
 import { useVipStatus } from "@/hooks/useVipStatus";
 import { useDailyUsage } from "@/hooks/useDailyUsage";
-import { ProcessingModal, type ProcessingAction } from "@/components/gallery/ProcessingModal";
+import { ProcessingModal, type ProcessingAction, type AIProcessingMode } from "@/components/gallery/ProcessingModal";
 import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
 import { processRemoveBackground, processRemoveBackgroundAI, processCrop, processSplit, processResize } from "@/lib/batch-processing";
 import { getImageDimensions } from "@/lib/image-utils";
@@ -221,7 +221,7 @@ export default function AppPage() {
 
   // Execute Batch Processing
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleBatchExecute = async (config: any, overwrite: boolean) => {
+  const handleBatchExecute = async (config: any, overwrite: boolean, aiMode?: AIProcessingMode) => {
       if (!processingAction) return;
 
       // Safety limit for AI processing to prevent browser crash
@@ -258,8 +258,38 @@ export default function AppPage() {
                   const blob = await processRemoveBackground(file, config);
                   resultBlobs = [blob];
               } else if (processingAction === 'remove-background-ai') {
-                  const blob = await processRemoveBackgroundAI(file);
-                  resultBlobs = [blob];
+                  if (aiMode === 'server') {
+                      // Use Cloudflare Pages Function Proxy
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      
+                      const response = await fetch('/api/remove-bg', {
+                          method: 'POST',
+                          body: formData,
+                      });
+                      
+                      // サーバースリープ中の場合
+                      if (response.status === 503) {
+                          const errorData = await response.json();
+                          alert(`${errorData.error || 'サーバー起動中'}\n\n少し待ってから再度お試しください。`);
+                          setIsProcessing(false);
+                          setProcessingAction(null);
+                          return;
+                      }
+                      
+                      if (!response.ok) {
+                          const errorData = await response.json().catch(() => ({}));
+                          throw new Error(errorData.error || `処理に失敗しました (${response.status})`);
+                      }
+                      
+                      // レスポンスはPNG画像のBlob
+                      const resultBlob = await response.blob();
+                      resultBlobs = [resultBlob];
+                  } else {
+                      // Use local browser WASM processing
+                      const blob = await processRemoveBackgroundAI(file);
+                      resultBlobs = [blob];
+                  }
               } else if (processingAction === 'crop') {
                   const blob = await processCrop(file, config);
                   resultBlobs = [blob];
