@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles } from 'lucide-react';
+import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles, Loader2 } from 'lucide-react';
 
 interface VipAuthModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   /* Removed problematic useEffect that caused synchronous state updates.
@@ -25,18 +26,49 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
     }
   }, [view]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isValid = onAuthenticate ? onAuthenticate(password) : (password === 'vip');
-    
-    if (isValid) {
-        setSuccess(true);
-        setTimeout(() => {
-            onClose();
-        }, 1500);
-    } else {
-        setError('パスワードが間違っています');
-        setSuccess(false);
+    setError('');
+    setIsVerifying(true);
+
+    try {
+        // Use custom authenticator if provided (testing/legacy), otherwise use secure API
+        let isValid = false;
+        
+        if (onAuthenticate) {
+            isValid = onAuthenticate(password);
+        } else {
+            // Secure server-side verification
+            const response = await fetch('/api/verify-vip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password }),
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                isValid = data.success;
+            } else {
+                // API error or local fallback if needed
+                console.error("Verification API failed");
+                isValid = false; 
+            }
+        }
+        
+        if (isValid) {
+            setSuccess(true);
+            setTimeout(() => {
+                onClose();
+            }, 1500);
+        } else {
+            setError('パスワードが間違っています');
+            setSuccess(false);
+        }
+    } catch (err) {
+        console.error("Verification error:", err);
+        setError('認証サーバーに接続できませんでした');
+    } finally {
+        setIsVerifying(false);
     }
   };
 
@@ -146,11 +178,20 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
 
                     <button
                         type="submit"
-                        disabled={!password}
+                        disabled={!password || isVerifying}
                         className="w-full py-3 rounded-xl bg-amber-500 text-white font-bold shadow-lg shadow-amber-200 hover:bg-amber-600 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        ロック解除
-                        <ArrowRight size={18} />
+                        {isVerifying ? (
+                            <>
+                                <Loader2 size={18} className="animate-spin" />
+                                確認中...
+                            </>
+                        ) : (
+                            <>
+                                ロック解除
+                                <ArrowRight size={18} />
+                            </>
+                        )}
                     </button>
                 </form>
             )}
