@@ -39,7 +39,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
             isValid = onAuthenticate(password);
         } else {
             // Secure server-side verification
-            const response = await fetch('/api/verify-vip', {
+            const response = await fetch('/_api/verify-vip', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password }),
