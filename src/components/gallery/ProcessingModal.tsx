@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock, Sparkles, Wifi, Server, Cpu } from "lucide-react";
-import type { RemoveBackgroundConfig, CropConfig, SplitConfig, ResizeConfig } from "@/lib/batch-processing";
+import type { RemoveBackgroundConfig, CropConfig, SplitConfig, ResizeConfig, AIConfig } from "@/lib/batch-processing";
 
 export type ProcessingAction = 'remove-background' | 'remove-background-ai' | 'split' | 'crop' | 'resize';
 export type AIProcessingMode = 'browser' | 'server';
@@ -12,7 +12,7 @@ export interface ProcessingModalProps {
   selectedCount: number;
   isProcessing: boolean;
   progress: { current: number; total: number };
-  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig, overwrite: boolean, aiMode?: AIProcessingMode) => void;
+  onExecute: (config: RemoveBackgroundConfig | CropConfig | SplitConfig | ResizeConfig, overwrite: boolean, aiMode?: AIProcessingMode, aiConfig?: AIConfig) => void;
   isVip?: boolean;
   remaining?: number | null;
 }
@@ -62,6 +62,8 @@ export function ProcessingModal({
 
   // AI Processing Mode (browser = local WASM, server = Hugging Face API)
   const [aiMode, setAiMode] = useState<AIProcessingMode>('browser');
+  const [aiModel, setAiModel] = useState<string>('isnet-general-use');
+  const [alphaMatting, setAlphaMatting] = useState<boolean>(true);
 
   if (!isOpen || !action) return null;
 
@@ -76,8 +78,10 @@ export function ProcessingModal({
     // Split always creates new images
     const shouldOverwrite = action === 'split' ? false : overwriteMode;
     // Pass AI mode for AI actions
+    // Pass AI mode and config for AI actions
     const mode = action === 'remove-background-ai' ? aiMode : undefined;
-    onExecute(config, shouldOverwrite, mode);
+    const aiConf = action === 'remove-background-ai' ? { aiModel, alphaMatting } : undefined;
+    onExecute(config, shouldOverwrite, mode, aiConf);
   };
 
   const getTitle = () => {
@@ -257,6 +261,60 @@ export function ProcessingModal({
                               : '高精度サーバーで処理します（初回はサーバー起動に最大1分程度かかる場合があります）'}
                         </p>
                      </div>
+                     
+                     {/* Advanced Settings (Server Mode Only) */}
+                     {/* Advanced Settings (Server Mode Only) */}
+                     {aiMode === 'server' && (
+                        <div className="mt-4 bg-gray-50 border border-gray-200 rounded-xl p-4 text-left space-y-4 animate-in fade-in slide-in-from-top-2 relative overflow-hidden">
+                             {/* VIP Lock Overlay */}
+                             {!isVip && (
+                                <div className="absolute inset-0 z-10 bg-gray-100/60 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-4 animate-in fade-in">
+                                    <div className="bg-white p-3 rounded-full shadow-sm mb-2">
+                                        <Lock className="w-5 h-5 text-gray-400" />
+                                    </div>
+                                    <p className="text-xs font-bold text-gray-600">詳細設定はVIP限定です</p>
+                                    <p className="text-[10px] text-gray-400 mt-1">汎用AIモデル・境界線補正が自動適用されます</p>
+                                </div>
+                             )}
+
+                             <div className={`space-y-2 ${!isVip ? 'opacity-50 pointer-events-none' : ''}`}>
+                                 <label className="text-xs font-bold text-gray-500">AIモデル選択</label>
+                                 <select 
+                                     value={aiModel}
+                                     onChange={(e) => setAiModel(e.target.value)}
+                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white"
+                                 >
+                                     <option value="isnet-general-use">汎用・高精度 (推奨)</option>
+                                     <option value="u2net_human_seg">人物特化</option>
+                                     <option value="isnet-anime">アニメ・イラスト</option>
+                                 </select>
+                                 <p className="text-[10px] text-gray-400">
+                                     {aiModel === 'isnet-general-use' && "最もバランスの良い標準モデルです"}
+                                     {aiModel === 'u2net_human_seg' && "人の切り抜きに特化しています"}
+                                     {aiModel === 'isnet-anime' && "2次元キャラクターに最適です"}
+                                 </p>
+                             </div>
+
+                             <div className={`flex items-center justify-between ${!isVip ? 'opacity-50 pointer-events-none' : ''}`}>
+                                 <div className="space-y-0.5">
+                                     <label className="text-xs font-bold text-gray-500">境界線処理 (Alpha Matting)</label>
+                                     <p className="text-[10px] text-gray-400">髪の毛などを滑らかに処理します</p>
+                                 </div>
+                                 <button
+                                     onClick={() => setAlphaMatting(!alphaMatting)}
+                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+                                         ${alphaMatting ? 'bg-indigo-600' : 'bg-gray-200'}
+                                     `}
+                                 >
+                                     <span
+                                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                                             ${alphaMatting ? 'translate-x-6' : 'translate-x-1'}
+                                         `}
+                                     />
+                                 </button>
+                             </div>
+                        </div>
+                     )}
                      
                      {/* Free Limit Badge - only show for browser mode */}
                      {aiMode === 'browser' && !isVip && typeof remaining === 'number' && (

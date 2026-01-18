@@ -9,7 +9,7 @@ import { useVipStatus } from "@/hooks/useVipStatus";
 import { useDailyUsage } from "@/hooks/useDailyUsage";
 import { ProcessingModal, type ProcessingAction, type AIProcessingMode } from "@/components/gallery/ProcessingModal";
 import { DeleteConfirmModal } from "@/components/gallery/DeleteConfirmModal";
-import { processRemoveBackground, processRemoveBackgroundAI, processCrop, processSplit, processResize } from "@/lib/batch-processing";
+import { processRemoveBackground, processRemoveBackgroundAI, processCrop, processSplit, processResize, type AIConfig } from "@/lib/batch-processing";
 import { getImageDimensions } from "@/lib/image-utils";
 import { type GalleryAction } from "@/types/gallery";
 import { VipAuthModal } from "@/components/gallery/VipAuthModal";
@@ -221,7 +221,7 @@ export default function AppPage() {
 
   // Execute Batch Processing
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleBatchExecute = async (config: any, overwrite: boolean, aiMode?: AIProcessingMode) => {
+  const handleBatchExecute = async (config: any, overwrite: boolean, aiMode?: AIProcessingMode, aiConfig?: AIConfig) => {
       if (!processingAction) return;
 
       // Safety limit for AI processing to prevent browser crash
@@ -262,6 +262,8 @@ export default function AppPage() {
                       // Use Cloudflare Pages Function Proxy
                       const formData = new FormData();
                       formData.append('file', file);
+                      if (aiConfig?.aiModel) formData.append('model', aiConfig.aiModel);
+                      if (aiConfig?.alphaMatting !== undefined) formData.append('a', String(aiConfig.alphaMatting));
                       
                       const response = await fetch('/api/remove-bg', {
                           method: 'POST',
@@ -270,7 +272,7 @@ export default function AppPage() {
                       
                       // サーバースリープ中の場合
                       if (response.status === 503) {
-                          const errorData = await response.json();
+                          const errorData = await response.json() as { error?: string };
                           alert(`${errorData.error || 'サーバー起動中'}\n\n少し待ってから再度お試しください。`);
                           setIsProcessing(false);
                           setProcessingAction(null);
@@ -278,7 +280,7 @@ export default function AppPage() {
                       }
                       
                       if (!response.ok) {
-                          const errorData = await response.json().catch(() => ({}));
+                          const errorData = await response.json().catch(() => ({})) as { error?: string };
                           throw new Error(errorData.error || `処理に失敗しました (${response.status})`);
                       }
                       

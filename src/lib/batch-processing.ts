@@ -75,7 +75,15 @@ export async function processRemoveBackground(file: File, config: RemoveBackgrou
     return imageDataToBlob(resultData);
 }
 
+export interface AIConfig {
+    aiModel?: string;      // e.g. "isnet-general-use"
+    alphaMatting?: boolean; // e.g. true
+}
+
 export async function processRemoveBackgroundAI(file: File): Promise<Blob> {
+    // Note: browser-side execution via @imgly/background-removal currently doesn't easily support dynamic model switching via this wrapper without complex config
+    // For now, these params are mainly for the server-side implementation which uses a different path in page.tsx
+    
     // @imgly/background-removal を使用して自動背景削除
     const blob = await removeBackgroundAI(file, {
         debug: true,

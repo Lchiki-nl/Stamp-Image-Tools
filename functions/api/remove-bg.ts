@@ -20,16 +20,31 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     // フロントエンドから送られてきた FormData（画像）を取得
+    // フロントエンドから送られてきた FormData（画像）を取得
     const formData = await request.formData();
+    
+    // パラメータの取得
+    const model = formData.get('model') as string || 'isnet-general-use';
+    const alphaMatting = formData.get('a') === 'false' ? 'false' : 'true'; // Default true
+    
+    // 画像データのみを転送用のFormDataに再構築（余計なフィールドを送らないため）
+    const file = formData.get('file');
+    if (!file) {
+      return new Response(JSON.stringify({ error: "No file provided" }), { status: 400 });
+    }
+    const outboundFormData = new FormData();
+    outboundFormData.append('file', file);
 
     // Hugging Face へリクエストを転送（ここで秘密のトークンを付与）
-    // a=true: 境界線を滑らかにする（髪の毛などが綺麗になる）
-    const hfResponse = await fetch("https://Ichiki-nl-ezstampify.hf.space/api/remove?a=true", {
+    // クエリパラメータを動的に構築
+    const hfUrl = `https://Ichiki-nl-ezstampify.hf.space/api/remove?a=${alphaMatting}&model=${model}`;
+
+    const hfResponse = await fetch(hfUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${env.HF_TOKEN}`,
       },
-      body: formData,
+      body: outboundFormData,
     });
 
     // サーバースリープ中の場合
