@@ -58,7 +58,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
         }
         
         if (isValid) {
-            unlockVip(); // Save VIP status to localStorage
+            unlockVip(password); // Save VIP status to localStorage
             setSuccess(true);
             setTimeout(() => {
                 onClose();
