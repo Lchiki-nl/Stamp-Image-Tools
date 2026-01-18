@@ -42,24 +42,10 @@ export function useVipStatus() {
     }
   }, []);
 
-  const unlockVip = (password?: string): boolean => {
-    // If no password provided, assume server-side verification already passed
-    if (!password) {
-      sessionStorage.setItem(STORAGE_KEY, encode(true));
-      setIsVip(true);
-      trackVipAuth();
-      return true;
-    }
-    
-    // Legacy client-side check (for backward compatibility)
-    const correctPassword = process.env.NEXT_PUBLIC_VIP_PASSWORD;
-    if (password === correctPassword) {
-      sessionStorage.setItem(STORAGE_KEY, encode(true));
-      setIsVip(true);
-      trackVipAuth();
-      return true;
-    }
-    return false;
+  const unlockVip = (): void => {
+    sessionStorage.setItem(STORAGE_KEY, encode(true));
+    setIsVip(true);
+    trackVipAuth();
   };
 
   const lockVip = (): void => {
