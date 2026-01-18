@@ -92,7 +92,7 @@ export function UnifiedEditor({
   const [activeTool, setActiveTool] = useState<Tool>(initialTool);
   const [overwriteMode, setOverwriteMode] = useState(true); // true = 上書き, false = 新規
 
-  const { isVip, unlockVip } = useVipStatus();
+  const { isVip } = useVipStatus();
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);

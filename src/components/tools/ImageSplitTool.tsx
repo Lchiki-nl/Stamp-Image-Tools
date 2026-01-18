@@ -29,7 +29,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState("image");
 
-  const { isVip, unlockVip } = useVipStatus();
+  const { isVip } = useVipStatus();
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
 
   // 画像読み込み

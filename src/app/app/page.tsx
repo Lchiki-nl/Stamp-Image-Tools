@@ -32,7 +32,7 @@ export default function AppPage() {
     toggleSelection 
   } = useGallery();
   
-  const { isVip, unlockVip } = useVipStatus();
+  const { isVip } = useVipStatus();
   const maxImages = isVip ? MAX_IMAGES_VIP : MAX_IMAGES_NORMAL;
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   
