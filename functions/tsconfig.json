@@ -6,7 +6,6 @@
     "lib": ["ES2020"],
     "types": ["@cloudflare/workers-types"],
     "strict": true,
-    "noEmit": true,
     "skipLibCheck": true
   },
   "include": ["**/*.ts"],
