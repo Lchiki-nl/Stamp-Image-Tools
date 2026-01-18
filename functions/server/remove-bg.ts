@@ -25,6 +25,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // パラメータの取得
     const model = formData.get('model') as string || 'isnet-general-use';
     const alphaMatting = formData.get('a') === 'false' ? 'false' : 'true'; // Default true
+    const af = formData.get('af') as string || '240'; // Default 240
+    const ab = formData.get('ab') as string || '10'; // Default 10
     
     // 画像データのみを転送用のFormDataに再構築（余計なフィールドを送らないため）
     const file = formData.get('file');
@@ -36,7 +38,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // Hugging Face へリクエストを転送（ここで秘密のトークンを付与）
     // クエリパラメータを動的に構築
-    const hfUrl = `https://lchiki-nl-ezstampify.hf.space/api/remove?a=${alphaMatting}&model=${model}`;
+    const hfUrl = `https://lchiki-nl-ezstampify.hf.space/api/remove?a=${alphaMatting}&model=${model}&af=${af}&ab=${ab}`;
 
     const hfResponse = await fetch(hfUrl, {
       method: "POST",

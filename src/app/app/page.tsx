@@ -36,6 +36,9 @@ export default function AppPage() {
   const maxImages = isVip ? MAX_IMAGES_VIP : MAX_IMAGES_NORMAL;
   const [isVipModalOpen, setIsVipModalOpen] = useState(false);
   
+  // Daily usage limit for free users (AI Background Removal)
+  const { remaining, incrementUsage } = useDailyUsage(3);
+  
   // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [editorInitialTool, setEditorInitialTool] = useState<"background" | "crop" | "split" | "resize">("background");
@@ -46,8 +49,7 @@ export default function AppPage() {
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // Daily Usage Limit (5 images/day)
-  const { remaining, incrementUsage } = useDailyUsage(5);
+
 
   // 編集対象の画像を取得
   const editingImage = images.find(img => img.id === editingImageId);
@@ -230,12 +232,26 @@ export default function AppPage() {
           return;
       }
 
-      // Check daily limit for AI removal
-      if (processingAction === 'remove-background-ai' && !isVip) {
+      // Check daily limit for AI removal (Server Mode)
+      if (processingAction === 'remove-background-ai' && aiMode === 'server' && !isVip) {
+          // Check if user has enough remaining quota for selected images
+          // Note: Currently we count "batches" or "images"? 
+          // Requirement: "1日3回" usually means 3 actions or 3 images. 
+          // Let's assume 3 images for now as safe default, or 3 batch executions?
+          // Given the context of "remaining" from useDailyUsage(3), it implies 3 executions/items.
+          // If user selects 5 images, they need 5 quota? Or 1 batch = 1 usage?
+          // Usually "images". Let's restrict based on count.
+          
           const currentRemaining = remaining ?? 0;
-          if (selectedImages.length > currentRemaining) {
+          if (currentRemaining <= 0) {
+              alert(`無料版の高精度AI削除は1日3回までです。\nVIP会員になると無制限で利用できます。`);
               setIsVipModalOpen(true);
-              // alert(`無料版のAI削除は1日5枚までです。\n本日の残りはあと ${currentRemaining} 枚です。`);
+              return;
+          }
+          
+          if (selectedImages.length > currentRemaining) {
+              alert(`本日の残りはあと ${currentRemaining} 回です。\n${selectedImages.length} 枚の画像を選択しています。\nVIP会員になると無制限で利用できます。`);
+              setIsVipModalOpen(true);
               return;
           }
       }
@@ -264,6 +280,8 @@ export default function AppPage() {
                       formData.append('file', file);
                       if (aiConfig?.aiModel) formData.append('model', aiConfig.aiModel);
                       if (aiConfig?.alphaMatting !== undefined) formData.append('a', String(aiConfig.alphaMatting));
+                      if (aiConfig?.foregroundThreshold !== undefined) formData.append('af', String(aiConfig.foregroundThreshold));
+                      if (aiConfig?.backgroundThreshold !== undefined) formData.append('ab', String(aiConfig.backgroundThreshold));
                       
                       const response = await fetch('/server/remove-bg', {
                           method: 'POST',

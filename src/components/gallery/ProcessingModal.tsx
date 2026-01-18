@@ -63,7 +63,9 @@ export function ProcessingModal({
   // AI Processing Mode (browser = local WASM, server = Hugging Face API)
   const [aiMode, setAiMode] = useState<AIProcessingMode>('browser');
   const [aiModel, setAiModel] = useState<string>('isnet-general-use');
-  const [alphaMatting, setAlphaMatting] = useState<boolean>(true);
+  const [alphaMatting, setAlphaMatting] = useState(true);
+  const [foregroundThreshold, setForegroundThreshold] = useState(240);
+  const [backgroundThreshold, setBackgroundThreshold] = useState(10);
 
   if (!isOpen || !action) return null;
 
@@ -80,7 +82,12 @@ export function ProcessingModal({
     // Pass AI mode for AI actions
     // Pass AI mode and config for AI actions
     const mode = action === 'remove-background-ai' ? aiMode : undefined;
-    const aiConf = action === 'remove-background-ai' ? { aiModel, alphaMatting } : undefined;
+    const aiConf = action === 'remove-background-ai' ? { 
+      aiModel, 
+      alphaMatting,
+      foregroundThreshold,
+      backgroundThreshold
+    } : undefined;
     onExecute(config, shouldOverwrite, mode, aiConf);
   };
 
@@ -256,28 +263,21 @@ export function ProcessingModal({
                            </button>
                         </div>
                         <p className="text-[10px] text-gray-400 mt-2">
-                           {aiMode === 'browser'
-                              ? '端末内で処理します（初回はモデル読み込みに時間がかかります）'
-                              : '高精度サーバーで処理します（初回はサーバー起動に最大1分程度かかる場合があります）'}
+                            {aiMode === 'browser'
+                               ? '端末内で処理します（初回はモデル読み込みに時間がかかります）'
+                               : isVip 
+                                   ? '高精度サーバーで処理します（VIP会員は無制限）'
+                                   : '高精度サーバーで処理します（無料会員は1日3回まで）'}
                         </p>
                      </div>
                      
                      {/* Advanced Settings (Server Mode Only) */}
                      {/* Advanced Settings (Server Mode Only) */}
+                     {/* Advanced Settings (Server Mode Only) - Now Open to Everyone */}
                      {aiMode === 'server' && (
                         <div className="mt-4 bg-gray-50 border border-gray-200 rounded-xl p-4 text-left space-y-4 animate-in fade-in slide-in-from-top-2 relative overflow-hidden">
-                             {/* VIP Lock Overlay */}
-                             {!isVip && (
-                                <div className="absolute inset-0 z-10 bg-gray-100/60 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-4 animate-in fade-in">
-                                    <div className="bg-white p-3 rounded-full shadow-sm mb-2">
-                                        <Lock className="w-5 h-5 text-gray-400" />
-                                    </div>
-                                    <p className="text-xs font-bold text-gray-600">詳細設定はVIP限定です</p>
-                                    <p className="text-[10px] text-gray-400 mt-1">汎用AIモデル・境界線補正が自動適用されます</p>
-                                </div>
-                             )}
-
-                             <div className={`space-y-2 ${!isVip ? 'opacity-50 pointer-events-none' : ''}`}>
+                             
+                             <div className="space-y-2">
                                  <label className="text-xs font-bold text-gray-500">AIモデル選択</label>
                                  <select 
                                      value={aiModel}
@@ -295,7 +295,7 @@ export function ProcessingModal({
                                  </p>
                              </div>
 
-                             <div className={`flex items-center justify-between ${!isVip ? 'opacity-50 pointer-events-none' : ''}`}>
+                             <div className="flex items-center justify-between">
                                  <div className="space-y-0.5">
                                      <label className="text-xs font-bold text-gray-500">境界線処理 (Alpha Matting)</label>
                                      <p className="text-[10px] text-gray-400">髪の毛などを滑らかに処理します</p>
@@ -313,6 +313,39 @@ export function ProcessingModal({
                                      />
                                  </button>
                              </div>
+
+                             {alphaMatting && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 flex justify-between">
+                                            前景閾値 (Foreground Threshold) <span className="text-indigo-600">{foregroundThreshold}</span>
+                                        </label>
+                                        <input 
+                                            type="range" min="0" max="255" 
+                                            value={foregroundThreshold}
+                                            onChange={(e) => setForegroundThreshold(Number(e.target.value))}
+                                            className="w-full h-2 bg-gray-200 rounded-full accent-indigo-600"
+                                        />
+                                        <p className="text-[10px] text-gray-400">
+                                            この値より明るいピクセルは前景と見なされます。
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-500 flex justify-between">
+                                            背景閾値 (Background Threshold) <span className="text-indigo-600">{backgroundThreshold}</span>
+                                        </label>
+                                        <input 
+                                            type="range" min="0" max="255" 
+                                            value={backgroundThreshold}
+                                            onChange={(e) => setBackgroundThreshold(Number(e.target.value))}
+                                            className="w-full h-2 bg-gray-200 rounded-full accent-indigo-600"
+                                        />
+                                        <p className="text-[10px] text-gray-400">
+                                            この値より暗いピクセルは背景と見なされます。
+                                        </p>
+                                    </div>
+                                </div>
+                             )}
                         </div>
                      )}
                      

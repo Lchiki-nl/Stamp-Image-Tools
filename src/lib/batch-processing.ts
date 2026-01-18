@@ -78,6 +78,8 @@ export async function processRemoveBackground(file: File, config: RemoveBackgrou
 export interface AIConfig {
     aiModel?: string;      // e.g. "isnet-general-use"
     alphaMatting?: boolean; // e.g. true
+    foregroundThreshold?: number; // 0-255, default 240
+    backgroundThreshold?: number; // 0-255, default 10
 }
 
 export async function processRemoveBackgroundAI(file: File): Promise<Blob> {
