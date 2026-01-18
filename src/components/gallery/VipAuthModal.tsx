@@ -46,7 +46,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
             });
             
             if (response.ok) {
-                const data = await response.json();
+                const data = await response.json() as { success: boolean };
                 isValid = data.success;
             } else {
                 // API error or local fallback if needed
