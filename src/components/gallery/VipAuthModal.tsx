@@ -99,7 +99,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                         </p>
                         <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
                              <CheckCircle2 size={14} className="shrink-0" />
-                            消しゴムツール
+                            消しゴムのブラシサイズ調整
                         </p>
                         <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
                              <CheckCircle2 size={14} className="shrink-0" />
