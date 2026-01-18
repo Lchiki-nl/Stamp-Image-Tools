@@ -524,7 +524,6 @@ export default function AppPage() {
         <VipAuthModal
             isOpen={isVipModalOpen}
             onClose={() => setIsVipModalOpen(false)}
-            onAuthenticate={unlockVip}
         />
     </>
   );

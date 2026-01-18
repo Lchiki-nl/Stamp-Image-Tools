@@ -275,7 +275,6 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
       <VipAuthModal
         isOpen={isVipModalOpen}
         onClose={() => setIsVipModalOpen(false)}
-        onAuthenticate={unlockVip}
       />
     </div>
   );

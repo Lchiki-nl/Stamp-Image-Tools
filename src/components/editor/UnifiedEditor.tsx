@@ -380,7 +380,6 @@ export function UnifiedEditor({
         <VipAuthModal
           isOpen={isVipModalOpen}
           onClose={() => setIsVipModalOpen(false)}
-          onAuthenticate={unlockVip}
         />
       )}
     </div>

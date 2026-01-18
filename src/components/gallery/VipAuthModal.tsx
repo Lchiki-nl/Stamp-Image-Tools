@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles, Loader2 } from 'lucide-react';
+import { useVipStatus } from '@/hooks/useVipStatus';
 
 interface VipAuthModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
   const [success, setSuccess] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { unlockVip } = useVipStatus();
 
   /* Removed problematic useEffect that caused synchronous state updates.
      State is initialized via useState(initialView) and component remounts on open. */
@@ -56,6 +58,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
         }
         
         if (isValid) {
+            unlockVip(); // Save VIP status to localStorage
             setSuccess(true);
             setTimeout(() => {
                 onClose();
