@@ -121,16 +121,46 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
         onChange={(e) => handleGridChange(Number(e.target.value), setter)}
         className="w-full h-4 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary touch-none"
       />
-      <div className="flex justify-between text-xs text-gray-400 font-medium">
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
-        <span className={!isVip ? "text-amber-500 flex items-center gap-0.5" : ""}>
-            4{!isVip && <Lock size={8} />}
-        </span>
-        <span className={!isVip ? "text-amber-500 flex items-center gap-0.5" : ""}>
-            5{!isVip && <Lock size={8} />}
-        </span>
+      <div className="flex justify-between items-end text-xs font-medium gap-1">
+        <span className="text-gray-400 flex-1 text-center">1</span>
+        <span className="text-gray-400 flex-1 text-center">2</span>
+        <span className="text-gray-400 flex-1 text-center">3</span>
+        <div className={`flex-1 flex flex-col items-center gap-1 ${!isVip ? 'pb-0.5' : ''}`}>
+          {!isVip ? (
+            <div 
+              className="px-2 py-1 rounded-lg border border-amber-300 shadow-sm flex items-center gap-1"
+              style={{
+                background: 'linear-gradient(to right, #fef3c7, #fef9c3)'
+              }}
+            >
+              <span className="text-amber-600 font-bold">4</span>
+              <span className="flex items-center gap-0 px-1 py-0 bg-amber-500 text-white rounded text-[8px] font-bold">
+                <Lock size={6} />
+                VIP
+              </span>
+            </div>
+          ) : (
+            <span className="text-gray-400">4</span>
+          )}
+        </div>
+        <div className={`flex-1 flex flex-col items-center gap-1 ${!isVip ? 'pb-0.5' : ''}`}>
+          {!isVip ? (
+            <div 
+              className="px-2 py-1 rounded-lg border border-amber-300 shadow-sm flex items-center gap-1"
+              style={{
+                background: 'linear-gradient(to right, #fef3c7, #fef9c3)'
+              }}
+            >
+              <span className="text-amber-600 font-bold">5</span>
+              <span className="flex items-center gap-0 px-1 py-0 bg-amber-500 text-white rounded text-[8px] font-bold">
+                <Lock size={6} />
+                VIP
+              </span>
+            </div>
+          ) : (
+            <span className="text-gray-400">5</span>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -384,10 +384,25 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
                         disabled={!isVip}
                     />
                     {!isVip && (
-                        <p className="text-xs text-amber-600 font-medium flex items-center gap-1 mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            VIP 認証でサイズ調整が可能になります
-                        </p>
+                        <div 
+                            className="p-3 rounded-xl border border-amber-300 shadow-sm flex items-center gap-2 justify-center"
+                            style={{
+                                background: 'linear-gradient(to right, #fef3c7, #fef9c3)'
+                            }}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <span className="text-sm font-bold text-amber-600">サイズ調整が可能になります</span>
+                            <span className="flex items-center gap-0 px-1.5 py-0.5 bg-amber-500 text-white rounded text-[10px] font-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                VIP
+                            </span>
+                        </div>
                     )}
                     <div className="flex justify-center h-24 items-center bg-gray-50 rounded-xl border border-dashed border-gray-200 mt-4">
                         <div 
