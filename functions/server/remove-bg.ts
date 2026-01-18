@@ -36,7 +36,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // Hugging Face へリクエストを転送（ここで秘密のトークンを付与）
     // クエリパラメータを動的に構築
-    const hfUrl = `https://Ichiki-nl-ezstampify.hf.space/api/remove?a=${alphaMatting}&model=${model}`;
+    const hfUrl = `https://lchiki-nl-ezstampify.hf.space/api/remove?a=${alphaMatting}&model=${model}`;
 
     const hfResponse = await fetch(hfUrl, {
       method: "POST",
