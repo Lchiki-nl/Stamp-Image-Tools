@@ -75,12 +75,12 @@ export function BackgroundRemovalTool({ className = "", embeddedImage, embeddedC
       }
   }, [canvasRef]);
 
-  // Default color from top-right pixel
+  // Default color from top-left pixel
   useEffect(() => {
     if (originalImageData) {
         const { width, data } = originalImageData;
         if (width > 0) {
-            const x = width - 1;
+            const x = 0;
             const y = 0;
             const idx = (y * width + x) * 4;
             if (idx < data.length) {
