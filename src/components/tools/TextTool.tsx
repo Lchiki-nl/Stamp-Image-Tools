@@ -383,7 +383,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-full w-full ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-auto lg:h-full w-full ${className}`}>
       {/* Hidden font preload - forces browser to load all fonts */}
       <div className="sr-only" aria-hidden="true">
         {FONTS.map(f => (
@@ -397,7 +397,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
             <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
           ) : (
             <div 
-              className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200"
+              className="relative flex-1 lg:flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200 min-h-[280px] max-h-[400px] lg:max-h-none"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => { handleMouseUp(); setIsHovering(false); }}
             >
@@ -420,7 +420,7 @@ export function TextTool({ className = "", embeddedImage, embeddedCanvasRef, onA
 
       {/* Controls */}
       {image && (
-        <div className="w-full lg:w-80 h-auto lg:h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-auto lg:h-full lg:max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
             <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
                 <Type size={20} />
                 文字入れ

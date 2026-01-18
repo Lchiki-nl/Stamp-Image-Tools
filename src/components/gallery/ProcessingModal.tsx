@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock, Sparkles } from "lucide-react";
+import { Eraser, Grid3X3, Crop, Scaling, X, Check, Loader2, Lock, Unlock, Sparkles, Wifi } from "lucide-react";
 import type { RemoveBackgroundConfig, CropConfig, SplitConfig, ResizeConfig } from "@/lib/batch-processing";
 
 export type ProcessingAction = 'remove-background' | 'remove-background-ai' | 'split' | 'crop' | 'resize';
@@ -233,6 +233,10 @@ export function ProcessingModal({
 
                      <p className="text-xs text-amber-600 font-bold bg-amber-50 py-2 px-4 rounded-full inline-block mt-4 mx-auto">
                         ※初回のみモデルの読み込みに時間がかかります
+                     </p>
+                     <p className="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1">
+                        <Wifi size={12} />
+                        通信状況の良い場所でご利用ください
                      </p>
                 </div>
               )}

@@ -166,13 +166,13 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
   );
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-full w-full ${className}`}>
+    <div className={`flex flex-col lg:flex-row gap-8 items-center lg:items-start h-auto lg:h-full w-full ${className}`}>
       {/* Canvas Area */}
       <div className="flex-1 flex flex-col w-full">
         {!image ? (
           <FileDropzone onFileSelect={handleFileSelect} className="h-[400px]" />
         ) : (
-            <div className="relative flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200">
+            <div className="relative flex-1 lg:flex-1 bg-gray-50/50 rounded-2xl overflow-hidden flex items-center justify-center p-4 border-2 border-dashed border-gray-200 min-h-[280px] max-h-[400px] lg:max-h-none">
               {/* Grid Overlay */}
               <div className="relative">
                 <ImageCanvas
@@ -226,7 +226,7 @@ export function ImageSplitTool({ className = "", embeddedImage, embeddedCanvasRe
 
       {/* Controls Panel */}
       {image && (
-        <div className="w-full lg:w-80 h-auto lg:h-full max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <div className="w-full lg:w-80 h-auto lg:h-full lg:max-h-full overflow-y-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
           <h3 className="text-lg font-bold text-text-main flex items-center gap-2">
             <Grid3X3 size={20} />
             グリッド設定
