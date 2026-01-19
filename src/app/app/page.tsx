@@ -40,6 +40,14 @@ export default function AppPage() {
   const serverUsage = useDailyUsage(3, 'server');   // Server: 3 images/day
   const browserUsage = useDailyUsage(5, 'browser'); // Browser: 5 images/day
   
+  // Check for Stripe Checkout return
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('session_id')) {
+        setIsVipModalOpen(true);
+    }
+  }, []);
+  
   // const [viewMode, setViewMode] = useState<ViewMode>("gallery"); // Removed
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [editorInitialTool, setEditorInitialTool] = useState<"background" | "crop" | "split" | "resize">("background");

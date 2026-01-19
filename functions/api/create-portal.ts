@@ -1,88 +1,35 @@
-/// <reference types="@cloudflare/workers-types" />
-
 import Stripe from 'stripe';
 
-interface Env {
-  STRIPE_SECRET_KEY: string;
-  DB: D1Database;
-}
-
-/**
- * Create Stripe Customer Portal Session
- * Allows users to manage their subscription/billing
- * 
- * POST Body:
- * - customerId: Stripe Customer ID (license key)
- */
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) => {
   const { request, env } = context;
 
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
-
-  // Handle CORS preflight
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers });
-  }
-
   if (!env.STRIPE_SECRET_KEY) {
-    return new Response(JSON.stringify({ error: 'Server configuration error' }), {
-      status: 500,
-      headers,
-    });
+    return new Response(JSON.stringify({ error: 'Stripe configuration missing' }), { status: 500 });
   }
 
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
-
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY as string);
+  const origin = new URL(request.url).origin;
+  
   try {
-    const body = await request.json() as { customerId?: string };
-    const customerId = body.customerId?.trim();
+    const body = await request.json() as { customerId: string };
+    const customerId = body.customerId;
 
     if (!customerId) {
-      return new Response(JSON.stringify({ error: 'Missing customer ID' }), {
-        status: 400,
-        headers,
-      });
+        return new Response(JSON.stringify({ error: 'Customer ID is required' }), { status: 400 });
     }
 
-    // Validate customer exists in our database
-    if (env.DB) {
-      const user = await env.DB.prepare(
-        'SELECT id FROM paid_users WHERE id = ?'
-      ).bind(customerId).first();
-
-      if (!user) {
-        return new Response(JSON.stringify({ error: 'Customer not found' }), {
-          status: 404,
-          headers,
-        });
-      }
-    }
-
-    // Get origin for return URL
-    const url = new URL(request.url);
-    const origin = url.origin;
-
-    // Create portal session
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${origin}/app`,
+      return_url: `${origin}/`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
-      status: 200,
-      headers,
+      headers: { 'Content-Type': 'application/json' },
     });
-
-  } catch (error) {
-    console.error('Portal error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create portal session' }), {
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err.message }), { 
       status: 500,
-      headers,
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };

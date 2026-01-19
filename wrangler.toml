@@ -1,9 +1,15 @@
 name = "ezstampify"
 compatibility_date = "2024-01-01"
 
-# D1 Database Configuration
+# Production (Default)
 [[d1_databases]]
 binding = "DB"
+database_name = "ezstampify-prod"
+database_id = "b61e8c88-6984-4306-9c50-01e1376faf69"
+
+# Preview
+[env.preview]
+[[env.preview.d1_databases]]
+binding = "DB"
 database_name = "ezstampify-preview"
-database_id = "6307d837-161f-449a-94f6-bc6931c4a5f9" # Created via wrangler
-preview_database_id = "DB" # For local dev
+database_id = "6307d837-161f-449a-94f6-bc6931c4a5f9"

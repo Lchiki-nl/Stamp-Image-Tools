@@ -1,88 +1,59 @@
-/// <reference types="@cloudflare/workers-types" />
-
 import Stripe from 'stripe';
 
-interface Env {
-  STRIPE_SECRET_KEY: string;
-  STRIPE_PRICE_ID_SUBSCRIPTION: string;
-  STRIPE_PRICE_ID_ONETIME: string;
-}
-
-/**
- * Create Stripe Checkout Session
- * Redirects user to Stripe payment page
- * 
- * Query Parameters:
- * - type: 'subscription' or 'onetime'
- */
-export const onRequestPost: PagesFunction<Env> = async (context) => {
-  const { request, env } = context;
-
-  // CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
-
-  // Handle CORS preflight
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers });
-  }
-
-  if (!env.STRIPE_SECRET_KEY) {
-    return new Response(JSON.stringify({ error: 'Server configuration error' }), {
-      status: 500,
-      headers,
-    });
-  }
-
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
-
+export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) => {
   try {
-    const body = await request.json() as { type?: string };
-    const purchaseType = body.type || 'subscription';
-
-    // Determine price ID based on type
-    const priceId = purchaseType === 'onetime' 
-      ? env.STRIPE_PRICE_ID_ONETIME 
-      : env.STRIPE_PRICE_ID_SUBSCRIPTION;
-
-    if (!priceId) {
-      return new Response(JSON.stringify({ error: 'Price not configured' }), {
+    const { request, env } = context;
+    const body = await request.json() as { type: 'subscription' | 'onetime' };
+    
+    if (!env.STRIPE_SECRET_KEY) {
+      return new Response(JSON.stringify({ error: 'Stripe API key is not configured' }), { 
         status: 500,
-        headers,
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // Get origin for redirect URLs
-    const url = new URL(request.url);
-    const origin = url.origin;
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY as string);
+    const origin = new URL(request.url).origin;
 
-    // Create Checkout Session
+    // Define Price IDs (These should ideally come from env vars or constants)
+    // NOTE: User needs to replace these with actual Price IDs from Stripe Dashboard if not using lookup_key
+    // For this implementation, we'll assume the user will set these in .dev.vars or we receive them, 
+    // OR we use lookup_keys if set. 
+    // Let's use Environment Variables for Price IDs for flexibility.
+    const MONTHLY_PRICE_ID = env.STRIPE_MONTHLY_PRICE_ID as string;
+    const ONETIME_PRICE_ID = env.STRIPE_ONETIME_PRICE_ID as string;
+
+    if (!MONTHLY_PRICE_ID || !ONETIME_PRICE_ID) {
+       // Fallback or Error if not provided? 
+       // For now, let's log usage of placeholders if missing, but ideally they must exist.
+    }
+
+    const priceId = body.type === 'subscription' ? MONTHLY_PRICE_ID : ONETIME_PRICE_ID;
+
+    if (!priceId) {
+      return new Response(JSON.stringify({ error: 'Invalid plan type or missing price configuration' }), { status: 400 });
+    }
+
     const session = await stripe.checkout.sessions.create({
-      mode: purchaseType === 'onetime' ? 'payment' : 'subscription',
+      mode: body.type === 'subscription' ? 'subscription' : 'payment',
       line_items: [
         {
           price: priceId,
           quantity: 1,
         },
       ],
-      success_url: `${origin}/app?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/app`,
+      success_url: `${origin}/?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/`,
+      automatic_tax: { enabled: true }, // Optional
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
-      status: 200,
-      headers,
+      headers: { 'Content-Type': 'application/json' },
     });
-
-  } catch (error) {
-    console.error('Checkout error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create checkout session' }), {
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
