@@ -23,6 +23,11 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
   const { isVip, unlockVip } = useVipStatus();
   // VIPなら管理画面、そうでなければ指定された初期画面
   const [view, setView] = useState<ViewType>(initialView);
+  const [licenseKey, setLicenseKey] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
     if (isOpen) {
@@ -33,12 +38,6 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
         }
     }
   }, [isOpen, isVip, success, view]);
-
-  const [licenseKey, setLicenseKey] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Check for session_id in URL (post-checkout auto-login)
   useEffect(() => {
