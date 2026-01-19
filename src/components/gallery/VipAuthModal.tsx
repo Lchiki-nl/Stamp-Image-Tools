@@ -32,7 +32,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
             setView('guide');
         }
     }
-  }, [isOpen, isVip]);
+  }, [isOpen, isVip, success, view]);
 
   const [licenseKey, setLicenseKey] = useState('');
   const [error, setError] = useState('');
@@ -291,7 +291,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
           ) : view === 'manage' ? (
             <div className="flex flex-col gap-6 animate-in slide-in-from-right-4 duration-300">
                <div className="text-center space-y-3">
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
+                <div className="w-16 h-16 bg-linear-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
                   <Crown size={32} className="text-amber-500 fill-amber-500" />
                 </div>
                 <h4 className="text-xl font-black text-gray-800">VIPプラン利用中</h4>
