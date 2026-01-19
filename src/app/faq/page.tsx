@@ -234,7 +234,7 @@ export default function FAQPage() {
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
              >
                 <AlertCircle size={18} />
-                開発者に問い合わせる (note)
+                お問い合わせ
              </a>
         </div>
       </main>
