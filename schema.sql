@@ -11,3 +11,11 @@ CREATE TABLE IF NOT EXISTS paid_users (
 
 -- Index for email search (Recovery)
 CREATE INDEX IF NOT EXISTS idx_email ON paid_users(email);
+
+-- Access Logs for Rate Limiting (Plan A: D1 Count)
+CREATE TABLE IF NOT EXISTS access_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ip TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_access_ip_time ON access_logs(ip, created_at);
