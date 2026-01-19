@@ -91,7 +91,12 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
           window.location.href = data.url;
         }
       } else {
-        setError('決済ページの作成に失敗しました');
+        try {
+          const errorData = await response.json() as { error?: string };
+          setError(errorData.error || '決済ページの作成に失敗しました');
+        } catch {
+          setError('決済ページの作成に失敗しました');
+        }
       }
     } catch {
       setError('接続エラーが発生しました');
