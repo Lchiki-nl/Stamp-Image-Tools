@@ -8,7 +8,7 @@ interface VipAuthModalProps {
   onAuthenticate?: (password: string) => boolean;
 }
 
-type ViewType = 'guide' | 'purchase' | 'enter-key';
+type ViewType = 'guide' | 'purchase' | 'enter-key' | 'manage';
 
 /**
  * VIP Authentication Modal with Stripe Integration
@@ -16,16 +16,29 @@ type ViewType = 'guide' | 'purchase' | 'enter-key';
  * Flows:
  * 1. New User: Guide -> Purchase -> (Stripe Checkout) -> Auto-login
  * 2. Existing User: Guide -> Enter Key -> Verify -> Login
- * 3. Post-Checkout: Automatically detect session_id and login
+ * 3. VIP User: Manage (Link to Portal)
+ * 4. Post-Checkout: Automatically detect session_id and login
  */
 export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'guide' }: VipAuthModalProps & { initialView?: ViewType }) {
+  const { isVip, unlockVip } = useVipStatus();
+  // VIPなら管理画面、そうでなければ指定された初期画面
   const [view, setView] = useState<ViewType>(initialView);
+  
+  useEffect(() => {
+    if (isOpen) {
+        if (isVip && !success) {
+            setView('manage');
+        } else if (!isVip && view === 'manage') {
+            setView('guide');
+        }
+    }
+  }, [isOpen, isVip]);
+
   const [licenseKey, setLicenseKey] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { unlockVip } = useVipStatus();
 
   // Check for session_id in URL (post-checkout auto-login)
   useEffect(() => {
@@ -273,6 +286,38 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                   <Key size={16} />
                   ライセンスキーをお持ちの方
                 </button>
+              </div>
+            </div>
+          ) : view === 'manage' ? (
+            <div className="flex flex-col gap-6 animate-in slide-in-from-right-4 duration-300">
+               <div className="text-center space-y-3">
+                <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-2 shadow-inner">
+                  <Crown size={32} className="text-amber-500 fill-amber-500" />
+                </div>
+                <h4 className="text-xl font-black text-gray-800">VIPプラン利用中</h4>
+                <p className="text-sm text-gray-500 leading-relaxed font-bold">
+                  現在、すべての機能が<br/>解放されています
+                </p>
+              </div>
+
+               <div className="bg-green-50 p-4 rounded-xl space-y-2 border border-green-100">
+                <p className="text-sm font-bold text-green-700 flex items-center gap-2 justify-center">
+                  <CheckCircle2 size={18} className="fill-green-700 text-white" />
+                  VIP機能が有効です
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={handleOpenPortal}
+                  className="w-full py-3 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-bold hover:border-amber-400 hover:text-amber-600 transition-all flex items-center justify-center gap-2"
+                >
+                  <Settings size={18} />
+                  契約内容の確認・解約
+                </button>
+                <p className="text-xs text-gray-400 text-center">
+                  Stripeの管理画面へ移動します
+                </p>
               </div>
             </div>
           ) : view === 'purchase' ? (
