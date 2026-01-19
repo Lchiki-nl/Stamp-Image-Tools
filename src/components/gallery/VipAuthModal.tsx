@@ -438,13 +438,6 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                     </p>
                   </>
                 )}
-                
-                {/* 買い切りプラン: 解約ボタンなし */}
-                {planType === 'onetime' && (
-                  <p className="text-xs text-gray-400 text-center">
-                    永久プランのため、解約手続きは不要です
-                  </p>
-                )}
               </div>
             </div>
           ) : view === 'purchase' ? (
