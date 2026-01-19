@@ -2,6 +2,16 @@ interface Env {
   DB: D1Database;
 }
 
+interface PaidUser {
+  id: string;
+  email: string;
+  type: string;
+  status: string;
+  subscription_id: string | null;
+  created_at: number;
+  updated_at: number;
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   
@@ -31,7 +41,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return new Response(JSON.stringify({ error: 'License key is required' }), { status: 400 });
     }
 
-    const user = await db.prepare("SELECT * FROM paid_users WHERE id = ?").bind(licenseKey).first();
+    const user = await db.prepare("SELECT * FROM paid_users WHERE id = ?").bind(licenseKey).first<PaidUser>();
 
     if (!user) {
       return new Response(JSON.stringify({ valid: false, error: 'Invalid license key' }), { 
@@ -40,9 +50,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       });
     }
 
-    const userData = user as any;
-    if (userData.status === 'active' || userData.status === 'lifetime') {
-      return new Response(JSON.stringify({ valid: true, type: userData.type }), { 
+    if (user.status === 'active' || user.status === 'lifetime') {
+      return new Response(JSON.stringify({ valid: true, type: user.type }), { 
         headers: { 'Content-Type': 'application/json' }
       });
     }
