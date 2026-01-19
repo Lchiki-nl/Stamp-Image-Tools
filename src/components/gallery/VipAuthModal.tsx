@@ -139,7 +139,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
         if (isValid) {
           unlockVip();
           setSuccess(true);
-          setTimeout(() => onClose(), 1500);
+          // setTimeout(() => onClose(), 1500);
         } else {
           setError('無効なライセンスキーです');
         }
@@ -165,7 +165,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
           localStorage.setItem('vip_license_key', licenseKey);
           unlockVip();
           setSuccess(true);
-          setTimeout(() => onClose(), 1500);
+          // setTimeout(() => onClose(), 1500);
         } else {
           setError(data.error || '無効なライセンスキーです');
         }
