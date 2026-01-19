@@ -19,9 +19,12 @@ export function HeroSection() {
 
   useEffect(() => {
     // マウント後にランダムなアイコンを設定 (Hydration error防止のためuseEffect内で設定)
-    const ICONS = [Wand2, Scissors, Phone, Laptop, Glasses, Gamepad2];
-    const RandomIcon = ICONS[Math.floor(Math.random() * ICONS.length)];
-    setCurrentIcon(RandomIcon);
+    const timer = setTimeout(() => {
+      const ICONS = [Wand2, Scissors, Phone, Laptop, Glasses, Gamepad2];
+      const RandomIcon = ICONS[Math.floor(Math.random() * ICONS.length)];
+      setCurrentIcon(RandomIcon);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
