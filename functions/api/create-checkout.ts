@@ -39,8 +39,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           quantity: 1,
         },
       ],
-      success_url: `${origin}/?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/`,
+      success_url: `${origin}/app?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/app`,
       automatic_tax: { enabled: true },
     });
 
