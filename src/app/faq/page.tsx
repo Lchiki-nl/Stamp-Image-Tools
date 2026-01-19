@@ -149,8 +149,8 @@ export default function FAQPage() {
                   </ol>
                   <p>
                     もしアプリが開けない場合やキーを紛失した場合は、
-                    <a href="https://note.com/lchiki_nl/m/me2fbf42ae315" target="_blank" className="text-blue-500 underline hover:text-blue-600 mx-1">
-                      作者のnote
+                    <a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" className="text-blue-500 underline hover:text-blue-600 mx-1">
+                      お問い合わせフォーム
                     </a>
                     からお問い合わせください。
                   </p>
@@ -228,7 +228,7 @@ export default function FAQPage() {
         <div className="mt-20 pt-10 border-t border-gray-100 text-center">
             <p className="text-gray-500 font-bold mb-4">その他のご質問・お問い合わせ</p>
              <a 
-                href="https://note.com/lchiki_nl/m/me2fbf42ae315" 
+                href="https://forms.gle/ZHXoTYuuEW8rfVrw9" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"

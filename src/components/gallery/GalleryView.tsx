@@ -140,12 +140,12 @@ export function GalleryView({
       <footer className="py-8 text-center text-text-sub text-sm">
         <div className="flex items-center justify-center gap-6 font-bold">
            <a 
-             href="https://note.com/lchiki_nl/m/me2fbf42ae315" 
+             href="https://forms.gle/ZHXoTYuuEW8rfVrw9" 
              target="_blank" 
              rel="noopener noreferrer"
              className="hover:text-primary transition-colors"
            >
-             作者のnote
+             お問い合わせ
            </a>
            <Link 
              href="/faq" 
