@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Smile, HelpCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Smile, HelpCircle, AlertCircle } from 'lucide-react';
 import { Accordion } from '@/components/ui/Accordion';
 
 export const metadata: Metadata = {
@@ -101,6 +101,34 @@ export default function FAQPage() {
                       作者のnote
                     </a>
                     からお問い合わせください。
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="解約するとすぐに使えなくなりますか？">
+                <div className="space-y-3 text-sm leading-relaxed text-gray-600">
+                  <p>
+                    いいえ、<strong>次回の更新日（請求日）までは引き続きVIP機能をご利用いただけます。</strong>
+                  </p>
+                  <p>
+                    更新日を過ぎると自動的に無料プランに戻ります。
+                    日割り計算による返金はありませんのでご了承ください。
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="月額プランから買い切りプランへの変更方法は？">
+                <div className="space-y-3 text-sm leading-relaxed text-gray-600">
+                  <p>
+                    以下の手順で切り替えをお願いします。
+                  </p>
+                  <ol className="list-decimal list-inside space-y-2 ml-2 bg-gray-50 p-4 rounded-lg">
+                    <li>まず、現在の月額プランを解約する</li>
+                    <li>有効期限が切れる（無料プランに戻る）のを待つ</li>
+                    <li>VIP購入画面から「買い切りプラン」を改めて購入する</li>
+                  </ol>
+                  <p className="text-xs text-amber-600 font-bold mt-2">
+                    ※ システムの仕様上、二重課金を防ぐため、必ず解約・期間終了後にご購入ください。
                   </p>
                 </div>
               </Accordion>
