@@ -327,7 +327,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                   契約内容の確認・解約
                 </button>
                 <p className="text-xs text-gray-400 text-center">
-                  Stripeの管理画面へ移動します
+                  お支払い情報の変更や解約手続きはこちら
                 </p>
               </div>
             </div>
