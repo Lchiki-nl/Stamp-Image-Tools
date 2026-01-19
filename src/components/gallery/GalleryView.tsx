@@ -58,10 +58,10 @@ export function GalleryView({
                 使い方ガイド
                 </a>
                 <button
-                onClick={() => !isVip && onRequestVip()}
+                onClick={onRequestVip}
                 className={`flex items-center gap-1 font-bold text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap border 
                     ${isVip 
-                        ? "bg-amber-100 text-amber-700 border-amber-300 cursor-default" 
+                        ? "bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200 cursor-pointer" 
                         : "text-amber-600 bg-amber-50 hover:bg-amber-100 border-amber-200"}`}
                 >
                 <Crown size={14} className={isVip ? "fill-amber-700" : "fill-amber-600"} />
