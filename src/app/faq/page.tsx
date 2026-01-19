@@ -78,9 +78,10 @@ export default function FAQPage() {
                     <li>開いた画面にある「あなたのライセンスキー」を確認</li>
                     <li>コピーボタンで保存できます</li>
                   </ol>
-                  <p className="text-red-500 text-xs font-bold mt-2">
-                    ※ 機種変更やブラウザのキャッシュ削除時に必要になります。<br/>
-                    ※ 必ずメモ帳などに控えておくことを強くおすすめします。
+                  <p className="text-red-500 text-sm font-bold mt-3 bg-red-50 p-3 rounded-lg border border-red-200">
+                    ⚠️ 重要：必ずコピーして保存してください！<br/>
+                    このキーは、<strong>機種変更した際や、ブラウザのキャッシュが消えた時など、将来的にVIP機能を復元するために必ず必要になります。</strong><br/>
+                    メモ帳やパスワード管理アプリなどに貼り付けて、大切に保管してください。
                   </p>
                 </div>
               </Accordion>
