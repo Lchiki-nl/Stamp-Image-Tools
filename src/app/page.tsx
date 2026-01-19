@@ -24,6 +24,7 @@ export default function LandingPage() {
             <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="#features">機能</a>
             <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="#advantages">安心の理由</a>
             <a className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="/how-to-use">使い方</a>
+            <Link className="text-sm font-bold text-text-sub hover:text-primary transition-colors" href="/faq">よくある質問</Link>
           </nav>
           <div className="flex items-center gap-3">
             <Link
