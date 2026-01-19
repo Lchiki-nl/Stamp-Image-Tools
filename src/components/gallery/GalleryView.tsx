@@ -56,12 +56,6 @@ export function GalleryView({
                 >
                 使い方ガイド
                 </Link>
-                <Link 
-                href="/faq" 
-                className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap"
-                >
-                よくある質問
-                </Link>
                 <button
                 onClick={onRequestVip}
                 className={`flex items-center gap-1 font-bold text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap border 
