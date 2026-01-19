@@ -42,6 +42,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       success_url: `${origin}/app?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/app`,
       automatic_tax: { enabled: true },
+      ...(body.type === 'onetime' ? { customer_creation: 'always' } : {}),
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
