@@ -124,10 +124,17 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
     setError('');
     
     try {
+      // 既存ユーザーがアップグレードする場合は、既存のCustomer IDを渡す
+      const existingCustomerId = localStorage.getItem('vip_license_key');
+      
       const response = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type }),
+        body: JSON.stringify({ 
+          type,
+          // 買い切りへのアップグレード時のみ既存IDを使用
+          ...(type === 'onetime' && existingCustomerId ? { customerId: existingCustomerId } : {})
+        }),
       });
       
       if (response.ok) {

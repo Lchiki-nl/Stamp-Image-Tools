@@ -10,7 +10,10 @@ interface Env {
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const { request, env } = context;
-    const body = await request.json() as { type: 'subscription' | 'onetime' };
+    const body = await request.json() as { 
+      type: 'subscription' | 'onetime';
+      customerId?: string;  // 既存ユーザーのCustomer ID
+    };
     
     if (!env.STRIPE_SECRET_KEY) {
       return new Response(JSON.stringify({ error: 'Stripe API key is not configured' }), { 
@@ -31,7 +34,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return new Response(JSON.stringify({ error: 'Invalid plan type or missing price configuration' }), { status: 400 });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    // 既存のCustomer IDがある場合はそれを使用（プラン移行時）
+    const sessionOptions: Stripe.Checkout.SessionCreateParams = {
       mode: body.type === 'subscription' ? 'subscription' : 'payment',
       line_items: [
         {
@@ -42,8 +46,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       success_url: `${origin}/app?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/app`,
       automatic_tax: { enabled: true },
-      ...(body.type === 'onetime' ? { customer_creation: 'always' } : {}),
-    });
+    };
+
+    // 既存顧客がいる場合はそのIDを使用、いない場合は新規作成
+    if (body.customerId) {
+      sessionOptions.customer = body.customerId;
+    } else if (body.type === 'onetime') {
+      sessionOptions.customer_creation = 'always';
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionOptions);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { 'Content-Type': 'application/json' },
