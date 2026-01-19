@@ -47,7 +47,12 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
             setTimeout(() => onClose(), 1500);
           }
         } else {
-          setError('決済情報の取得に失敗しました');
+          try {
+            const errComp = await response.json() as { error?: string };
+            setError(errComp.error || `決済情報の取得に失敗しました (${response.status})`);
+          } catch {
+            setError(`決済情報の取得に失敗しました (${response.status})`);
+          }
         }
       } catch {
         setError('接続エラーが発生しました');
