@@ -51,6 +51,24 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         if (session.mode === 'payment') {
           type = 'onetime';
           status = 'lifetime';
+
+          // シームレス移行: 既存サブスクリプションを自動キャンセル
+          if (customerId) {
+            try {
+              const existing = await db.prepare(
+                "SELECT subscription_id FROM paid_users WHERE id = ?"
+              ).bind(customerId).first<{ subscription_id: string | null }>();
+
+              if (existing?.subscription_id) {
+                console.log(`Cancelling existing subscription: ${existing.subscription_id}`);
+                await stripe.subscriptions.cancel(existing.subscription_id);
+                console.log(`Subscription cancelled successfully`);
+              }
+            } catch (cancelError) {
+              // 解約失敗してもlifetime移行は続行（ログ出力で手動対応）
+              console.error('Failed to cancel existing subscription:', cancelError);
+            }
+          }
         }
 
         if (customerId && email) {

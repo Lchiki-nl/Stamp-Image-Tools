@@ -172,16 +172,19 @@ export default function FAQPage() {
               <Accordion title="月額プランから買い切りプランへの変更方法は？">
                 <div className="space-y-3 text-sm leading-relaxed text-gray-600">
                   <p>
-                    以下の手順で切り替えをお願いします。
+                    <strong>買い切りプランを購入するだけでOKです！</strong>
                   </p>
-                  <ol className="list-decimal list-inside space-y-2 ml-2 bg-gray-50 p-4 rounded-lg">
-                    <li>まず、現在の月額プランを解約する</li>
-                    <li>有効期限が切れる（無料プランに戻る）のを待つ</li>
-                    <li>VIP購入画面から「買い切りプラン」を改めて購入する</li>
-                  </ol>
-                  <p className="text-xs text-amber-600 font-bold mt-2">
-                    ※ システムの仕様上、二重課金を防ぐため、必ず解約・期間終了後にご購入ください。
+                  <p>
+                    買い切りプランの決済が完了すると、既存の月額プランは<strong>自動的にキャンセル</strong>されます。
+                    手動で解約する必要はありません。
                   </p>
+                  <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <p className="text-xs text-green-700 font-bold">
+                      ✓ 二重課金の心配なし<br/>
+                      ✓ 解約手続き不要<br/>
+                      ✓ すぐにlifetime（永久）プランに移行
+                    </p>
+                  </div>
                 </div>
               </Accordion>
 
