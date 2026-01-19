@@ -20,8 +20,8 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
     // For this implementation, we'll assume the user will set these in .dev.vars or we receive them, 
     // OR we use lookup_keys if set. 
     // Let's use Environment Variables for Price IDs for flexibility.
-    const MONTHLY_PRICE_ID = env.STRIPE_MONTHLY_PRICE_ID as string;
-    const ONETIME_PRICE_ID = env.STRIPE_ONETIME_PRICE_ID as string;
+    const MONTHLY_PRICE_ID = env.STRIPE_PRICE_ID_SUBSCRIPTION as string;
+    const ONETIME_PRICE_ID = env.STRIPE_PRICE_ID_ONETIME as string;
 
     if (!MONTHLY_PRICE_ID || !ONETIME_PRICE_ID) {
        // Fallback or Error if not provided? 
