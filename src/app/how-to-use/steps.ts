@@ -117,10 +117,10 @@ export const steps = [
     id: "vip",
     title: "9. VIP機能について",
     icon: Crown,
-    description: "パスワードを入力して制限を解除します。",
+    description: "VIPプランを購入して制限を解除します。",
     details: [
-      "画面上の「VIP」ボタンから認証できます。",
-      "以下の高度な機能が使い放題になります。"
+      "画面上の「VIP」または「王冠ボタン」から購入できます（月額/買い切り）。",
+      "購入完了後、自動的に制限が解除され、すべての高度な機能が使い放題になります。"
     ],
     color: "text-amber-500",
     bg: "bg-amber-50"
