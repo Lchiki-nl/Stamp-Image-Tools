@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ImageGrid } from "./ImageGrid";
 import { FloatingActionBar } from "./FloatingActionBar";
 import { type GalleryAction, type GalleryImage } from "@/types/gallery";
@@ -49,22 +50,18 @@ export function GalleryView({
               </p>
             </div>
             <div className="flex items-center gap-2 md:ml-2">
-                <a 
+                <Link 
                 href="/how-to-use" 
-                target="_blank"
-                rel="noopener noreferrer"
                 className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap"
                 >
                 使い方ガイド
-                </a>
-                <a 
+                </Link>
+                <Link 
                 href="/faq" 
-                target="_blank"
-                rel="noopener noreferrer"
                 className="text-primary font-bold text-sm bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors whitespace-nowrap"
                 >
                 よくある質問
-                </a>
+                </Link>
                 <button
                 onClick={onRequestVip}
                 className={`flex items-center gap-1 font-bold text-sm px-3 py-1.5 rounded-full transition-colors whitespace-nowrap border 
@@ -150,14 +147,12 @@ export function GalleryView({
            >
              作者のnote
            </a>
-           <a 
+           <Link 
              href="/faq" 
-             target="_blank" 
-             rel="noopener noreferrer"
              className="hover:text-primary transition-colors"
            >
              よくある質問
-           </a>
+           </Link>
            <a 
              href="https://store.line.me/emojishop/author/10517625/ja" 
              target="_blank" 
