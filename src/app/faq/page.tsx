@@ -44,6 +44,30 @@ export default function FAQPage() {
         </div>
 
         <div className="space-y-12 animate-in slide-in-from-bottom-8 duration-700 delay-100">
+           {/* General Usage Section */}
+           <section>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3 pb-3 border-b-2 border-blue-100">
+              <span className="text-2xl">🎨</span> 使い方・その他
+            </h2>
+            <div className="space-y-4">
+              <Accordion title="作成したスタンプ画像が保存できません">
+                <p className="text-sm leading-relaxed text-gray-600">
+                  お使いのブラウザがプライベートモード（シークレットモード）になっていないかご確認ください。
+                  また、iPhoneの場合はSafari、Androidの場合はChromeでのご利用を推奨しています。
+                  アプリ内ブラウザ（LINEやTwitterから開いた場合）では正常に動作しないことがあります。
+                </p>
+              </Accordion>
+              
+              <Accordion title="無料で使えますか？">
+                <p className="text-sm leading-relaxed text-gray-600">
+                  はい、基本的な機能はすべて無料でご利用いただけます。
+                  登録も不要ですので、安心してお使いください。
+                  AIによる背景削除の回数無制限など、一部の便利機能のみ有料（VIPプラン）となっております。
+                </p>
+              </Accordion>
+            </div>
+          </section>
+
           {/* VIP Plan Section */}
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3 pb-3 border-b-2 border-amber-100">
@@ -149,30 +173,6 @@ export default function FAQPage() {
                     </ol>
                   </div>
                  </div>
-              </Accordion>
-            </div>
-          </section>
-
-          {/* General Usage Section */}
-          <section>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3 pb-3 border-b-2 border-blue-100">
-              <span className="text-2xl">🎨</span> 使い方・その他
-            </h2>
-            <div className="space-y-4">
-              <Accordion title="作成したスタンプ画像が保存できません">
-                <p className="text-sm leading-relaxed text-gray-600">
-                  お使いのブラウザがプライベートモード（シークレットモード）になっていないかご確認ください。
-                  また、iPhoneの場合はSafari、Androidの場合はChromeでのご利用を推奨しています。
-                  アプリ内ブラウザ（LINEやTwitterから開いた場合）では正常に動作しないことがあります。
-                </p>
-              </Accordion>
-              
-              <Accordion title="本当に無料ですか？">
-                <p className="text-sm leading-relaxed text-gray-600">
-                  はい、基本的な機能はすべて無料でご利用いただけます。
-                  登録も不要ですので、安心してお使いください。
-                  AIによる背景削除の回数無制限など、一部の便利機能のみ有料（VIPプラン）となっております。
-                </p>
               </Accordion>
             </div>
           </section>
