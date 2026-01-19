@@ -311,11 +311,36 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                 </p>
               </div>
 
-               <div className="bg-green-50 p-4 rounded-xl space-y-2 border border-green-100">
+                <div className="bg-green-50 p-4 rounded-xl space-y-3 border border-green-100">
                 <p className="text-sm font-bold text-green-700 flex items-center gap-2 justify-center">
                   <CheckCircle2 size={18} className="fill-green-700 text-white" />
                   VIP機能が有効です
                 </p>
+                
+                {/* License Key Display */}
+                <div className="bg-white/80 rounded-lg p-3 border border-green-200">
+                  <p className="text-xs text-green-800 font-bold mb-1 text-center">あなたのライセンスキー</p>
+                  <button 
+                    onClick={() => {
+                      const key = localStorage.getItem('vip_license_key') || '';
+                      if (key) {
+                        navigator.clipboard.writeText(key);
+                        alert('コピーしました！');
+                      }
+                    }}
+                    className="w-full flex items-center justify-between bg-green-100/50 px-3 py-2 rounded border border-green-200 group hover:bg-green-100 transition-colors"
+                  >
+                    <code className="text-xs font-mono text-green-900 truncate flex-1 text-left">
+                      {typeof window !== 'undefined' ? localStorage.getItem('vip_license_key') : '...'}
+                    </code>
+                    <span className="text-[10px] text-green-600 font-bold bg-white px-1.5 py-0.5 rounded border border-green-200 ml-2 group-hover:bg-green-50">
+                      コピー
+                    </span>
+                  </button>
+                  <p className="text-[10px] text-green-600 mt-1.5 leading-tight text-center">
+                    ※ 機種変更時などに必要になります。<br/>大切に保管してください。
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-3">
