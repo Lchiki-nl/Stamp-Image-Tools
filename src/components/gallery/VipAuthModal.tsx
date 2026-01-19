@@ -416,9 +416,9 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                 {planType === 'subscription' && (
                   <button
                     onClick={() => handlePurchase('onetime')}
-                    className="w-full py-3 rounded-xl bg-linear-to-r from-purple-500 to-indigo-500 text-white font-bold shadow-lg shadow-purple-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg shadow-amber-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
                   >
-                    <Sparkles size={18} />
+                    <Crown size={18} />
                     買い切りプランに切り替える
                   </button>
                 )}
