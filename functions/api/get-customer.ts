@@ -5,6 +5,12 @@ interface Env {
   STRIPE_SECRET_KEY: string;
 }
 
+interface PaidUser {
+  id: string;
+  type: string;
+  status: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   const url = new URL(request.url);
@@ -26,7 +32,17 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         return new Response(JSON.stringify({ error: 'No customer found for this session' }), { status: 404 });
     }
     
-    return new Response(JSON.stringify({ customerId: session.customer }), {
+    const customerId = session.customer as string;
+    
+    // DBからプランタイプを取得
+    const user = await env.DB.prepare(
+      "SELECT type, status FROM paid_users WHERE id = ?"
+    ).bind(customerId).first<PaidUser>();
+    
+    return new Response(JSON.stringify({ 
+      customerId,
+      planType: user?.type || (session.mode === 'payment' ? 'onetime' : 'subscription')
+    }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: unknown) {

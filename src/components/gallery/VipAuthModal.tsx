@@ -29,6 +29,15 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [planType, setPlanType] = useState<'subscription' | 'onetime' | null>(null);
+
+  // Load planType from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('vip_plan_type');
+    if (stored === 'subscription' || stored === 'onetime') {
+      setPlanType(stored);
+    }
+  }, []);
 
   const handleCopy = () => {
     const key = localStorage.getItem('vip_license_key');
@@ -60,10 +69,14 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
       try {
         const response = await fetch(`/api/get-customer?session_id=${sessionId}`);
         if (response.ok) {
-          const data = await response.json() as { customerId: string };
+          const data = await response.json() as { customerId: string; planType?: string };
           if (data.customerId) {
-            // Save license key to localStorage for future use
+            // Save license key and plan type to localStorage
             localStorage.setItem('vip_license_key', data.customerId);
+            if (data.planType) {
+              localStorage.setItem('vip_plan_type', data.planType);
+              setPlanType(data.planType as 'subscription' | 'onetime');
+            }
             unlockVip();
             setSuccess(true);
             // setTimeout(() => onClose(), 1500); // Removed auto-close
@@ -170,9 +183,13 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
       }
 
       if (response.ok) {
-        const data = await response.json() as { valid: boolean; error?: string };
+        const data = await response.json() as { valid: boolean; error?: string; type?: string };
         if (data.valid) {
           localStorage.setItem('vip_license_key', licenseKey);
+          if (data.type) {
+            localStorage.setItem('vip_plan_type', data.type);
+            setPlanType(data.type as 'subscription' | 'onetime');
+          }
           unlockVip();
           setSuccess(true);
           // setTimeout(() => onClose(), 1500);
@@ -388,16 +405,39 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
               </div>
 
               <div className="space-y-3">
-                <button
-                  onClick={handleOpenPortal}
-                  className="w-full py-3 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-bold hover:border-amber-400 hover:text-amber-600 transition-all flex items-center justify-center gap-2"
-                >
-                  <Settings size={18} />
-                  契約内容の確認・解約
-                </button>
-                <p className="text-xs text-gray-400 text-center">
-                  お支払い情報の変更や解約手続きはこちら
-                </p>
+                {/* 月額プランユーザーのみ: 買い切りに切り替えボタン */}
+                {planType === 'subscription' && (
+                  <button
+                    onClick={() => handlePurchase('onetime')}
+                    className="w-full py-3 rounded-xl bg-linear-to-r from-purple-500 to-indigo-500 text-white font-bold shadow-lg shadow-purple-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Sparkles size={18} />
+                    買い切りプランに切り替える
+                  </button>
+                )}
+                
+                {/* 月額プランのみ: 解約ボタン */}
+                {planType === 'subscription' && (
+                  <>
+                    <button
+                      onClick={handleOpenPortal}
+                      className="w-full py-3 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-bold hover:border-amber-400 hover:text-amber-600 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Settings size={18} />
+                      契約内容の確認・解約
+                    </button>
+                    <p className="text-xs text-gray-400 text-center">
+                      お支払い情報の変更や解約手続きはこちら
+                    </p>
+                  </>
+                )}
+                
+                {/* 買い切りプラン: 解約ボタンなし */}
+                {planType === 'onetime' && (
+                  <p className="text-xs text-gray-400 text-center">
+                    永久プランのため、解約手続きは不要です
+                  </p>
+                )}
               </div>
             </div>
           ) : view === 'purchase' ? (
