@@ -38,7 +38,7 @@ export function HeroSection() {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-flex items-center gap-2 rounded-full bg-primary-light px-4 py-2 text-sm font-bold text-primary shadow-sm border border-primary/10">
-              <span className="text-xl">🎨</span>
+              <span className="text-xl"><Wand2 size={20} /></span>
               クリエイターのための画像加工
             </div>
             <h1 className="text-4xl font-black leading-tight tracking-tight text-text-main sm:text-5xl lg:text-6xl">
@@ -46,7 +46,7 @@ export function HeroSection() {
               <span className="whitespace-nowrap">最適な画像ツール！</span>
             </h1>
             <p className="max-w-xl text-lg font-medium leading-relaxed text-text-sub">
-              背景透過も、タブ画像・メイン画像へのリサイズもこれひとつ。プライバシー重視で、画像はサーバーに送られません。安心してスタンプ制作に集中できます✨
+              背景透過も、タブ画像・メイン画像へのリサイズもこれひとつ。プライバシー重視で、画像はサーバーに送られません。安心してスタンプ制作に集中できます。
             </p>
             <div className="flex flex-col w-full sm:flex-row gap-4 mt-2">
               <Link
@@ -64,7 +64,7 @@ export function HeroSection() {
               </div>
               <div className="flex items-center gap-2 whitespace-nowrap">
                 <CheckCircle2 size={22} className="text-primary shrink-0" />
-                <span>ずっと無料</span>
+                <span>基本利用は無料</span>
               </div>
               <div className="flex items-center gap-2 whitespace-nowrap">
                 <CheckCircle2 size={22} className="text-primary shrink-0" />
@@ -93,7 +93,7 @@ export function HeroSection() {
               </div>
               <div className="p-8 h-full flex items-center justify-center relative bg-checkerboard">
                 <div className="absolute w-48 h-48 rounded-2xl border-4 border-dashed border-gray-300 flex items-center justify-center transform -translate-x-12 -translate-y-4 opacity-50">
-                  <span className="text-4xl">🐱</span>
+                  <span className="text-4xl text-gray-300"><Edit size={48} /></span>
                 </div>
                 <div className="relative z-10 w-56 h-56 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center transform rotate-6 border-4 border-white ring-4 ring-primary/20">
                   <div className="w-full h-full bg-linear-to-br from-orange-100 to-amber-50 rounded-lg flex items-center justify-center overflow-hidden relative">
