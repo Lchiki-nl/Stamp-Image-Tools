@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Edit, 
@@ -10,6 +9,7 @@ import {
   Scissors
 } from "lucide-react";
 
+export function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-32 bg-white">
       <div className="absolute inset-0 z-0 bg-soft-pattern pointer-events-none"></div>
