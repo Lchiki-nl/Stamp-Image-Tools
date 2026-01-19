@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ElementType } from "react";
 import { motion } from "framer-motion";
 import { 
   Edit, 
@@ -15,15 +13,13 @@ import {
 } from "lucide-react";
 
 export function HeroSection() {
-  const [CurrentIcon, setCurrentIcon] = useState<any>(Wand2);
+  const [CurrentIcon, setCurrentIcon] = useState<ElementType>(Wand2);
 
   useEffect(() => {
-    // マウント後にランダムなアイコンを設定
-    // Note: Lucideには「野球」アイコンがないため、代わりにゲームパッドを入れています
+    // マウント後にランダムなアイコンを設定 (Hydration error防止のためuseEffect内で設定)
     const ICONS = [Wand2, Scissors, Phone, Laptop, Glasses, Gamepad2];
     const RandomIcon = ICONS[Math.floor(Math.random() * ICONS.length)];
-    // コンポーネント関数として解釈されないよう、関数でラップして値を返す
-    setCurrentIcon(() => RandomIcon);
+    setCurrentIcon(RandomIcon);
   }, []);
 
   return (
