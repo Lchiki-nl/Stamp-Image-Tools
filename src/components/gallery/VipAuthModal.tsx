@@ -231,6 +231,12 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                 <p className="text-sm text-gray-500 leading-relaxed font-bold">
                   今すぐVIPになって<br/>すべての機能を解放しましょう！
                 </p>
+                {/* Error Display for Auto-Login failures */}
+                {error && (
+                  <div className="bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-200">
+                    ⚠️ {error}
+                  </div>
+                )}
               </div>
 
               <div className="bg-amber-50 p-4 rounded-xl space-y-2 border border-amber-100">
