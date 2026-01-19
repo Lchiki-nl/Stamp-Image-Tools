@@ -65,6 +65,31 @@ export default function FAQPage() {
                   AIによる背景削除の回数無制限など、一部の便利機能のみ有料（VIPプラン）となっております。
                 </p>
               </Accordion>
+
+              <Accordion title="背景透過がうまくいきません">
+                <div className="space-y-3 text-sm leading-relaxed text-gray-600">
+                  <p>
+                    写真によっては一発で綺麗に消えないことがあります。以下のコツを試してみてください：
+                  </p>
+                  <ul className="list-disc list-inside space-y-2 ml-1">
+                    <li>
+                      <strong>色々なツールを組み合わせる：</strong><br/>
+                      AI自動削除だけでなく、「スポイト（色選択）」や「消しゴム」も併用すると効果的です。
+                    </li>
+                    <li>
+                      <strong>スポイトを何度も使う：</strong><br/>
+                      一度で消えなくても、残っている色を何度かタップして選択し直すと、徐々に綺麗になります。
+                    </li>
+                    <li>
+                      <strong>パラメータを調整する：</strong><br/>
+                      「許容値（しきい値）」や「境界線」のスライダーを動かすと、消える範囲が変わります。
+                    </li>
+                  </ul>
+                  <p className="mt-2 text-xs text-gray-400">
+                    どうしても消えない細かい部分は、ブラシサイズの小さい消しゴムで仕上げるのがおすすめです。
+                  </p>
+                </div>
+              </Accordion>
             </div>
           </section>
 
