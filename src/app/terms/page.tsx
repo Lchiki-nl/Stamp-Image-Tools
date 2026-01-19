@@ -57,6 +57,48 @@ export default function TermsPage() {
               本サービスが、加工された画像に関する著作権を取得することはありません。
             </p>
           </section>
+
+          <section>
+            <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">5. 有料プラン（VIPプラン）について</h2>
+            <p className="mb-3">
+              本サービスでは、一部機能を有料で提供するVIPプランを設けています。
+            </p>
+            <ul className="list-disc list-inside mt-2 space-y-2 ml-4 text-text-sub">
+              <li>
+                <strong>決済について：</strong>
+                決済はStripe社のサービスを通じて行われます。クレジットカード情報等は当サービスでは保持いたしません。
+              </li>
+              <li>
+                <strong>月額プランの解約：</strong>
+                月額プランはいつでも解約可能です。解約後も、次回請求日までは引き続きご利用いただけます。
+              </li>
+              <li>
+                <strong>返金について：</strong>
+                デジタルサービスの性質上、決済完了後の返金には原則として応じかねます。
+              </li>
+              <li>
+                <strong>ライセンスキーの管理：</strong>
+                ライセンスキー（顧客ID）はお客様ご自身で管理してください。紛失した場合、復旧にお時間をいただく場合があります。
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">6. サービスの変更・終了</h2>
+            <p>
+              運営者は、事前の通知なく、本サービス（有料・無料を問わず）の内容の変更、
+              機能の追加・削除、または提供の終了を行う場合があります。
+              これにより生じた損害について、運営者は一切の責任を負いません。
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">7. 規約の変更</h2>
+            <p>
+              本規約は、必要に応じて予告なく変更される場合があります。
+              変更後の規約は、本ページに掲載した時点で効力を生じます。
+            </p>
+          </section>
         </div>
       </div>
     </div>
