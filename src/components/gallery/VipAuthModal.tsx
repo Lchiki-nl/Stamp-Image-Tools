@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles, Loader2, CreditCard, Key, Settings } from 'lucide-react';
+import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles, Loader2, CreditCard, Key, Settings, ArrowUpCircle } from 'lucide-react';
 import { useVipStatus } from '@/hooks/useVipStatus';
 
 interface VipAuthModalProps {
@@ -418,7 +418,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                     onClick={() => handlePurchase('onetime')}
                     className="w-full py-3 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg shadow-amber-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
                   >
-                    <Crown size={18} />
+                    <ArrowUpCircle size={18} />
                     買い切りプランに切り替える
                   </button>
                 )}
