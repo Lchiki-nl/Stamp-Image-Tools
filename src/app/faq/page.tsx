@@ -57,6 +57,12 @@ export default function FAQPage() {
                   また、iPhoneの場合はSafari、Androidの場合はChromeでのご利用を推奨しています。
                   アプリ内ブラウザ（LINEやTwitterから開いた場合）では正常に動作しないことがあります。
                 </p>
+              <Accordion title="「機能が制限されています」と表示されて使えません">
+                <p className="text-sm leading-relaxed text-gray-600">
+                  一部の高度な機能（AI背景削除の回数無制限利用、4x4以上のグリッド分割など）は、<strong>VIPプラン限定</strong>の機能となっています。
+                  <br className="mb-2"/>
+                  これらの機能をご利用になりたい場合は、画面右上の「VIP機能（王冠アイコン）」からVIPプランへのアップグレードをご検討ください。
+                </p>
               </Accordion>
 
               <Accordion title="背景透過がうまくいきません">
