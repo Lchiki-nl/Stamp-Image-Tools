@@ -31,6 +31,31 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
   useEffect(() => {
     if (!isOpen) return;
     
+    const handleAutoLogin = async (sessionId: string) => {
+      setIsLoading(true);
+      setError('');
+      
+      try {
+        const response = await fetch(`/api/get-customer?session_id=${sessionId}`);
+        if (response.ok) {
+          const data = await response.json() as { customerId: string };
+          if (data.customerId) {
+            // Save license key to localStorage for future use
+            localStorage.setItem('vip_license_key', data.customerId);
+            unlockVip();
+            setSuccess(true);
+            setTimeout(() => onClose(), 1500);
+          }
+        } else {
+          setError('決済情報の取得に失敗しました');
+        }
+      } catch {
+        setError('接続エラーが発生しました');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = urlParams.get('session_id');
     
@@ -40,39 +65,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (view === 'enter-key') {
-      const timer = setTimeout(() => inputRef.current?.focus(), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [view]);
-
-  const handleAutoLogin = async (sessionId: string) => {
-    setIsLoading(true);
-    setError('');
-    
-    try {
-      const response = await fetch(`/api/get-customer?session_id=${sessionId}`);
-      if (response.ok) {
-        const data = await response.json() as { customerId: string };
-        if (data.customerId) {
-          // Save license key to localStorage for future use
-          localStorage.setItem('vip_license_key', data.customerId);
-          unlockVip();
-          setSuccess(true);
-          setTimeout(() => onClose(), 1500);
-        }
-      } else {
-        setError('決済情報の取得に失敗しました');
-      }
-    } catch {
-      setError('接続エラーが発生しました');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [isOpen, onClose, unlockVip]);
 
   const handlePurchase = async (type: 'subscription' | 'onetime') => {
     setIsLoading(true);
