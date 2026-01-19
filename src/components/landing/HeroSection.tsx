@@ -51,7 +51,7 @@ export function HeroSection() {
               </div>
               <div className="flex items-center gap-2 whitespace-nowrap">
                 <CheckCircle2 size={22} className="text-primary shrink-0" />
-                <span>基本利用は無料</span>
+                <span>基本利用無料</span>
               </div>
               <div className="flex items-center gap-2 whitespace-nowrap">
                 <CheckCircle2 size={22} className="text-primary shrink-0" />
