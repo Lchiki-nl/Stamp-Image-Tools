@@ -1,6 +1,12 @@
 import Stripe from 'stripe';
 
-export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) => {
+interface Env {
+  DB: D1Database;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
+}
+
+export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   const sig = request.headers.get('stripe-signature');
 
@@ -12,7 +18,7 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
     return new Response('No signature', { status: 400 });
   }
 
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY as string);
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
   const rawBody = await request.text();
 
   let event: Stripe.Event;
@@ -21,26 +27,24 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
-      env.STRIPE_WEBHOOK_SECRET as string
+      env.STRIPE_WEBHOOK_SECRET
     );
-  } catch (err: any) {
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return new Response(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 
   try {
     const db = env.DB;
 
-    // Handle the event
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         
-        // ユーザー情報の取得 (顧客作成時に入力されたもの)
         const customerId = session.customer as string;
         const email = session.customer_details?.email;
         const subscriptionId = session.subscription as string | null;
         
-        // modeによる判定 (subscription vs payment)
         let type = 'subscription';
         let status = 'active';
 
@@ -52,7 +56,6 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
         if (customerId && email) {
           const now = Math.floor(Date.now() / 1000);
           
-          // UPSERT (存在すれば更新、なければ挿入)
           await db.prepare(`
             INSERT INTO paid_users (id, email, type, status, subscription_id, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -78,7 +81,7 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
-        const status = subscription.status; // active, past_due, canceled, etc.
+        const status = subscription.status;
         const now = Math.floor(Date.now() / 1000);
 
         await db.prepare(`
@@ -110,7 +113,7 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
       headers: { 'Content-Type': 'application/json' },
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Database Error:', err);
     return new Response('Internal Server Error', { status: 500 });
   }

@@ -1,14 +1,16 @@
-export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) => {
+interface Env {
+  DB: D1Database;
+}
+
+export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   
-  // Rate Limiting
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   const db = env.DB;
   const now = Math.floor(Date.now() / 1000);
   const oneMinuteAgo = now - 60;
 
   try {
-    // Check request count from this IP in the last minute
     const result = await db.prepare(
       "SELECT count(*) as c FROM access_logs WHERE ip = ? AND created_at > ?"
     ).bind(ip, oneMinuteAgo).first('c') as number;
@@ -20,7 +22,6 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
       });
     }
 
-    // Log this request (async - don't await strictly if not needed, but here we await for simplicity/consistency)
     await db.prepare("INSERT INTO access_logs (ip, created_at) VALUES (?, ?)").bind(ip, now).run();
 
     const body = await request.json() as { key: string };
@@ -30,7 +31,6 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
       return new Response(JSON.stringify({ error: 'License key is required' }), { status: 400 });
     }
 
-    // Verify key in D1
     const user = await db.prepare("SELECT * FROM paid_users WHERE id = ?").bind(licenseKey).first();
 
     if (!user) {
@@ -41,7 +41,6 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
     }
 
     const userData = user as any;
-    // Check status
     if (userData.status === 'active' || userData.status === 'lifetime') {
       return new Response(JSON.stringify({ valid: true, type: userData.type }), { 
         headers: { 'Content-Type': 'application/json' }
@@ -53,7 +52,8 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
       headers: { 'Content-Type': 'application/json' }
     });
 
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 };

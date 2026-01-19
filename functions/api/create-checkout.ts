@@ -1,6 +1,13 @@
 import Stripe from 'stripe';
 
-export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) => {
+interface Env {
+  DB: D1Database;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_PRICE_ID_SUBSCRIPTION: string;
+  STRIPE_PRICE_ID_ONETIME: string;
+}
+
+export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const { request, env } = context;
     const body = await request.json() as { type: 'subscription' | 'onetime' };
@@ -12,21 +19,11 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
       });
     }
 
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY as string);
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
     const origin = new URL(request.url).origin;
 
-    // Define Price IDs (These should ideally come from env vars or constants)
-    // NOTE: User needs to replace these with actual Price IDs from Stripe Dashboard if not using lookup_key
-    // For this implementation, we'll assume the user will set these in .dev.vars or we receive them, 
-    // OR we use lookup_keys if set. 
-    // Let's use Environment Variables for Price IDs for flexibility.
-    const MONTHLY_PRICE_ID = env.STRIPE_PRICE_ID_SUBSCRIPTION as string;
-    const ONETIME_PRICE_ID = env.STRIPE_PRICE_ID_ONETIME as string;
-
-    if (!MONTHLY_PRICE_ID || !ONETIME_PRICE_ID) {
-       // Fallback or Error if not provided? 
-       // For now, let's log usage of placeholders if missing, but ideally they must exist.
-    }
+    const MONTHLY_PRICE_ID = env.STRIPE_PRICE_ID_SUBSCRIPTION;
+    const ONETIME_PRICE_ID = env.STRIPE_PRICE_ID_ONETIME;
 
     const priceId = body.type === 'subscription' ? MONTHLY_PRICE_ID : ONETIME_PRICE_ID;
 
@@ -44,14 +41,15 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
       ],
       success_url: `${origin}/?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/`,
-      automatic_tax: { enabled: true }, // Optional
+      automatic_tax: { enabled: true },
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

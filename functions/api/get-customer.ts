@@ -1,6 +1,11 @@
 import Stripe from 'stripe';
 
-export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) => {
+interface Env {
+  DB: D1Database;
+  STRIPE_SECRET_KEY: string;
+}
+
+export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
   const url = new URL(request.url);
   const sessionId = url.searchParams.get('session_id');
@@ -13,11 +18,10 @@ export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) =
     return new Response(JSON.stringify({ error: 'Session ID is required' }), { status: 400 });
   }
 
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY as string);
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    // ensure customer exists
     if (!session.customer) {
         return new Response(JSON.stringify({ error: 'No customer found for this session' }), { status: 404 });
     }
@@ -25,7 +29,8 @@ export const onRequestGet: PagesFunction<{ DB: D1Database }> = async (context) =
     return new Response(JSON.stringify({ customerId: session.customer }), {
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 400 });
   }
 };

@@ -1,13 +1,18 @@
 import Stripe from 'stripe';
 
-export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) => {
+interface Env {
+  DB: D1Database;
+  STRIPE_SECRET_KEY: string;
+}
+
+export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
   if (!env.STRIPE_SECRET_KEY) {
     return new Response(JSON.stringify({ error: 'Stripe configuration missing' }), { status: 500 });
   }
 
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY as string);
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
   const origin = new URL(request.url).origin;
   
   try {
@@ -26,8 +31,9 @@ export const onRequestPost: PagesFunction<{ DB: D1Database }> = async (context) 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { 
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), { 
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
