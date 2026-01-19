@@ -56,7 +56,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
             localStorage.setItem('vip_license_key', data.customerId);
             unlockVip();
             setSuccess(true);
-            setTimeout(() => onClose(), 1500);
+            // setTimeout(() => onClose(), 1500); // Removed auto-close
           }
         } else {
           try {
@@ -233,10 +233,48 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
           </div>
 
           {success ? (
-            <div className="flex flex-col items-center justify-center py-8 animate-in zoom-in duration-300">
-              <CheckCircle2 size={48} className="text-green-500 mb-4" />
-              <p className="text-lg font-bold text-gray-800">認証成功！</p>
-              <p className="text-sm text-gray-500 mt-2">VIP機能へアクセスします...</p>
+            <div className="flex flex-col items-center justify-center py-6 animate-in zoom-in duration-300 w-full">
+              <CheckCircle2 size={48} className="text-green-500 mb-2" />
+              <p className="text-xl font-bold text-gray-800 mb-4">認証成功！</p>
+              
+              <div className="bg-amber-50 rounded-xl p-4 w-full mb-6 border border-amber-100">
+                <p className="text-xs font-bold text-amber-800 text-center mb-2">
+                  重要：ライセンスキーを保存してください
+                </p>
+                <div className="bg-white rounded-lg border border-amber-200 p-2 flex items-center justify-between gap-2">
+                   <code className="flex-1 font-mono text-xs text-gray-600 truncate">
+                      {typeof window !== 'undefined' ? localStorage.getItem('vip_license_key') : '...'}
+                   </code>
+                   <button 
+                    onClick={() => {
+                      const key = localStorage.getItem('vip_license_key') || '';
+                      if (key) {
+                        navigator.clipboard.writeText(key);
+                        alert('コピーしました！');
+                      }
+                    }}
+                    className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded hover:bg-amber-200 transition-colors whitespace-nowrap"
+                   >
+                     コピー
+                   </button>
+                </div>
+                 <p className="text-[10px] text-amber-600/70 text-center mt-2 leading-tight">
+                    ※ 機種変更時や再ログイン時に必要になります。<br/>
+                    ※ メモ帳などに貼り付けて保管してください。
+                 </p>
+              </div>
+
+              <div className="space-y-3 w-full">
+                <button 
+                  onClick={onClose}
+                  className="w-full py-3 rounded-xl bg-amber-500 text-white font-bold shadow-lg shadow-amber-200 hover:bg-amber-600 transition-all"
+                >
+                  はじめる
+                </button>
+                <p className="text-xs text-center text-gray-400">
+                  ※ 右上のVIPボタンからいつでも確認できます
+                </p>
+              </div>
             </div>
           ) : isLoading ? (
             <div className="flex flex-col items-center justify-center py-12">
