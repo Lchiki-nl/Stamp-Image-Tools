@@ -61,6 +61,7 @@ export default function LandingPage() {
               <a className="hover:text-primary transition-colors" href="https://note.com/lchiki_nl/m/me2fbf42ae315" target="_blank" rel="noopener noreferrer">作者のnote</a>
               <a className="hover:text-primary transition-colors" href="https://store.line.me/emojishop/author/10517625/ja" target="_blank" rel="noopener noreferrer">作者のLINE絵文字</a>
               <Link className="hover:text-primary transition-colors" href="/how-to-use">使い方ガイド</Link>
+              <Link className="hover:text-primary transition-colors" href="/faq">よくある質問</Link>
               <Link className="hover:text-primary transition-colors" href="/privacy">プライバシーポリシー</Link>
               <Link className="hover:text-primary transition-colors" href="/terms">利用規約</Link>
             </div>
