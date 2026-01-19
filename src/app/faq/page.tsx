@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Smile, HelpCircle, AlertCircle } from 'lucide-react';
+import { Smile, HelpCircle, AlertCircle, Palette, Crown, Lightbulb } from 'lucide-react';
 import { Accordion } from '@/components/ui/Accordion';
 
 export const metadata: Metadata = {
@@ -47,7 +47,8 @@ export default function FAQPage() {
            {/* Usage Section */}
            <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3 pb-3 border-b-2 border-blue-100">
-              <span className="text-2xl">🎨</span> 使い方
+              <Palette className="bg-blue-100 p-1.5 rounded-lg text-blue-600 box-content" size={24} />
+              使い方
             </h2>
             <div className="space-y-4">
               <Accordion title="作成したスタンプ画像が保存できません">
@@ -88,7 +89,8 @@ export default function FAQPage() {
           {/* VIP Plan Section */}
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3 pb-3 border-b-2 border-amber-100">
-              <span className="text-2xl">👑</span> VIPプランについて
+              <Crown className="bg-amber-100 p-1.5 rounded-lg text-amber-600 box-content" size={24} />
+              VIPプランについて
             </h2>
             <div className="space-y-4">
               <Accordion title="VIPプランを購入したのにVIP機能が使えません">
@@ -197,7 +199,8 @@ export default function FAQPage() {
           {/* Others Section */}
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3 pb-3 border-b-2 border-green-100">
-              <span className="text-2xl">💡</span> その他
+              <Lightbulb className="bg-green-100 p-1.5 rounded-lg text-green-600 box-content" size={24} />
+              その他
             </h2>
             <div className="space-y-4">
               <Accordion title="無料で使えますか？">
