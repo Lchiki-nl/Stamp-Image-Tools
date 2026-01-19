@@ -84,6 +84,18 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
     }
   }, [isOpen, onClose, unlockVip]);
 
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      // Small timeout to avoid flickering during close (though render is immediate if !isOpen returns null)
+      // Since !isOpen returns null immediately, we can reset state immediately.
+      setSuccess(false);
+      setError('');
+      setLicenseKey('');
+      setIsLoading(false);
+    }
+  }, [isOpen]);
+
   const handlePurchase = async (type: 'subscription' | 'onetime') => {
     setIsLoading(true);
     setError('');
