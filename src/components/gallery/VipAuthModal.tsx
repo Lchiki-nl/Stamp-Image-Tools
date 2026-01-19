@@ -30,8 +30,6 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
   const [isLoading, setIsLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  // ... (inside component)
-
   const handleCopy = () => {
     const key = localStorage.getItem('vip_license_key');
     if (key) {
@@ -41,49 +39,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
     }
   };
 
-  // ...
-
-                {/* Inside success view */}
-                 <div className="bg-white rounded-lg border border-amber-200 p-2 flex items-center justify-between gap-2">
-                    <code className="flex-1 font-mono text-xs text-gray-600 truncate">
-                       {typeof window !== 'undefined' ? localStorage.getItem('vip_license_key') : '...'}
-                    </code>
-                    <button 
-                     onClick={handleCopy}
-                     className={`text-xs font-bold px-2 py-1 rounded transition-colors whitespace-nowrap ${
-                       copySuccess 
-                         ? 'bg-green-100 text-green-600' 
-                         : 'bg-amber-100 text-amber-600 hover:bg-amber-200'
-                     }`}
-                    >
-                      {copySuccess ? '完了!' : 'コピー'}
-                    </button>
-                 </div>
-
-  // ...
-
-                {/* Inside manage view */}
-                <div className="bg-white/80 rounded-lg p-3 border border-green-200">
-                  <p className="text-xs text-green-800 font-bold mb-1 text-center">あなたのライセンスキー</p>
-                  <button 
-                    onClick={handleCopy}
-                    className="w-full flex items-center justify-between bg-green-100/50 px-3 py-2 rounded border border-green-200 group hover:bg-green-100 transition-colors"
-                  >
-                    <code className="text-xs font-mono text-green-900 truncate flex-1 text-left">
-                      {typeof window !== 'undefined' ? localStorage.getItem('vip_license_key') : '...'}
-                    </code>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ml-2 transition-all ${
-                        copySuccess
-                            ? 'bg-green-500 text-white border-green-600'
-                            : 'bg-white text-green-600 border-green-200 group-hover:bg-green-50'
-                    }`}>
-                      {copySuccess ? '完了!' : 'コピー'}
-                    </span>
-                  </button>
-                  <p className="text-[10px] text-green-600 mt-1.5 leading-tight text-center">
-                    ※ 機種変更時などに必要になります。<br/>大切に保管してください。
-                  </p>
-                </div>
+  useEffect(() => {
     if (isOpen) {
         if (isVip && !success && view !== 'manage') {
             setView('manage');
@@ -304,7 +260,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                     className={`text-xs font-bold px-2 py-1 rounded transition-colors whitespace-nowrap ${
                        copySuccess 
                          ? 'bg-green-100 text-green-600' 
-                         : 'text-amber-600 bg-amber-100 hover:bg-amber-200'
+                         : 'bg-amber-100 text-amber-600 hover:bg-amber-200'
                      }`}
                    >
                      {copySuccess ? '完了!' : 'コピー'}
