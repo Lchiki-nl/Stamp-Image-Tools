@@ -8,17 +8,122 @@ interface VipAuthModalProps {
   onAuthenticate?: (password: string) => boolean;
 }
 
-  type ViewType = 'guide' | 'purchase' | 'confirmation' | 'enter-key' | 'manage';
+type ViewType = 'guide' | 'purchase' | 'confirmation' | 'enter-key' | 'manage';
+
+/**
+ * VIP Authentication Modal with Stripe Integration
+ * 
+ * Flows:
+ * 1. New User: Guide -> Purchase -> (Stripe Checkout) -> Auto-login
+ * 2. Existing User: Guide -> Enter Key -> Verify -> Login
+ * 3. VIP User: Manage (Link to Portal)
+ * 4. Post-Checkout: Automatically detect session_id and login
+ */
+export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'guide' }: VipAuthModalProps & { initialView?: ViewType }) {
+  const { isVip, unlockVip } = useVipStatus();
+  // VIPなら管理画面、そうでなければ指定された初期画面
+  const [view, setView] = useState<ViewType>(initialView);
+  const [licenseKey, setLicenseKey] = useState('');
+  const [error, setError] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [planType, setPlanType] = useState<'subscription' | 'onetime' | null>(null);
 
   // State for Confirmation Flow
   const [selectedPlanForConfirmation, setSelectedPlanForConfirmation] = useState<'subscription' | 'onetime' | null>(null);
   const [isAgreed, setIsAgreed] = useState(false);
 
-  const startPurchaseFlow = (type: 'subscription' | 'onetime') => {
-    setSelectedPlanForConfirmation(type);
-    setIsAgreed(false);
-    setView('confirmation');
+  // Load planType from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('vip_plan_type');
+    if (stored === 'subscription' || stored === 'onetime') {
+      setPlanType(stored);
+    }
+  }, []);
+
+  const handleCopy = () => {
+    const key = localStorage.getItem('vip_license_key');
+    if (key) {
+      navigator.clipboard.writeText(key);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+        if (isVip && !success && view !== 'manage') {
+            setView('manage');
+        } else if (!isVip && view === 'manage') {
+            setView('guide');
+        }
+    }
+  }, [isOpen, isVip, success, view]);
+
+  // Check for session_id in URL (post-checkout auto-login)
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleAutoLogin = async (sessionId: string) => {
+      setIsLoading(true);
+      setError('');
+      
+      try {
+        const response = await fetch(`/api/get-customer?session_id=${sessionId}`);
+        if (response.ok) {
+          const data = await response.json() as { customerId: string; planType?: string };
+          if (data.customerId) {
+            // Save license key and plan type to localStorage
+            localStorage.setItem('vip_license_key', data.customerId);
+            if (data.planType) {
+              localStorage.setItem('vip_plan_type', data.planType);
+              setPlanType(data.planType as 'subscription' | 'onetime');
+            }
+            unlockVip();
+            setSuccess(true);
+            // setTimeout(() => onClose(), 1500); // Removed auto-close
+          }
+        } else {
+          try {
+            const errComp = await response.json() as { error?: string };
+            setError(errComp.error || `決済情報の取得に失敗しました (${response.status})`);
+          } catch {
+            setError(`決済情報の取得に失敗しました (${response.status})`);
+          }
+        }
+      } catch {
+        setError('接続エラーが発生しました');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    
+    if (sessionId) {
+      handleAutoLogin(sessionId);
+      // Clean up URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [isOpen, onClose, unlockVip]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      // Small timeout to avoid flickering during close (though render is immediate if !isOpen returns null)
+      // Since !isOpen returns null immediately, we can reset state immediately.
+      setSuccess(false);
+      setError('');
+      setLicenseKey('');
+      setIsLoading(false);
+      setSelectedPlanForConfirmation(null);
+      setIsAgreed(false);
+    }
+  }, [isOpen]);
 
   const handleFinalPurchase = async () => {
     if (!selectedPlanForConfirmation || !isAgreed) return;
@@ -318,7 +423,12 @@ interface VipAuthModalProps {
                 {/* 月額プランユーザーのみ: 買い切りに切り替えボタン */}
                 {planType === 'subscription' && (
                   <button
-                    onClick={() => handlePurchase('onetime')}
+                    onClick={() => {
+                        // Switch to purchase view but preset for onetime upgrade
+                        setView('purchase');
+                        setSelectedPlanForConfirmation('onetime');
+                        setIsAgreed(false);
+                    }}
                     className="w-full py-3 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg shadow-amber-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
                   >
                     <ArrowUpCircle size={18} />
@@ -344,145 +454,240 @@ interface VipAuthModalProps {
               </div>
             </div>
           ) : view === 'purchase' ? (
-            <div className="flex flex-col gap-4 animate-in slide-in-from-right-4 duration-300">
+            <div className="flex flex-col gap-4 animate-in slide-in-from-right-4 duration-300 max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center gap-2 mb-2 sticky top-0 bg-white/95 backdrop-blur-sm z-20 py-2 border-b border-gray-100">
+                 <button
+                    onClick={() => setView('guide')}
+                    className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                    <ArrowRight size={20} className="rotate-180 text-gray-500" />
+                </button>
+                <h4 className="text-lg font-bold text-gray-800 flex-1 text-center pr-8">プランを選択</h4>
+              </div>
+
+              <div className="flex flex-col gap-3 px-1 pb-4">
+                {/* Subscription Plan Card */}
+                <button
+                  onClick={() => {
+                    setSelectedPlanForConfirmation('subscription');
+                    setIsAgreed(false);
+                    setTimeout(() => {
+                        const element = document.getElementById('confirmation-area');
+                        element?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className={`p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden group w-full
+                    ${selectedPlanForConfirmation === 'subscription' 
+                      ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-500/20 shadow-md transform scale-[1.02]' 
+                      : 'border-gray-200 hover:border-amber-300 hover:bg-amber-50/30'
+                    }
+                  `}
+                >
+                  <div className="flex justify-between items-center mb-1 relative z-10">
+                    <span className={`font-bold ${selectedPlanForConfirmation === 'subscription' ? 'text-amber-900' : 'text-gray-700'}`}>月額プラン</span>
+                    <span className="text-amber-600 font-black text-lg">¥100<span className="text-xs font-normal text-gray-500 ml-1">/月</span></span>
+                  </div>
+                  <p className="text-xs text-gray-500 relative z-10">お試しに最適・いつでも解約可能</p>
+                  {selectedPlanForConfirmation === 'subscription' && (
+                    <div className="absolute right-[-10px] bottom-[-10px] text-amber-500 opacity-10 transform rotate-[-15deg]">
+                      <Crown size={80} />
+                    </div>
+                  )}
+                  {selectedPlanForConfirmation === 'subscription' && (
+                      <div className="absolute right-3 top-3 text-amber-500 animate-in zoom-in duration-200">
+                          <CheckCircle2 size={24} className="fill-amber-500 text-white" />
+                      </div>
+                  )}
+                </button>
+
+                {/* One-time Plan Card */}
+                <button
+                  onClick={() => {
+                    setSelectedPlanForConfirmation('onetime');
+                    setIsAgreed(false);
+                    setTimeout(() => {
+                        const element = document.getElementById('confirmation-area');
+                        element?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className={`p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden group w-full
+                    ${selectedPlanForConfirmation === 'onetime' 
+                      ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500/20 shadow-md transform scale-[1.02]' 
+                      : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/30'
+                    }
+                  `}
+                >
+                  <div className="flex justify-between items-center mb-1 relative z-10">
+                    <span className={`font-bold ${selectedPlanForConfirmation === 'onetime' ? 'text-purple-900' : 'text-gray-700'}`}>買い切りプラン</span>
+                    <span className="text-purple-600 font-black text-lg">¥500<span className="text-xs font-normal text-gray-500 ml-1">(一回払い)</span></span>
+                  </div>
+                  <p className="text-xs text-gray-500 relative z-10">ずっと使える・追加費用なし</p>
+                  {selectedPlanForConfirmation === 'onetime' && (
+                     <div className="absolute right-[-10px] bottom-[-10px] text-purple-500 opacity-10 transform rotate-[-15deg]">
+                      <Sparkles size={80} />
+                    </div>
+                  )}
+                   {selectedPlanForConfirmation === 'onetime' && (
+                      <div className="absolute right-3 top-3 text-purple-500 animate-in zoom-in duration-200">
+                          <CheckCircle2 size={24} className="fill-purple-500 text-white" />
+                      </div>
+                  )}
+                </button>
+              </div>
+
+              {/* Confirmation Details (Appears below) */}
+              {selectedPlanForConfirmation && (
+                <div id="confirmation-area" className="animate-in slide-in-from-top-4 fade-in duration-500 space-y-4 pt-4 border-t-2 border-dashed border-gray-100 mt-2 px-1 pb-2">
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="bg-gray-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">確認</span>
+                        <h5 className="text-sm font-bold text-gray-800">お申し込み内容の確認</h5>
+                    </div>
+
+                    {/* Legal Info Box */}
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs text-gray-600 space-y-3 leading-relaxed">
+                        <div>
+                            <span className="font-bold text-gray-800 block mb-1">【お支払い金額】</span>
+                            <span className={`text-lg font-black ${selectedPlanForConfirmation === 'subscription' ? 'text-amber-600' : 'text-purple-600'}`}>
+                                {selectedPlanForConfirmation === 'subscription' ? '¥100 (税込) / 月' : '¥500 (税込) / 一回払い'}
+                            </span>
+                        </div>
+                        <div>
+                            <span className="font-bold text-gray-800 block mb-1">【{selectedPlanForConfirmation === 'subscription' ? '更新・解約' : '契約期間'}】</span>
+                            {selectedPlanForConfirmation === 'subscription'
+                            ? '即時決済され、以降1ヶ月ごとに自動更新。マイページからいつでも解約可能（次回更新日の前日まで）。'
+                            : '即時決済。追加費用なしで永続的に利用可能です。'
+                            }
+                        </div>
+                            <div>
+                            <span className="font-bold text-gray-800 block mb-1">【返金ポリシー】</span>
+                            デジタルコンテンツのため、決済完了後の返金は原則不可となります。
+                        </div>
+                        <div className="pt-2 border-t border-gray-200 mt-2">
+                            <span className="font-bold text-gray-800">事業者</span>: Nashiki Leon / <a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">お問い合わせ</a>
+                        </div>
+                    </div>
+
+                    {/* Agreement Checkbox */}
+                    <label className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-200 select-none group">
+                        <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-all shrink-0 ${isAgreed ? 'bg-primary border-primary scale-110' : 'bg-white border-gray-300 group-hover:border-primary'}`}>
+                            {isAgreed && <Check size={14} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <input 
+                            type="checkbox" 
+                            className="hidden"
+                            checked={isAgreed}
+                            onChange={(e) => setIsAgreed(e.target.checked)}
+                        />
+                        <span className="text-xs text-gray-600 leading-tight pt-0.5">
+                            <a href="/terms" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>利用規約</a>
+                            および
+                            <a href="/privacy" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>プライバシーポリシー</a>
+                            に同意します。
+                        </span>
+                    </label>
+
+                    {/* Final Purchase Button */}
+                    <button
+                        onClick={handleFinalPurchase}
+                        disabled={!isAgreed || isLoading}
+                        className={`w-full py-4 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
+                            ${!isAgreed 
+                                ? 'bg-gray-300 text-gray-500' 
+                                : 'bg-primary text-white shadow-primary/30 hover:bg-primary-dark hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md'
+                            }
+                        `}
+                    >
+                        {isLoading ? (
+                        <>
+                            <Loader2 size={20} className="animate-spin" />
+                            処理中...
+                        </>
+                        ) : (
+                        <>
+                            決済へ進む
+                            <ArrowRight size={20} />
+                        </>
+                        )}
+                    </button>
+                    
+                    <p className="text-[10px] text-gray-400 text-center">
+                        ボタンを押すとStripeの決済ページへ移動します
+                    </p>
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-red-50 text-red-500 text-xs font-bold p-3 rounded-lg text-center animate-pulse mx-1">
+                    {error}
+                </div>
+              )}
+            </div>
+          ) : (
+            <form onSubmit={handleVerifyLicense} className="space-y-4 animate-in slide-in-from-right-4 duration-300">
               <button
+                type="button"
                 onClick={() => setView('guide')}
                 className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-2"
               >
                 ← 戻る
               </button>
 
-              <div className="text-center mb-2">
-                <h4 className="text-lg font-bold text-gray-800">プランを選択</h4>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-600">ライセンスキーを入力</label>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  autoComplete="off"
+                  name="license-key"
+                  value={licenseKey}
+                  onChange={(e) => {
+                    setLicenseKey(e.target.value);
+                    setError('');
+                  }}
+                  className={`w-full px-4 py-3 rounded-xl border-2 font-mono text-sm outline-none transition-all
+                    ${error 
+                      ? 'border-red-300 bg-red-50 text-red-600 focus:border-red-500' 
+                      : 'border-gray-200 bg-gray-50 text-gray-800 focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-500/20'
+                    }
+                  `}
+                  placeholder="cus_xxxxxxxxxxxxx"
+                />
+                {error && (
+                  <p className="text-xs font-bold text-red-500 flex items-center gap-1 animate-in slide-in-from-top-1">
+                    {error}
+                  </p>
+                )}
               </div>
 
-              {/* Subscription Plan */}
               <button
-                onClick={() => handlePurchase('subscription')}
-                className="p-4 rounded-xl border-2 border-amber-400 bg-amber-50 hover:bg-amber-100 transition-all text-left"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-gray-800">月額プラン</span>
-                  <span className="text-amber-600 font-black">¥100/月</span>
-                </div>
-                <p className="text-xs text-gray-500">いつでも解約可能</p>
-              </button>
-
-              {/* One-time Plan */}
-              <button
-                onClick={() => handlePurchase('onetime')}
-                className="p-4 rounded-xl border-2 border-purple-400 bg-purple-50 hover:bg-purple-100 transition-all text-left"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-gray-800">買い切りプラン</span>
-                  <span className="text-purple-600 font-black">¥500</span>
-                </div>
-                <p className="text-xs text-gray-500">永久にVIP機能を利用可能</p>
-              </button>
-
-              {error && (
-                <p className="text-xs font-bold text-red-500 text-center">{error}</p>
-              )}
-            </div>
-          ) : (
-            </form>
-          ) : view === 'confirmation' && selectedPlanForConfirmation ? (
-            <div className="flex flex-col gap-4 animate-in slide-in-from-right-4 duration-300">
-               <button
-                onClick={() => setView('purchase')}
-                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-2"
-              >
-                ← 戻る
-              </button>
-
-              <div className="text-center mb-1">
-                <h4 className="text-lg font-bold text-gray-800">申し込み内容の確認</h4>
-              </div>
-
-               {/* Plan Summary Card */}
-              <div className={`p-4 rounded-xl border-2 ${selectedPlanForConfirmation === 'subscription' ? 'border-amber-400 bg-amber-50' : 'border-purple-400 bg-purple-50'} shadow-sm`}>
-                 <div className="flex justify-between items-end mb-2 border-b border-gray-200/50 pb-2">
-                    <span className="font-bold text-gray-700 text-sm">プラン名</span>
-                    <span className="font-bold text-gray-900">
-                        {selectedPlanForConfirmation === 'subscription' ? 'VIPプラン (月額)' : 'VIPプラン (買い切り)'}
-                    </span>
-                 </div>
-                 <div className="flex justify-between items-end mb-2 border-b border-gray-200/50 pb-2">
-                    <span className="font-bold text-gray-700 text-sm">支払い金額</span>
-                    <div className="text-right">
-                        <span className={`text-xl font-black ${selectedPlanForConfirmation === 'subscription' ? 'text-amber-600' : 'text-purple-600'}`}>
-                            {selectedPlanForConfirmation === 'subscription' ? '¥100' : '¥500'}
-                        </span>
-                        <span className="text-xs text-gray-500 font-bold ml-1">(税込)</span>
-                    </div>
-                 </div>
-                 <div className="flex justify-between items-start">
-                    <span className="font-bold text-gray-700 text-sm shrink-0">支払時期</span>
-                    <span className="text-xs text-gray-600 text-right font-medium">
-                        {selectedPlanForConfirmation === 'subscription' 
-                            ? '初回は即時決済。以降は1ヶ月ごとの自動更新となります。' 
-                            : '即時決済 (1回のみ)。追加請求はありません。'}
-                    </span>
-                 </div>
-              </div>
-
-              {/* Legal Info */}
-              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 text-[11px] text-gray-500 space-y-2 leading-relaxed">
-                  <p>
-                      <span className="font-bold text-gray-700">【解約・更新について】</span><br/>
-                      {selectedPlanForConfirmation === 'subscription'
-                        ? 'マイページの「解約」ボタンからいつでも解約可能です。次回更新日の前日までに解約すれば、翌月分の請求は発生しません。'
-                        : '買い切りプランのため、更新や解約の手続きはありません。'
-                      }
-                  </p>
-                  <p>
-                      <span className="font-bold text-gray-700">【返品・返金について】</span><br/>
-                      デジタルコンテンツの性質上、決済完了後の返品・返金には原則として応じられません。予めご了承ください。
-                  </p>
-                   <p>
-                      <span className="font-bold text-gray-700">【事業者】</span><br/>
-                      Nashiki Leon (個人運営) / お問い合わせは<a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">こちら</a>
-                  </p>
-              </div>
-
-              {/* Agreement */}
-              <label className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-200">
-                  <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${isAgreed ? 'bg-primary border-primary' : 'bg-white border-gray-300'}`}>
-                      {isAgreed && <Check size={14} className="text-white" strokeWidth={3} />}
-                  </div>
-                  <input 
-                      type="checkbox" 
-                      className="hidden"
-                      checked={isAgreed}
-                      onChange={(e) => setIsAgreed(e.target.checked)}
-                  />
-                  <span className="text-xs text-gray-600 leading-tight">
-                      <a href="/terms" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold">利用規約</a>
-                      および
-                      <a href="/privacy" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold">プライバシーポリシー</a>
-                      の内容を確認し、同意します。
-                  </span>
-              </label>
-
-               <button
-                onClick={handleFinalPurchase}
-                disabled={!isAgreed || isLoading}
-                className="w-full py-3.5 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:bg-primary-dark hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                type="submit"
+                disabled={!licenseKey || isLoading}
+                className="w-full py-3 rounded-xl bg-amber-500 text-white font-bold shadow-lg shadow-amber-200 hover:bg-amber-600 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    処理中...
+                    確認中...
                   </>
                 ) : (
                   <>
-                    決済へ進む
+                    ロック解除
                     <ArrowRight size={18} />
                   </>
                 )}
               </button>
-            </div>
-          ) : (
+
+              <button
+                type="button"
+                onClick={handleOpenPortal}
+                className="w-full py-2 text-sm text-gray-500 hover:text-amber-600 flex items-center justify-center gap-2"
+              >
+                <Settings size={14} />
+                契約管理・キー確認
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
