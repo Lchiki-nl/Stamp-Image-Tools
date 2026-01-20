@@ -261,7 +261,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
         onClick={onClose}
       />
 
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100">
+      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2 text-amber-500">
