@@ -34,7 +34,6 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
   // State for Confirmation Flow
   const [selectedPlanForConfirmation, setSelectedPlanForConfirmation] = useState<'subscription' | 'onetime' | null>(null);
   const [isAgreed, setIsAgreed] = useState(false);
-  const [isAgreedOthers, setIsAgreedOthers] = useState(false);
 
   // Load planType from localStorage on mount
   useEffect(() => {
@@ -466,74 +465,52 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                 <h4 className="text-lg font-bold text-gray-800 flex-1 text-center pr-8">プランを選択</h4>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 px-1 pb-4 h-full">
+              <div className="grid grid-cols-2 gap-4 px-2 pb-4 h-full">
                 {/* Subscription Plan Card */}
                 <div
-                  className="flex flex-col p-3 rounded-xl border-2 border-amber-500 bg-amber-50 relative overflow-hidden h-full shadow-sm"
+                  className="flex flex-col p-4 rounded-xl border-2 border-amber-500 bg-amber-50 relative overflow-hidden h-full shadow-sm"
                 >
                    <div className="absolute right-2 top-2 text-amber-500">
                       <Crown size={24} />
                    </div>
 
-                  <div className="flex flex-col items-center text-center w-full mt-2 mb-3">
+                  <div className="flex flex-col items-center text-center w-full mt-2 mb-4">
                     <span className="font-bold text-sm mb-1 text-amber-900">月額プラン</span>
-                    <span className="text-amber-600 font-black text-xl leading-none">¥100<span className="text-[10px] font-normal text-gray-500 block">/月 (税込)</span></span>
+                    <span className="text-amber-600 font-black text-2xl leading-none">¥100<span className="text-xs font-normal text-gray-500 block mt-1">/月 (税込)</span></span>
                   </div>
 
-                  {/* Legal Info */}
-                  <div className="bg-white/60 p-2 rounded-lg border border-amber-100/50 text-[10px] text-gray-600 space-y-2 leading-relaxed flex-1 mb-3">
+                  {/* Plan Specific Info */}
+                  <div className="bg-white/60 p-3 rounded-lg border border-amber-100/50 text-xs text-gray-600 space-y-3 leading-relaxed flex-1 mb-4">
                         <p>
-                            <span className="font-bold text-gray-800 block">【更新・解約】</span>
+                            <span className="font-bold text-gray-800 block mb-0.5">【更新・解約】</span>
                             即時決済・1ヶ月毎自動更新。<br/>
                             契約管理画面からいつでも解約可能（次回更新日前日まで）。
                         </p>
                         <p>
-                            <span className="font-bold text-gray-800 block">【返金】</span>
+                            <span className="font-bold text-gray-800 block mb-0.5">【返金】</span>
                             決済完了後の返金は原則不可。
                         </p>
-                         <div className="pt-1 border-t border-amber-200/50 mt-1">
-                            <span className="font-bold text-gray-800">事業者情報</span>: <a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">フォーム</a>
-                        </div>
                   </div>
-
-                  {/* Agreement Checkbox */}
-                  <label className="flex items-start gap-2 p-2 rounded-lg hover:bg-amber-100/50 transition-colors cursor-pointer mb-3">
-                        <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-all shrink-0 ${isAgreed ? 'bg-amber-500 border-amber-500' : 'bg-white border-gray-300'}`}>
-                            {isAgreed && <Check size={12} className="text-white" strokeWidth={3} />}
-                        </div>
-                        <input 
-                            type="checkbox" 
-                            className="hidden"
-                            checked={isAgreed}
-                            onChange={(e) => {
-                                setIsAgreed(e.target.checked);
-                                setSelectedPlanForConfirmation('subscription');
-                            }}
-                        />
-                        <span className="text-[10px] text-gray-600 leading-tight">
-                            <a href="/terms" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>利用規約</a>・<a href="/privacy" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>プライバシー</a>に同意
-                        </span>
-                    </label>
 
                   <button
                     onClick={() => {
                         setSelectedPlanForConfirmation('subscription');
                         handleFinalPurchase();
                     }}
-                    disabled={!isAgreed || selectedPlanForConfirmation !== 'subscription' || isLoading}
-                    className={`w-full py-2.5 rounded-lg font-bold shadow-md transition-all flex items-center justify-center gap-1.5 text-sm
-                        ${isAgreed && selectedPlanForConfirmation === 'subscription'
+                    disabled={!isAgreed || isLoading}
+                    className={`w-full py-3 rounded-lg font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm
+                        ${isAgreed
                             ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:-translate-y-0.5' 
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }
                     `}
                   >
                     {isLoading && selectedPlanForConfirmation === 'subscription' ? (
-                        <Loader2 size={16} className="animate-spin" />
+                        <Loader2 size={18} className="animate-spin" />
                     ) : (
                         <>
                             申し込む
-                            <ArrowRight size={16} />
+                            <ArrowRight size={18} />
                         </>
                     )}
                   </button>
@@ -541,79 +518,79 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
 
                 {/* One-time Plan Card */}
                  <div
-                  className="flex flex-col p-3 rounded-xl border-2 border-purple-500 bg-purple-50 relative overflow-hidden h-full shadow-sm"
+                  className="flex flex-col p-4 rounded-xl border-2 border-purple-500 bg-purple-50 relative overflow-hidden h-full shadow-sm"
                 >
                    <div className="absolute right-2 top-2 text-purple-500">
                       <Sparkles size={24} />
                    </div>
 
-                  <div className="flex flex-col items-center text-center w-full mt-2 mb-3">
+                  <div className="flex flex-col items-center text-center w-full mt-2 mb-4">
                     <span className="font-bold text-sm mb-1 text-purple-900">買い切りプラン</span>
-                    <span className="text-purple-600 font-black text-xl leading-none">¥500<span className="text-[10px] font-normal text-gray-500 block">/一回払い(税込)</span></span>
+                    <span className="text-purple-600 font-black text-2xl leading-none">¥500<span className="text-xs font-normal text-gray-500 block mt-1">/一回払い(税込)</span></span>
                   </div>
 
-                  {/* Legal Info */}
-                  <div className="bg-white/60 p-2 rounded-lg border border-purple-100/50 text-[10px] text-gray-600 space-y-2 leading-relaxed flex-1 mb-3">
+                  {/* Plan Specific Info */}
+                  <div className="bg-white/60 p-3 rounded-lg border border-purple-100/50 text-xs text-gray-600 space-y-3 leading-relaxed flex-1 mb-4">
                         <p>
-                            <span className="font-bold text-gray-800 block">【契約期間】</span>
+                            <span className="font-bold text-gray-800 block mb-0.5">【契約期間】</span>
                             即時決済。<br/>
                             追加費用なしで永続的に利用可能。
                         </p>
                         <p>
-                            <span className="font-bold text-gray-800 block">【返金】</span>
+                            <span className="font-bold text-gray-800 block mb-0.5">【返金】</span>
                             決済完了後の返金は原則不可。
                         </p>
-                         <div className="pt-1 border-t border-purple-200/50 mt-1">
-                            <span className="font-bold text-gray-800">事業者情報</span>: <a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">フォーム</a>
-                        </div>
                   </div>
-
-                  {/* Agreement Checkbox */}
-                  <label className="flex items-start gap-2 p-2 rounded-lg hover:bg-purple-100/50 transition-colors cursor-pointer mb-3">
-                         <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-all shrink-0 ${isAgreedOthers ? 'bg-purple-500 border-purple-500' : 'bg-white border-gray-300'}`}>
-                            {isAgreedOthers && <Check size={12} className="text-white" strokeWidth={3} />}
-                        </div>
-                        <input 
-                            type="checkbox" 
-                            className="hidden"
-                            checked={isAgreedOthers}
-                            onChange={(e) => {
-                                setIsAgreedOthers(e.target.checked);
-                                setSelectedPlanForConfirmation('onetime');
-                            }}
-                        />
-                        <span className="text-[10px] text-gray-600 leading-tight">
-                            <a href="/terms" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>利用規約</a>・<a href="/privacy" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>プライバシー</a>に同意
-                        </span>
-                    </label>
 
                   <button
                     onClick={() => {
                         setSelectedPlanForConfirmation('onetime');
                         handleFinalPurchase();
                     }}
-                    disabled={!isAgreedOthers || selectedPlanForConfirmation !== 'onetime' || isLoading}
-                    className={`w-full py-2.5 rounded-lg font-bold shadow-md transition-all flex items-center justify-center gap-1.5 text-sm
-                        ${isAgreedOthers && selectedPlanForConfirmation === 'onetime'
+                    disabled={!isAgreed || isLoading}
+                    className={`w-full py-3 rounded-lg font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm
+                        ${isAgreed
                             ? 'bg-linear-to-r from-purple-500 to-indigo-500 text-white hover:shadow-lg hover:-translate-y-0.5' 
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }
                     `}
                   >
                      {isLoading && selectedPlanForConfirmation === 'onetime' ? (
-                        <Loader2 size={16} className="animate-spin" />
+                        <Loader2 size={18} className="animate-spin" />
                     ) : (
                         <>
                             購入する
-                            <ArrowRight size={16} />
+                            <ArrowRight size={18} />
                         </>
                     )}
                   </button>
                 </div>
               </div>
+              
+              {/* Common Legal & Agreement Section */}
+              <div className="px-4 pb-2 text-center text-gray-600">
+                  <label className="inline-flex items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-200 select-none group mb-2">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all shrink-0 ${isAgreed ? 'bg-green-500 border-green-500' : 'bg-white border-gray-300'}`}>
+                            {isAgreed && <Check size={14} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <input 
+                            type="checkbox" 
+                            className="hidden"
+                            checked={isAgreed}
+                            onChange={(e) => setIsAgreed(e.target.checked)}
+                        />
+                        <span className="text-xs leading-tight text-left">
+                            <a href="/terms" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>利用規約</a>・<a href="/privacy" target="_blank" className="text-blue-500 underline hover:text-blue-700 font-bold" onClick={(e) => e.stopPropagation()}>プライバシーポリシー</a>に同意します
+                        </span>
+                  </label>
+                  
+                   <div className="text-[10px] text-gray-400 flex items-center justify-center gap-1">
+                      <span className="font-bold">事業者情報</span>: <a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">お問い合わせフォーム</a>
+                  </div>
+              </div>
 
               {error && (
-                <div className="bg-red-50 text-red-500 text-xs font-bold p-3 rounded-lg text-center animate-pulse mx-1">
+                <div className="bg-red-50 text-red-500 text-xs font-bold p-3 rounded-lg text-center animate-pulse mx-4 mb-4">
                     {error}
                 </div>
               )}
