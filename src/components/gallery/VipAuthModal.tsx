@@ -465,7 +465,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                 <h4 className="text-lg font-bold text-gray-800 flex-1 text-center pr-8">プランを選択</h4>
               </div>
 
-              <div className="flex flex-col gap-3 px-1 pb-4">
+              <div className="grid grid-cols-2 gap-3 px-1 pb-4">
                 {/* Subscription Plan Card */}
                 <button
                   onClick={() => {
@@ -476,27 +476,32 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                         element?.scrollIntoView({ behavior: 'smooth' });
                     }, 100);
                   }}
-                  className={`p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden group w-full
+                  className={`flex flex-col items-center justify-between p-3 rounded-xl border-2 transition-all relative overflow-hidden group w-full h-auto min-h-[140px]
                     ${selectedPlanForConfirmation === 'subscription' 
                       ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-500/20 shadow-md transform scale-[1.02]' 
                       : 'border-gray-200 hover:border-amber-300 hover:bg-amber-50/30'
                     }
                   `}
                 >
-                  <div className="flex justify-between items-center mb-1 relative z-10">
-                    <span className={`font-bold ${selectedPlanForConfirmation === 'subscription' ? 'text-amber-900' : 'text-gray-700'}`}>月額プラン</span>
-                    <span className="text-amber-600 font-black text-lg">¥100<span className="text-xs font-normal text-gray-500 ml-1">/月</span></span>
+                   {selectedPlanForConfirmation === 'subscription' && (
+                      <div className="absolute right-2 top-2 text-amber-500 animate-in zoom-in duration-200 z-20">
+                          <CheckCircle2 size={20} className="fill-amber-500 text-white" />
+                      </div>
+                  )}
+
+                  <div className="relative z-10 flex flex-col items-center text-center w-full mt-2">
+                    <span className={`font-bold text-sm mb-1 ${selectedPlanForConfirmation === 'subscription' ? 'text-amber-900' : 'text-gray-700'}`}>月額プラン</span>
+                    <span className="text-amber-600 font-black text-xl leading-none mb-1">¥100<span className="text-[10px] font-normal text-gray-500 block">/月</span></span>
                   </div>
-                  <p className="text-xs text-gray-500 relative z-10">お試しに最適・いつでも解約可能</p>
+                  
+                  <p className="text-[10px] text-gray-500 relative z-10 font-medium leading-tight mt-1">
+                    お試しに最適<br/>いつでも解約可能
+                  </p>
+                  
                   {selectedPlanForConfirmation === 'subscription' && (
-                    <div className="absolute right-[-10px] bottom-[-10px] text-amber-500 opacity-10 transform rotate-[-15deg]">
+                    <div className="absolute right-[-10px] bottom-[-10px] text-amber-500 opacity-10 transform rotate-[-15deg] pointer-events-none">
                       <Crown size={80} />
                     </div>
-                  )}
-                  {selectedPlanForConfirmation === 'subscription' && (
-                      <div className="absolute right-3 top-3 text-amber-500 animate-in zoom-in duration-200">
-                          <CheckCircle2 size={24} className="fill-amber-500 text-white" />
-                      </div>
                   )}
                 </button>
 
@@ -510,27 +515,32 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                         element?.scrollIntoView({ behavior: 'smooth' });
                     }, 100);
                   }}
-                  className={`p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden group w-full
+                  className={`flex flex-col items-center justify-between p-3 rounded-xl border-2 transition-all relative overflow-hidden group w-full h-auto min-h-[140px]
                     ${selectedPlanForConfirmation === 'onetime' 
                       ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500/20 shadow-md transform scale-[1.02]' 
                       : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/30'
                     }
                   `}
                 >
-                  <div className="flex justify-between items-center mb-1 relative z-10">
-                    <span className={`font-bold ${selectedPlanForConfirmation === 'onetime' ? 'text-purple-900' : 'text-gray-700'}`}>買い切りプラン</span>
-                    <span className="text-purple-600 font-black text-lg">¥500<span className="text-xs font-normal text-gray-500 ml-1">(一回払い)</span></span>
+                   {selectedPlanForConfirmation === 'onetime' && (
+                      <div className="absolute right-2 top-2 text-purple-500 animate-in zoom-in duration-200 z-20">
+                          <CheckCircle2 size={20} className="fill-purple-500 text-white" />
+                      </div>
+                  )}
+
+                  <div className="relative z-10 flex flex-col items-center text-center w-full mt-2">
+                    <span className={`font-bold text-sm mb-1 ${selectedPlanForConfirmation === 'onetime' ? 'text-purple-900' : 'text-gray-700'}`}>買い切りプラン</span>
+                    <span className="text-purple-600 font-black text-xl leading-none mb-1">¥500<span className="text-[10px] font-normal text-gray-500 block">一回払い</span></span>
                   </div>
-                  <p className="text-xs text-gray-500 relative z-10">ずっと使える・追加費用なし</p>
+
+                  <p className="text-[10px] text-gray-500 relative z-10 font-medium leading-tight mt-1">
+                    ずっと使える<br/>追加費用なし
+                  </p>
+
                   {selectedPlanForConfirmation === 'onetime' && (
-                     <div className="absolute right-[-10px] bottom-[-10px] text-purple-500 opacity-10 transform rotate-[-15deg]">
+                     <div className="absolute right-[-10px] bottom-[-10px] text-purple-500 opacity-10 transform rotate-[-15deg] pointer-events-none">
                       <Sparkles size={80} />
                     </div>
-                  )}
-                   {selectedPlanForConfirmation === 'onetime' && (
-                      <div className="absolute right-3 top-3 text-purple-500 animate-in zoom-in duration-200">
-                          <CheckCircle2 size={24} className="fill-purple-500 text-white" />
-                      </div>
                   )}
                 </button>
               </div>
