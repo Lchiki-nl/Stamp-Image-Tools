@@ -45,6 +45,8 @@ next-env.d.ts
 .docs
 .GEMINI.md
 task.md
+RELEASE_CHECKLIST.md
+STRIPE_INTEGRATION.md
 
 # Editors
 .vscode
