@@ -523,7 +523,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                     disabled={!isAgreed || selectedPlanForConfirmation !== 'subscription' || isLoading}
                     className={`w-full py-2.5 rounded-lg font-bold shadow-md transition-all flex items-center justify-center gap-1.5 text-sm
                         ${isAgreed && selectedPlanForConfirmation === 'subscription'
-                            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:-translate-y-0.5' 
+                            ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:-translate-y-0.5' 
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }
                     `}
@@ -595,7 +595,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                     disabled={!isAgreedOthers || selectedPlanForConfirmation !== 'onetime' || isLoading}
                     className={`w-full py-2.5 rounded-lg font-bold shadow-md transition-all flex items-center justify-center gap-1.5 text-sm
                         ${isAgreedOthers && selectedPlanForConfirmation === 'onetime'
-                            ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:shadow-lg hover:-translate-y-0.5' 
+                            ? 'bg-linear-to-r from-purple-500 to-indigo-500 text-white hover:shadow-lg hover:-translate-y-0.5' 
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }
                     `}
