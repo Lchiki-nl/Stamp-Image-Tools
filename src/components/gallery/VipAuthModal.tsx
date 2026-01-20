@@ -555,7 +555,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                         <div>
                             <span className="font-bold text-gray-800 block mb-1">【{selectedPlanForConfirmation === 'subscription' ? '更新・解約' : '契約期間'}】</span>
                             {selectedPlanForConfirmation === 'subscription'
-                            ? '即時決済され、以降1ヶ月ごとに自動更新。マイページからいつでも解約可能（次回更新日の前日まで）。'
+                            ? '即時決済され、以降1ヶ月ごとに自動更新。契約管理画面からいつでも解約可能（次回更新日の前日まで）。'
                             : '即時決済。追加費用なしで永続的に利用可能です。'
                             }
                         </div>
@@ -564,7 +564,7 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                             デジタルコンテンツのため、決済完了後の返金は原則不可となります。
                         </div>
                         <div className="pt-2 border-t border-gray-200 mt-2">
-                            <span className="font-bold text-gray-800">事業者</span>: Nashiki Leon / <a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">お問い合わせ</a>
+                            <span className="font-bold text-gray-800">事業者情報</span>: <a href="https://forms.gle/ZHXoTYuuEW8rfVrw9" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">お問い合わせフォーム</a>
                         </div>
                     </div>
 
