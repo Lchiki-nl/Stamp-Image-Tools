@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles, Loader2, CreditCard, Key, Settings, ArrowUpCircle, Check } from 'lucide-react';
+import { X, Lock, CheckCircle2, ArrowRight, Crown, Sparkles, Loader2, CreditCard, Key, Settings, ArrowUpCircle, Check, Gem, Infinity } from 'lucide-react';
 import { useVipStatus } from '@/hooks/useVipStatus';
 
 interface VipAuthModalProps {
@@ -472,8 +472,8 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                 <div
                   className="flex flex-col p-4 rounded-xl border-2 border-amber-500 bg-amber-50 relative overflow-hidden h-full shadow-sm"
                 >
-                   <div className="absolute right-2 top-2 text-amber-500">
-                      <Crown size={24} />
+                   <div className="absolute right-2 top-2 text-amber-500 bg-amber-100 p-1.5 rounded-full">
+                      <Gem size={20} />
                    </div>
 
                   <div className="flex flex-col items-center text-center w-full mt-2 mb-4">
@@ -522,8 +522,8 @@ export function VipAuthModal({ isOpen, onClose, onAuthenticate, initialView = 'g
                  <div
                   className="flex flex-col p-4 rounded-xl border-2 border-purple-500 bg-purple-50 relative overflow-hidden h-full shadow-sm"
                 >
-                   <div className="absolute right-2 top-2 text-purple-500">
-                      <Sparkles size={24} />
+                   <div className="absolute right-2 top-2 text-purple-500 bg-purple-100 p-1.5 rounded-full">
+                      <Infinity size={20} />
                    </div>
 
                   <div className="flex flex-col items-center text-center w-full mt-2 mb-4">
