@@ -21,8 +21,8 @@ export function AdvantagesSection() {
           {[
             {
               icon: Lock,
-              title: "画像は送られません",
-              description: "サーバーへのアップロード不要！あなたのブラウザの中で処理が完結するので、大事なイラストが流出する心配はありません。",
+              title: "画像は保存されません",
+              description: "サーバーに画像が保存されることは一切ありません。プライバシー最優先の設計により、処理完了後はデータが即座に破棄されるため、安心してお使いいただけます。",
               color: "text-primary",
             },
             {

@@ -25,7 +25,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">1. 個人情報の収集について</h2>
             <p className="mb-4">
-              基本機能（画像加工など）の利用において、アップロードされた画像データはユーザーのブラウザ内でのみ処理され、サーバーに保存されることはありません。
+              画像データによる加工処理において、当サービスのサーバーに画像データが保存されることは一切ありません。高精度AI機能など一部の処理環境においても、データは処理直後に即座に破棄され、保持されることはありません。
             </p>
             <p className="mb-2 font-bold text-text-sub">有料プラン（VIPプラン）ご利用時：</p>
             <ul className="list-disc list-inside space-y-2 ml-4 mb-4 text-text-sub">

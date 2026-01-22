@@ -54,7 +54,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold mb-4 border-b border-gray-100 pb-2">4. 著作権</h2>
             <p>
               ユーザーが加工した画像の著作権は、ユーザー自身または元の権利者に帰属します。
-              本サービスが、加工された画像に関する著作権を取得することはありません。
+              本サービスが、加工された画像に関する著作権を取得することはなく、また<strong>加工のために送信された画像データをサーバー等に保存・保持することも一切ありません。</strong>
             </p>
           </section>
 

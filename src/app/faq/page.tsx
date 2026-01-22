@@ -91,6 +91,15 @@ export default function FAQPage() {
                   </p>
                 </div>
               </Accordion>
+
+              <Accordion title="アップロードした画像が流出したり、保存されたりしませんか？">
+                <p className="text-sm leading-relaxed text-gray-600">
+                  いいえ、<strong>画像が保存されることはありません。</strong>
+                  <br className="mb-2"/>
+                  すべての処理は一時的なものであり、加工完了後にデータは即座に・完全に削除されます。
+                  当サービスのサーバーに画像が残ることは一切ありませんので、安心してご利用ください。
+                </p>
+              </Accordion>
             </div>
           </section>
 
